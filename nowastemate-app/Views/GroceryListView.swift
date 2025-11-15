@@ -11,20 +11,32 @@ struct GroceryListView: View {
     var body: some View {
         
         NavigationStack{
+            ZStack {
+                LinearGradient(colors: [
+                    Color(red: 0.55, green: 0.80, blue: 0.60),
+                    Color(red: 0.99, green: 0.96, blue: 0.90)
+                ], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+                
+                Spacer()
             
-            Text("Grocery List")
-                .font(.largeTitle).bold()
-            
-            Spacer()
-            
-            VStack {
-                //SAMPLES
-                ItemCardView()
-                ItemCardView()
-                ItemCardView()
+                VStack{
+                    HStack {
+                        Text("Grocery List")
+                            .font(.largeTitle).bold()
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                    }
+                    
+                    //SAMPLES
+                    ScrollView() {
+                        ItemCardView()
+                        ItemCardView()
+                        ItemCardView()
+                    }
+                }
             }
-            
-            Spacer()
         }
     }
 }

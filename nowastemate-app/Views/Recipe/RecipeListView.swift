@@ -19,10 +19,15 @@ struct RecipeListView: View {
             ).ignoresSafeArea()
             
             VStack (alignment: .leading){
-                TitleHeader()
+                TitleHeader(titleText: "My Cookbook")
                     .padding()
                 
+                SubtitleHeader(subtitleText: "Featured Recipes")
+                    .padding(.horizontal, 16)
                 GlassCardCarousel()
+                
+                SubtitleHeader(subtitleText: "Suggested Recipes")
+                    .padding(.horizontal, 16)
                 Spacer()
             
             }
@@ -30,16 +35,6 @@ struct RecipeListView: View {
     }
 }
 
-struct TitleHeader: View {
-    var body: some View {
-        HStack{
-            Text("My Cookbook")
-                .font(.largeTitle.bold())
-                .foregroundStyle(.white)
-            Spacer()
-        }
-    }
-}
 
 struct GlassCardCarousel: View{
     var body: some View {

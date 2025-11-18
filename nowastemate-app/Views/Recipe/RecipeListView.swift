@@ -9,6 +9,9 @@ import SwiftUI
 
 struct RecipeListView: View {
     
+    @State private var searchText = ""
+
+    
     var body: some View {
         ZStack{
             // Gradient Background
@@ -19,7 +22,11 @@ struct RecipeListView: View {
             ).ignoresSafeArea()
             
             VStack (alignment: .leading){
+                
                 TitleHeader(titleText: "My Cookbook")
+                    .padding()
+                
+                RecipeSearch(text: $searchText)
                     .padding()
                 
                 SubtitleHeader(subtitleText: "Featured Recipes")
@@ -35,6 +42,24 @@ struct RecipeListView: View {
     }
 }
 
+
+struct RecipeSearch: View{
+    @Binding var text: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.white.opacity(0.9))
+                .font(.system(size: 20, weight: .semibold))
+
+            TextField("Search Recipes", text: $text)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.white)
+        }
+        .padding(10)
+        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+    }
+}
 
 struct GlassCardCarousel: View{
     var body: some View {
@@ -72,7 +97,7 @@ struct GlassCard: View {
 
         }
         .frame(maxWidth: .infinity)
-        .glassEffect(.clear.tint(Color("CardColor")), in:.rect(cornerRadius: 20))
+        .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
         //https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views
         //https://medium.com/icommunity/liquid-glass-in-swiftui-uikit-77d480db1d29
     }

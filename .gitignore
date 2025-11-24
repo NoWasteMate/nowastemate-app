@@ -61,3 +61,4 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 nowastemate-firebase-firebase-adminsdk-fbsvc-260a57ac1d.json
+nowastemate-app.xcodeproj/project.pbxproj

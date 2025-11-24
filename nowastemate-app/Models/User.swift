@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct User: Identifiable, Codable {
-    let id = UUID()
-    var firstName: String
-    var lastName: String
+struct User: Codable {
+    var first: String
+    var last: String
+    var email: String
     var password: String
     
     //TODO: logging for user to observe timestamps for creation and modification

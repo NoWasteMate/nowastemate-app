@@ -5,6 +5,8 @@
 //  Created by Frederik Dahl Hansen on 15/11/2025.
 //
 
+//general ref: previous project where we also did user signup
+
 import SwiftUI
 
 struct SignUpView: View {
@@ -15,6 +17,15 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var firstName = ""
     @State private var lastName = ""
+    
+    var isFormValid: Bool {
+            !email.isEmpty && !firstName.isEmpty && !lastName.isEmpty && !password.isEmpty && !confirmPassword.isEmpty
+    }
+    
+    @State private var showAlert = false
+    
+    @EnvironmentObject var vm: UserViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -80,7 +91,7 @@ struct SignUpView: View {
                         .font(.headline)
                         .foregroundColor(Color.brown)
 
-                    TextField("", text: $email)
+                    SecureField("", text: $password)
                         .padding()
                         .background(Color.white)
                         .border(Color.gray)
@@ -104,14 +115,39 @@ struct SignUpView: View {
                                     .stroke(.gray, lineWidth: 2)
                         )
 
-                    Button(action: {}) {
-                        Text("Sign Up")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.black)
-                            .cornerRadius(30)
+                    Button("Sign Up"){
+                        
+                        if (password == confirmPassword && isFormValid){
+                            
+                            
+                            let newUser = User(first: firstName, last: lastName, email: email, password: password)
+                            
+                            vm.addUser(obj: newUser)
+                            
+                            vm.user = newUser
+                            
+                            dismiss()
+                            
+                            
+                        } else {
+                            showAlert = true
+                        }
                     }
+                    .disabled(!isFormValid)
+                    
+                    //https://developer.apple.com/documentation/swiftui/alert
+                    .alert(isPresented: $showAlert) {
+                        Alert(
+                            title: Text("Incorrect Input"),
+                            message: Text("Password inputs must match!")
+                        )
+                            
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.black)
+                    .cornerRadius(30)
                     .padding(.top)
                 }
                 .padding()

@@ -12,8 +12,12 @@ struct LogInView: View {
     //state variables for user input
     @State private var email = ""
     @State private var password = ""
+    
+    @EnvironmentObject var vm: UserViewModel
+
 
     var body: some View {
+        
         ZStack {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
@@ -78,14 +82,13 @@ struct LogInView: View {
                             .cornerRadius(30)
                     }
 
-                    Button(action: {}) {
-                        Text("Sign Up")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.black)
-                            .cornerRadius(30)
-                    }
+                    NavigationLink("Sign Up", destination: SignUpView().environmentObject(vm))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.black)
+                        .cornerRadius(30)
+                    
                 }
                 .padding()
             }

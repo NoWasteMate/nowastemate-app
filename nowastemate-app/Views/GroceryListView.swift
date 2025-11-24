@@ -11,9 +11,30 @@
 //https://stackoverflow.com/questions/63270870/how-do-i-make-uiview-using-linear-gradient-in-swift
 //https://developer.apple.com/documentation/SwiftUI/Divider
 
+//Inspiration for adding and removing in the grocery list
+//https://www.youtube.com/watch?v=2jFq5DasLsk
+
 import SwiftUI
+import Foundation
+
+//concept of adding (will be organized later)
+struct GroceryItem: Identifiable, Codable {
+    var id = UUID()
+    var title: String
+    var items: [String]
+}
 
 struct GroceryListView: View {
+    
+    @State private var groceryItems: [GroceryItem] = [
+            GroceryItem(title: "Produce", items: ["Lettuce", "Tomato", "Red Onion", "Spinach"]),
+            GroceryItem(title: "Grains", items: ["Rice", "Pasta"]),
+            GroceryItem(title: "Dessert", items: ["Banana Bread", "Cookies", "Chocolate Cake"])
+        ]
+    
+    @State private var name: String = ""
+    @State private var selectedIndex: Int = 0
+    
     var body: some View {
         NavigationStack{
             //Background Gradient
@@ -25,7 +46,7 @@ struct GroceryListView: View {
                 .ignoresSafeArea()
                 
                 Spacer()
-            
+                            
                 VStack{
                     //Grocery List
                     HStack {
@@ -44,19 +65,50 @@ struct GroceryListView: View {
                     }
                     .foregroundColor(.white.opacity(0.9))
                     
+                    HStack {
+                        TextField("New item", text: $name)
+                            .textFieldStyle(.roundedBorder)
+                        
+                        Button("Add") {
+                            addItem()
+                        }
+                    }
+                    
                     
                     //Sample Data
                     ScrollView() {
-                        ItemCardView(title: "Produce",
-                                     items: ["Lettuce", "Tomato", "Red Onion", "Spinach"])
-                        ItemCardView(title: "Grains",
-                                     items: ["Rice", "Pasta"])
-                        ItemCardView(title: "Dessert",
-                                     items: ["Banana Bread", "Cookies", "Chocolate Cake"])
+                        
+                        Picker("Category", selection: $selectedIndex) {
+                            ForEach(0..<groceryItems.count, id: \.self) { index in
+                                Text(groceryItems[index].title)
+                                    .tag(index)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        
+                        ItemCardView(
+                            title: groceryItems[selectedIndex].title,
+                            items: groceryItems[selectedIndex].items,
+                            onDelete: { item in
+                                deleteItem(item)
+                            }
+                            
+                        )
                     }
                 }.padding(20)
-                
             }
+        }
+    }
+    private func addItem() {
+        let userInput = name
+        guard !userInput.isEmpty else { return }
+        groceryItems[selectedIndex].items.append(userInput)
+        name = ""
+    }
+    private func deleteItem(_ item: String) {
+        if let index = groceryItems[selectedIndex].items.firstIndex(of: item) {
+            groceryItems[selectedIndex].items.remove(at: index)
         }
     }
 }
@@ -69,6 +121,7 @@ struct ItemCardView: View {
     
     var title: String
     var items: [String]
+    var onDelete: (String) -> Void
     
     var body: some View {
         VStack() {
@@ -81,14 +134,22 @@ struct ItemCardView: View {
                 HStack {
                     Text(item)
                         .font(.subheadline)
+                    Button {
+                        onDelete(item)
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .foregroundColor(.red)
                 }
             }
         }
-        .frame(width: 350, height: 150, alignment: .center)
+        .frame(width: 350,alignment: .center)
+        .padding(10)
         .background(
             Color.white
                 .shadow(radius: 5)
         )
+        
         .clipShape(RoundedRectangle(cornerRadius: 25))
     }
 }

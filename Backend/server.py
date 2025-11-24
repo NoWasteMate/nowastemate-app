@@ -1,6 +1,8 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
+# pip install firebase-admin
 from fastapi import FastAPI
+# fastapi dev server.py is needed in the terminal to run
 from pydantic import BaseModel
 import os
 import uuid
@@ -14,7 +16,7 @@ async def root():
 
 #Ref for setup https://medium.com/@cbrannen/importing-data-into-firestore-using-python-dce2d6d3cd51
 #https://rollout.com/integration-guides/firestore/sdk/step-by-step-guide-to-building-a-firestore-api-integration-in-python
-cred = credentials.Certificate("/Users/frederikdahlhansen/Documents/nowastemate-app/nowastemate-firebase-firebase-adminsdk-fbsvc-260a57ac1d.json")
+cred = credentials.Certificate("../nowastemate-firebase-firebase-adminsdk-fbsvc-260a57ac1d.json")
 dbInit = firebase_admin.initialize_app(cred)
 
 store = firestore.client()

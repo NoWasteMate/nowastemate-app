@@ -39,7 +39,8 @@ async def create_user(user: User):
         'first': user.first,
         'last': user.last,
         'email': user.email,
-        'password': user.password
+        'password': user.password,
+        'items': []
     })
 
 

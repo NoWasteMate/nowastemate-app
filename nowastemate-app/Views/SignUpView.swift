@@ -124,7 +124,7 @@ struct SignUpView: View {
                             
                             vm.addUser(obj: newUser)
                             
-                            vm.user = newUser
+                            vm.user = newUser.email
                             
                             dismiss()
                             

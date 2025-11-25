@@ -25,7 +25,7 @@ struct nowastemate_appApp: App {
 
     var body: some Scene {
         WindowGroup {
-            SignUpView()
+            LogInView()
                 .environmentObject(vm)
         }
     }

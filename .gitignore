@@ -63,3 +63,6 @@ fastlane/test_output
 nowastemate-firebase-firebase-adminsdk-fbsvc-260a57ac1d.json
 nowastemate-app.xcodeproj/project.pbxproj
 Backend/__pycache__/server.cpython-312.pyc
+.DS_Store
+Backend/__pycache__/server.cpython-313.pyc
+Backend/__pycache__/server.cpython-313.pyc

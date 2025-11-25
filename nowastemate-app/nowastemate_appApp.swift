@@ -19,14 +19,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct nowastemate_appApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     //https://www.youtube.com/watch?v=gZ86gmXmuXE
-    @StateObject var vm = UserViewModel()
+    @StateObject var authVM = AuthViewModel()
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     var body: some Scene {
         WindowGroup {
-            LogInView()
-                .environmentObject(vm)
+            RootView()
+                .environmentObject(authVM)
         }
     }
 }

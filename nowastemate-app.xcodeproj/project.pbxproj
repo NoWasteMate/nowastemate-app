@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45C6A9682ED5766D00BB7694 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 45C6A9672ED5766D00BB7694 /* FirebaseAuth */; };
 		45E04DE22EC4EE2E0020FB53 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 45E04DE12EC4EE2E0020FB53 /* FirebaseAI */; };
 		45E04DE42EC4EE2E0020FB53 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45E04DE32EC4EE2E0020FB53 /* FirebaseAnalytics */; };
 		45E04DE62EC4EE2E0020FB53 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 45E04DE52EC4EE2E0020FB53 /* FirebaseAnalyticsCore */; };
@@ -40,6 +41,7 @@
 				45E04DEE2EC4EE2E0020FB53 /* FirebaseStorage in Frameworks */,
 				45E04DE22EC4EE2E0020FB53 /* FirebaseAI in Frameworks */,
 				45E04DEC2EC4EE2E0020FB53 /* FirebaseFirestore in Frameworks */,
+				45C6A9682ED5766D00BB7694 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +91,7 @@
 				45E04DE92EC4EE2E0020FB53 /* FirebaseDatabase */,
 				45E04DEB2EC4EE2E0020FB53 /* FirebaseFirestore */,
 				45E04DED2EC4EE2E0020FB53 /* FirebaseStorage */,
+				45C6A9672ED5766D00BB7694 /* FirebaseAuth */,
 			);
 			productName = "nowastemate-app";
 			productReference = 45B1849E2E9551C200EE15E8 /* nowastemate-app.app */;
@@ -374,6 +377,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		45C6A9672ED5766D00BB7694 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45E04DE02EC4EE2E0020FB53 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		45E04DE12EC4EE2E0020FB53 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 45E04DE02EC4EE2E0020FB53 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

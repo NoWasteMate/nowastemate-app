@@ -15,7 +15,7 @@ final class UserViewModel: ObservableObject{
     
     //ref https://www.youtube.com/watch?v=o3Rkg6WmZoY
     
-    func addUser(obj: User){
+    func addUser(obj: AppUser){
         //make data into a string
         
         let url = URL(string: "http://127.0.0.1:8000/users")!

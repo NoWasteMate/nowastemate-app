@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct HomeView: View {
+    
+    @EnvironmentObject var authVM: AuthViewModel
+
     var body: some View {
         VStack {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("HOME VIEW")
+            Text("Hello " + (authVM.user?.email ?? "None") )
+            Button("Logout"){
+                authVM.signOut()
+            }
         }
         .padding()
     }

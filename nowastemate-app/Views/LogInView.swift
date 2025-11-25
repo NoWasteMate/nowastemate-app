@@ -13,8 +13,7 @@ struct LogInView: View {
     @State private var email = ""
     @State private var password = ""
     
-    @EnvironmentObject var vm: UserViewModel
-
+    @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
         
@@ -42,6 +41,7 @@ struct LogInView: View {
                         .foregroundColor(Color.brown)
 
                     TextField("", text: $email)
+                        .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color.white)
                         .border(Color.gray)
@@ -73,9 +73,11 @@ struct LogInView: View {
                     }
                     .padding(.top, 6)
 
+                    
+                    
                     Button("Sign In"){
-                        
-                        vm.LogIn(email: email, pw: password)
+
+                        authVM.signIn(email: email, password: password)
                         //TODO: Navigation to new view
                     }
                     .foregroundColor(.white)
@@ -103,5 +105,10 @@ struct LogInView: View {
 
 
 #Preview {
+    
+    @Previewable @StateObject var authVM = AuthViewModel()
+
+    
     LogInView()
+        .environmentObject(authVM)
 }

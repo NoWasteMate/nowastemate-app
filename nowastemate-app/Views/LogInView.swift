@@ -73,16 +73,19 @@ struct LogInView: View {
                     }
                     .padding(.top, 6)
 
-                    Button(action: {}) {
-                        Text("Continue")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.brown)
-                            .cornerRadius(30)
+                    Button("Sign In"){
+                        
+                        vm.LogIn(email: email, pw: password)
+                        //TODO: Navigation to new view
                     }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.brown)
+                    .cornerRadius(30)
+                    
 
-                    NavigationLink("Sign Up", destination: SignUpView().environmentObject(vm))
+                    NavigationLink("Sign Up", destination: SignUpView())
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()

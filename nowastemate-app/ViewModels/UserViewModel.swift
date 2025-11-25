@@ -11,7 +11,7 @@ import Combine
 
 final class UserViewModel: ObservableObject{
     
-    @Published var user: User = User(first: "T", last: "E", email: "S", password: "T")
+    @Published var user: String = "temp"
     
     //ref https://www.youtube.com/watch?v=o3Rkg6WmZoY
     
@@ -49,6 +49,38 @@ final class UserViewModel: ObservableObject{
         task.resume()
         
     }
-    
+    //same login as above
+    func LogIn(email: String, pw: String){
+        
+        let url = URL(string: "http://127.0.0.1:8000/login/")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: AnyHashable] = [
+            
+            "email": email,
+            "password": pw
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
+        
+        let task = URLSession.shared.dataTask(with: request) {data, _, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            
+            do {
+                //returns email, TODO: add a way to store this to use it later for other operations
+                let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                print(response)
+            }
+            
+            catch {
+                print(error)
+            }
+        }
+        task.resume()
+    }
     
 }

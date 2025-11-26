@@ -21,6 +21,10 @@ struct HomeView: View {
             Button("Logout"){
                 authVM.signOut()
             }
+            
+            Button("Auth ID"){
+                AuthService.shared.getUserEmail(user: authVM.user!)
+            }
         }
         .padding()
     }

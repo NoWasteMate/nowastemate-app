@@ -34,9 +34,7 @@ class AuthViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        
-        print(email)
-        print(password)
+        print("Signing in user: \(email)")
          Auth.auth().signIn(withEmail: email, password: password) { result, error in
              if let error = error {
                  print("Sign In Error: \(error.localizedDescription)")
@@ -46,12 +44,13 @@ class AuthViewModel: ObservableObject {
              self.isSignedIn = true
          }
      }
-
+    
      func signOut() {
          do {
              try Auth.auth().signOut()
              self.user = nil
              self.isSignedIn = false
+             print("Signing Out...")
          } catch {
              print("Sign Out Error: \(error.localizedDescription)")
          }

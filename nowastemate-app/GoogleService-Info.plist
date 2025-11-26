@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:772665204855:ios:fb9c98fa41494fd8142672</string>
+	<key>DATABASE_URL</key>
+	<string>https://nowastemate-firebase-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

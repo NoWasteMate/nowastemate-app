@@ -120,7 +120,7 @@ struct SignUpView: View {
                         if (password == confirmPassword && isFormValid){
                             
                             
-                            let newUser = User(first: firstName, last: lastName, email: email, password: password)
+                            let newUser = AppUser(first: firstName, last: lastName, email: email, password: password)
                             
                             vm.addUser(obj: newUser)
                             

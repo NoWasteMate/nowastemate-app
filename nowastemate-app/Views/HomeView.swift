@@ -25,6 +25,9 @@ struct HomeView: View {
             Button("Auth ID"){
                 AuthService.shared.getUserEmail(user: authVM.user!)
             }
+            Button("Log Token"){
+                AuthService.shared.logAuthID(user: authVM.user!)
+            }
         }
         .padding()
     }

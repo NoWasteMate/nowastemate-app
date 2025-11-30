@@ -10,12 +10,12 @@ import SwiftUI
 struct CreateFamilyView: View {
     
     //state variables for user input
-    @State private var name: String = ""
+    @State private var title: String = ""
     
     @EnvironmentObject var familyVM: FamilyViewModel
     
     var isFormValid: Bool {
-            !name.isEmpty
+            !title.isEmpty
     }
     
     @State private var showAlert = false
@@ -46,7 +46,7 @@ struct CreateFamilyView: View {
                         .font(.headline)
                         .foregroundColor(Color.black)
 
-                    TextField("", text: $name)
+                    TextField("", text: $title)
                         .padding()
                         .background(Color.white)
                         .border(Color.gray)
@@ -61,7 +61,7 @@ struct CreateFamilyView: View {
                         
                         if (isFormValid){
                             
-                            familyVM.createFamily(name: name)
+                            familyVM.createFamily(title: title)
                             
                             
                         } else {

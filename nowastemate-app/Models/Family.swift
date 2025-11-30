@@ -7,7 +7,7 @@
 
 struct Family: Codable {
 
-    var name: String
-    var members: [String]
+    var title: String
+    //var members: [String]
     
 }

@@ -16,9 +16,11 @@ struct RootView: View {
         
         
         if authVM.isSignedIn {
-            HomeView()
-                .environmentObject(authVM)
-                .environmentObject(familyVM)
+            NavigationStack {
+                HomeView()
+                    .environmentObject(authVM)
+                    .environmentObject(familyVM)
+            }
         } else {
             LogInView()
                 .environmentObject(authVM)

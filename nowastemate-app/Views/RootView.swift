@@ -16,6 +16,18 @@ struct RootView: View {
         
         
         if authVM.isSignedIn {
+            TabView {
+                HomeView()
+                    .tabItem {
+                        Label("Home", systemImage: "house.fill")
+                    }
+                
+                ProductListView()
+                    .tabItem {
+                        Label("Products", systemImage: "cart.fill")
+                    }
+            }
+                .environmentObject(authVM)
             NavigationStack {
                 HomeView()
                     .environmentObject(authVM)

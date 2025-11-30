@@ -37,6 +37,7 @@ struct HomeView: View {
                     }
                 }
             }
+            NavigationLink("Family", destination: CreateFamilyView())
         }
         .padding()
     }

@@ -9,8 +9,13 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    
+    @StateObject var familyVM: FamilyViewModel
 
     var body: some View {
+        
+        
+        
         if authVM.isSignedIn {
             HomeView()
                 .environmentObject(authVM)
@@ -24,4 +29,5 @@ struct RootView: View {
 #Preview {
     RootView()
         .environmentObject(AuthViewModel())
+    
 }

@@ -7,10 +7,24 @@
 
 import Foundation
 import Combine
+import FirebaseAuth
 
-struct FamilyViewModel {
+class FamilyViewModel: ObservableObject {
     
+    @Published var Temp: String = ""
     
+    init() {
+        self.Temp = "Test"
+    }
     
+    //TODO:
+    
+    func createFamily(family: Family){
+        
+    }
+    
+    func findFamily(){
+        
+    }
     
 }

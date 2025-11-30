@@ -11,6 +11,7 @@ import FirebaseAuth
 struct HomeView: View {
     
     @EnvironmentObject var authVM: AuthViewModel
+    @StateObject private var productVM = ProductViewModel()
 
     var body: some View {
         VStack {
@@ -27,6 +28,14 @@ struct HomeView: View {
             }
             Button("Log Token"){
                 AuthService.shared.logAuthID(user: authVM.user!)
+            }
+            
+            Button("Fetch Products") {
+                if let user = authVM.user {
+                    Task {
+                        await productVM.loadProducts(for: user)
+                    }
+                }
             }
         }
         .padding()

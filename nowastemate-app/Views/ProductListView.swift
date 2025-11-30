@@ -14,26 +14,49 @@
 //Inspiration for adding and removing in the grocery list
 //https://www.youtube.com/watch?v=2jFq5DasLsk
 
+// reference for grouping by category: https://danielsaidi.com/blog/2023/04/01/group-and-sort-swift-collections-like-a-pro
+
 import SwiftUI
 import Foundation
 
-//concept of adding (will be organized later)
-struct GroceryItem: Identifiable, Codable {
-    var id = UUID()
-    var title: String
-    var items: [String]
-}
 
-struct GroceryListView: View {
+struct ProductListView: View {
     
-    @State private var groceryItems: [GroceryItem] = [
-            GroceryItem(title: "Produce", items: ["Lettuce", "Tomato", "Red Onion", "Spinach"]),
-            GroceryItem(title: "Grains", items: ["Rice", "Pasta"]),
-            GroceryItem(title: "Dessert", items: ["Banana Bread", "Cookies", "Chocolate Cake"])
+    
+     let groceryItems: [Product] = [
+        Product(
+            id: UUID().uuidString,
+            name: "Lettuce",
+            quantity: 2,
+            createdAt: "2025-11-29T18:45:00Z",
+            category: "vegetable"
+        ),
+        Product(
+            id: UUID().uuidString,
+            name: "Tomato",
+            quantity: 6,
+            createdAt: "2025-11-29T18:46:00Z",
+            category: "fruit"
+        ),
+        Product(
+            id: UUID().uuidString,
+            name: "Red Onion",
+            quantity: 3,
+            createdAt: "2025-11-29T18:47:00Z",
+            category: "vegetable"
+        )
         ]
     
     @State private var name: String = ""
     @State private var selectedIndex: Int = 0
+    
+    // create dictionary - key = category, value = Product
+    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
+    
+    // array for storing total number of categories
+    private var sortedCategories: [String] {
+        groupedProducts.keys.sorted()
+    }
     
     var body: some View {
         NavigationStack{
@@ -70,59 +93,54 @@ struct GroceryListView: View {
                             .textFieldStyle(.roundedBorder)
                         
                         Button("Add") {
-                            addItem()
+                            print(groupedProducts)
+                            print()
+                            print(sortedCategories)
                         }
                     }
                     
                     
-                    //Sample Data
+    
                     ScrollView() {
                         
-                        Picker("Category", selection: $selectedIndex) {
-                            ForEach(0..<groceryItems.count, id: \.self) { index in
-                                Text(groceryItems[index].title)
-                                    .tag(index)
+                        VStack(spacing: 16) {
+                            ForEach(sortedCategories, id: \.self) { category in
+                                if let items = groupedProducts[category] {
+                                    ProductCardView(
+                                        title: category,
+                                        items: items
+                                    )
+                                }
                             }
                         }
-                        .pickerStyle(.segmented)
-                        
-                        
-                        ItemCardView(
-                            title: groceryItems[selectedIndex].title,
-                            items: groceryItems[selectedIndex].items,
-                            onDelete: { item in
-                                deleteItem(item)
-                            }
-                            
-                        )
+                        .padding(.top, 8)
                     }
                 }.padding(20)
             }
         }
     }
-    private func addItem() {
-        let userInput = name
-        guard !userInput.isEmpty else { return }
-        groceryItems[selectedIndex].items.append(userInput)
-        name = ""
-    }
-    private func deleteItem(_ item: String) {
-        if let index = groceryItems[selectedIndex].items.firstIndex(of: item) {
-            groceryItems[selectedIndex].items.remove(at: index)
-        }
-    }
+//    private func addItem() {
+//        let userInput = name
+//        guard !userInput.isEmpty else { return }
+//        groceryItems[selectedIndex].items.append(userInput)
+//        name = ""
+//    }
+//    private func deleteItem(_ item: String) {
+//        if let index = groceryItems[selectedIndex].items.firstIndex(of: item) {
+//            groceryItems[selectedIndex].items.remove(at: index)
+//        }
+//    }
 }
 
 #Preview {
-    GroceryListView()
+    ProductListView()
 }
 
-struct ItemCardView: View {
+struct ProductCardView: View {
     
     var title: String
-    var items: [String]
-    var onDelete: (String) -> Void
-    
+    var items: [Product]
+  
     var body: some View {
         VStack() {
             Text(title)
@@ -130,16 +148,13 @@ struct ItemCardView: View {
             
             Divider()
             
-            ForEach(items, id: \.self) { item in
+            ForEach(items) { product in
                 HStack {
-                    Text(item)
+                    Text(product.name)
                         .font(.subheadline)
-                    Button {
-                        onDelete(item)
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .foregroundColor(.red)
+                    Text("Quantity: \(product.quantity)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
         }

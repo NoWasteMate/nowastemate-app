@@ -24,7 +24,7 @@ struct SignUpView: View {
     
     @State private var showAlert = false
     
-    @EnvironmentObject var vm: UserViewModel
+    @EnvironmentObject var vm: AuthViewModel
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -122,9 +122,9 @@ struct SignUpView: View {
                             
                             let newUser = AppUser(first: firstName, last: lastName, email: email, password: password)
                             
-                            vm.addUser(obj: newUser)
+                            vm.signUp(email: email, password: password)
                             
-                            vm.user = newUser.email
+                            //vm.user = email
                             
                             dismiss()
                             

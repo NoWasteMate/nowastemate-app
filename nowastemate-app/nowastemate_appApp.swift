@@ -21,6 +21,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct nowastemate_appApp: App {
     //https://www.youtube.com/watch?v=gZ86gmXmuXE
     @StateObject var authVM = AuthViewModel()
+    @StateObject var familyVM = FamilyViewModel()
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
@@ -28,6 +29,7 @@ struct nowastemate_appApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(authVM)
+                .environmentObject(familyVM)
         }
     }
 }

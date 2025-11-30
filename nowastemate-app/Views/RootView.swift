@@ -9,11 +9,18 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var familyVM: FamilyViewModel
 
     var body: some View {
+        
+        
+        
         if authVM.isSignedIn {
-            HomeView()
-                .environmentObject(authVM)
+            NavigationStack {
+                HomeView()
+                    .environmentObject(authVM)
+                    .environmentObject(familyVM)
+            }
         } else {
             LogInView()
                 .environmentObject(authVM)
@@ -24,4 +31,6 @@ struct RootView: View {
 #Preview {
     RootView()
         .environmentObject(AuthViewModel())
+        .environmentObject(FamilyViewModel())
+    
 }

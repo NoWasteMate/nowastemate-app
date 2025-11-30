@@ -28,6 +28,7 @@ struct HomeView: View {
             Button("Log Token"){
                 AuthService.shared.logAuthID(user: authVM.user!)
             }
+            NavigationLink("Family", destination: CreateFamilyView())
         }
         .padding()
     }

@@ -18,11 +18,11 @@ struct FamilyView: View {
             
             VStack(alignment: .leading, spacing: 24) {
                 
+                //TODO: Display family id for user to share
+                
                 Text("Eliminate Waste as a family")
                     //https://sarunw.com/posts/swiftui-text-font/
-                    .font(
-                        .title
-                        )
+                    .font(.title)
                     .foregroundColor(.black)
                     .padding(.bottom, 20)
                 

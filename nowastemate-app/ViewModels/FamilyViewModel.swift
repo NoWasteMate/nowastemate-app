@@ -13,13 +13,21 @@ class FamilyViewModel: ObservableObject {
     
     @Published var Temp: String = ""
     
+    //specifically grab userid as it is all that is needed
+    let currentUser = Auth.auth().currentUser?.uid
+    
+    
+    
+    
     init() {
         self.Temp = "Test"
     }
     
     //TODO:
     
-    func createFamily(family: Family){
+    func createFamily(name: String){
+        
+        FamilyService.shared.postFamily(name: name)
         
     }
     

@@ -15,7 +15,7 @@ struct FamilyService {
     let baseUrl = URL(string: "http://127.0.0.1:8000")!
     
     
-    func postFamily(family: Family){
+    func postFamily(name: String){
         //logic for API call
         
     }

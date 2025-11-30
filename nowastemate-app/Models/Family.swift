@@ -6,10 +6,8 @@
 //
 
 struct Family: Codable {
-    
+
     var name: String
-    var createdBy: String
-    var createdAt: String
     var members: [String]
     
 }

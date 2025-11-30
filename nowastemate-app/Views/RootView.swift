@@ -12,7 +12,17 @@ struct RootView: View {
 
     var body: some View {
         if authVM.isSignedIn {
-            HomeView()
+            TabView {
+                HomeView()
+                    .tabItem {
+                        Label("Home", systemImage: "house.fill")
+                    }
+                
+                ProductListView()
+                    .tabItem {
+                        Label("Products", systemImage: "cart.fill")
+                    }
+            }
                 .environmentObject(authVM)
         } else {
             LogInView()

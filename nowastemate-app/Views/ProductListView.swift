@@ -16,12 +16,16 @@
 
 // reference for grouping by category: https://danielsaidi.com/blog/2023/04/01/group-and-sort-swift-collections-like-a-pro
 
+// references for loading data with FireStore database: https://swiftwithmajid.com/2022/06/28/the-power-of-task-view-modifier-in-swiftui/#:~:text=struct%20ContentView%3A%20View%20,private%20var%20store%20%3D%20Store
+// https://medium.com/@gitonly543/get-data-from-firestore-using-swiftui-38a8de4039d9
+
 import SwiftUI
 import Foundation
 
 
 struct ProductListView: View {
-    
+    @EnvironmentObject var authVM: AuthViewModel
+    @StateObject private var productVM = ProductViewModel()
     
      let groceryItems: [Product] = [
         Product(
@@ -51,7 +55,9 @@ struct ProductListView: View {
     @State private var selectedIndex: Int = 0
     
     // create dictionary - key = category, value = Product
-    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
+    // switch between groceryItems if you want to modify the UI
+//    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
+    private var groupedProducts: [String: [Product]] { Dictionary(grouping: productVM.products, by: { $0.category })}
     
     // array for storing total number of categories
     private var sortedCategories: [String] {
@@ -112,6 +118,10 @@ struct ProductListView: View {
                                     )
                                 }
                             }
+                        }
+                        .task {
+                            guard let user = authVM.user else { return }
+                            await productVM.loadProducts(for: user)
                         }
                         .padding(.top, 8)
                     }

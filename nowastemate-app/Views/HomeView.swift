@@ -39,7 +39,7 @@ struct HomeView: View {
             }
             
             NavigationLink("ProductListView", destination: ProductListView())
-            NavigationLink("CreateFamilyView", destination: CreateFamilyView())
+            NavigationLink("FamilyView", destination: FamilyView())
         }
         .padding()
     }

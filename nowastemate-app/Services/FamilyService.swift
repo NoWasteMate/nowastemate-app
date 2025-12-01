@@ -68,20 +68,20 @@ struct FamilyService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/family/join/\(code)")!
+            let url = URL(string: "\(baseUrl)/family/join")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             
-            let newMember = FamilyInvite(code: code)
+            let newMember = FamilyJoinCode(code: code)
             
             let encoder = JSONEncoder()
             do {
                 request.httpBody = try encoder.encode(newMember)
             } catch {
-                print("Failed to encode new todo: \(error)")
+                print("Failed to encode object: \(error)")
                 return
             }
             

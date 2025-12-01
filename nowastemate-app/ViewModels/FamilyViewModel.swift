@@ -29,8 +29,9 @@ class FamilyViewModel: ObservableObject {
         
     }
     
-    func findFamily(){
+    func findFamily(code: String){
         
+        FamilyService.shared.joinFamily(code: code, user: currentUser!)
     }
     
 }

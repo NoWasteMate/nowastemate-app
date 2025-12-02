@@ -25,7 +25,10 @@ import Foundation
 
 struct ProductListView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var dataScannerVM: CameraViewModel
     @StateObject private var productVM = ProductViewModel()
+    
+    @State private var showCamera = false
     
      let groceryItems: [Product] = [
         Product(
@@ -102,6 +105,14 @@ struct ProductListView: View {
                             print(groupedProducts)
                             print()
                             print(sortedCategories)
+                        }
+                        // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
+                        Button("Camera") {
+                            showCamera = true
+                        }
+                        .sheet(isPresented: $showCamera) {
+                            CameraView(isPresented: $showCamera)
+                                .environmentObject(dataScannerVM)
                         }
                     }
                     

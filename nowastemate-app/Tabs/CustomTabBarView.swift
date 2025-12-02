@@ -19,8 +19,6 @@ struct CustomTabBarView: View {
                 HomeView()
                     .tag(0)
 
-                ContentView()
-                    .tag(1)
             }.tabViewStyle(.page(indexDisplayMode: .never))
             
             

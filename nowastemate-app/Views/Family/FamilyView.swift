@@ -77,6 +77,10 @@ struct FamilyView: View {
                     
                 }
                 
+                Button("Test members"){
+                    familyVM.findFamilyMembers()
+                }
+                
                 
                 //https://www.devfright.com/how-to-add-tap-to-copy-with-uipasteboard-in-swiftui/
                 if isClicked {

@@ -137,4 +137,35 @@ struct FamilyService {
         
     }
     
+    func getFamilyMembers(completion: @escaping (Result<[String], Error>) -> Void){
+        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(baseUrl)/family_members")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    
+                    let code = try JSONDecoder().decode([String].self, from: data)
+                              completion(.success(code))
+                }
+                
+                catch {
+                    print(error)
+                }
+            }
+            task.resume()
+
+        }
+        
+    }
+    
 }

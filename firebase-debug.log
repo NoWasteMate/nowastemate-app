@@ -1,0 +1,35 @@
+[debug] [2025-11-24T00:08:45.139Z] ----------------------------------------------------------------------
+[debug] [2025-11-24T00:08:45.145Z] Command:       /Users/frederikdahlhansen/.nvm/versions/node/v22.14.0/bin/node /Users/frederikdahlhansen/.nvm/versions/node/v22.14.0/bin/firebase init
+[debug] [2025-11-24T00:08:45.145Z] CLI Version:   14.26.0
+[debug] [2025-11-24T00:08:45.145Z] Platform:      darwin
+[debug] [2025-11-24T00:08:45.145Z] Node Version:  v22.14.0
+[debug] [2025-11-24T00:08:45.145Z] Time:          Sun Nov 23 2025 19:08:45 GMT-0500 (Eastern Standard Time)
+[debug] [2025-11-24T00:08:45.145Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-11-24T00:08:45.146Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/frederikdahlhansen/Documents/nowastemate-app
+
+[debug] [2025-11-24T00:08:45.355Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-11-24T00:08:45.355Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-11-24T00:11:57.580Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (/Users/frederikdahlhansen/.nvm/versions/node/v22.14.0/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:101:37)
+    at Interface.emit (node:events:518:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1124:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:263:20)
+    at ReadStream.emit (node:events:530:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:370:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.

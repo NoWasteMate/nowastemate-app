@@ -19,11 +19,22 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct nowastemate_appApp: App {
+    //https://www.youtube.com/watch?v=gZ86gmXmuXE
+    @StateObject var authVM = AuthViewModel()
+    @StateObject var familyVM = FamilyViewModel()
+    @StateObject private var barcodeScanVM = CameraViewModel()
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(authVM)
+                .environmentObject(familyVM)
+                .environmentObject(barcodeScanVM)
+                .task {
+                    await barcodeScanVM.requestDataScanerAccessStatus()
+                }
         }
     }
 }

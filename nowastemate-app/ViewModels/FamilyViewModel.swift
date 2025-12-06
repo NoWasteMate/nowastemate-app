@@ -13,6 +13,8 @@ class FamilyViewModel: ObservableObject {
     
     @Published var familyId: String?
     
+    @Published var familyMembers: [String]?
+    
     @Published var errorMessage: String?
     
     //specifically grab userid as it is all that is needed
@@ -48,4 +50,25 @@ class FamilyViewModel: ObservableObject {
             }
         }
     }
+    
+    func findFamilyMembers(){
+        DispatchQueue.main.async {
+            // Update UI
+            //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
+            FamilyService.shared.getFamilyMembers() { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let familyMembers):
+                        self.familyMembers = familyMembers
+                        self.errorMessage = nil
+                        print(familyMembers)
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                        self.familyMembers = nil
+                    }
+                }
+            }
+        }
+    }
+    
 }

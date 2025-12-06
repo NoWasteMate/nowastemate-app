@@ -32,6 +32,13 @@ struct FamilyView: View {
                     .foregroundColor(.black)
                     .padding(.bottom, 20)
                 
+                NavigationLink("View Current Family Members", destination: FamilyMemberView())
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.black)
+                    .cornerRadius(30)
+                
                 HStack{
                     
                     Text("Let others join you, simply share the code below?")
@@ -76,7 +83,6 @@ struct FamilyView: View {
                     }
                     
                 }
-                
                 
                 //https://www.devfright.com/how-to-add-tap-to-copy-with-uipasteboard-in-swiftui/
                 if isClicked {

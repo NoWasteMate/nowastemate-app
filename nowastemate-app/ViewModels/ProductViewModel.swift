@@ -14,16 +14,15 @@ class ProductViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var errorMessage: String?
     
-    func loadProducts(for user: User) async {
+    func loadProducts(for user: User){
 
         ProductService.shared.getProducts(user: user) {result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let products):
-                    self.products = products
-                case .failure:
-                    return 
-                }
+            switch result {
+            case .success(let products):
+                self.products = products
+            case .failure:
+                return
+            
             }
         }
     }

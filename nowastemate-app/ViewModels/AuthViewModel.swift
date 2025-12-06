@@ -16,44 +16,51 @@ import Combine
 class AuthViewModel: ObservableObject {
     @Published var user: User? = nil
     @Published var isSignedIn: Bool = false
-
+    
+    private let authService = AuthService.shared
+    
     init() {
-        self.user = Auth.auth().currentUser
+        self.user = authService.currentUser
         self.isSignedIn = user != nil
-    }
-
-    func signUp(email: String, password: String) {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                print("Sign Up Error: \(error.localizedDescription)")
-                return
-            }
-            self.user = result?.user
-            self.isSignedIn = true
-        }
     }
     
     func signIn(email: String, password: String) {
-        print("Signing in user: \(email)")
-         Auth.auth().signIn(withEmail: email, password: password) { result, error in
-             if let error = error {
-                 print("Sign In Error: \(error.localizedDescription)")
-                 return
-             }
-             self.user = result?.user
-             self.isSignedIn = true
-         }
-     }
-    
-     func signOut() {
-         do {
-             try Auth.auth().signOut()
-             self.user = nil
-             self.isSignedIn = false
-             print("Signing Out...")
-         } catch {
-             print("Sign Out Error: \(error.localizedDescription)")
-         }
-     }
+        authService.signIn(email: email, password: password) { error in
+            if let error = error {
+                print("Sign In Error:", error.localizedDescription)
+                return
+            }
+            self.user = self.authService.currentUser
+            self.isSignedIn = true
+        }
+    }
+        
+    func signUp(email: String, password: String) {
+        authService.signIn(email: email, password: password) { error in
+            if let error = error {
+                print("Sign Up Error:", error.localizedDescription)
+                return
+            }
+            self.user = self.authService.currentUser
+            self.isSignedIn = true
+        }
+    }
+        
+    func signOut() {
+        authService.signOut(){ error in
+            if let error = error {
+                print("Error Signing out:", error.localizedDescription)
+                return
+            }
+            self.user = self.authService.currentUser
+            self.isSignedIn = false
+        }
+    }
+        
+    func logToken() {
+        AuthService.shared.logAuthID()
+        
+    }
 }
+    
 

@@ -23,11 +23,8 @@ struct HomeView: View {
                 authVM.signOut()
             }
             
-            Button("Auth ID"){
-                AuthService.shared.getUserEmail(user: authVM.user!)
-            }
             Button("Log Token"){
-                AuthService.shared.logAuthID(user: authVM.user!)
+                authVM.logToken()
             }
             
             Button("Fetch Products") {

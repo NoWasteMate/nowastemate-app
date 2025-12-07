@@ -27,13 +27,6 @@ struct HomeView: View {
                 authVM.logToken()
             }
             
-            Button("Fetch Products") {
-                if let user = authVM.user {
-                    Task {
-                        await productVM.loadProducts(for: user)
-                    }
-                }
-            }
             
             NavigationLink("ProductListView", destination: ProductListView())
             NavigationLink("FamilyView", destination: FamilyView())

@@ -12,6 +12,10 @@ struct Product: Identifiable, Codable {
     var name: String
     var quantity: Int
     var createdAt: String
+    var createdBy: String?
+    var dateExpiredUserSet: String?
+    var dateRemoved: String?
+    var usedInRecipe: String?
     var category: String
 }
 

@@ -12,6 +12,7 @@ struct HomeView: View {
     
     @EnvironmentObject var authVM: AuthViewModel
     @StateObject private var productVM = ProductViewModel()
+    @EnvironmentObject var recipeVM: RecipeViewModel
 
     var body: some View {
         VStack {
@@ -27,9 +28,13 @@ struct HomeView: View {
                 authVM.logToken()
             }
             
+            Button("Log All Recipes") {
+                recipeVM.loadRecipes()
+            }
             
             NavigationLink("ProductListView", destination: ProductListView())
             NavigationLink("FamilyView", destination: FamilyView())
+            NavigationLink("RecipeListView", destination: RecipeListView())
         }
         .padding()
     }

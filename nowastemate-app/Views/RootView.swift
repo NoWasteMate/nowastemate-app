@@ -24,6 +24,9 @@ struct RootView: View {
                     .environmentObject(familyVM)
                     .environmentObject(recipeVM)
             }
+            .onAppear{
+                recipeVM.loadRecipes()
+            }
         } else {
             LogInView()
                 .environmentObject(authVM)

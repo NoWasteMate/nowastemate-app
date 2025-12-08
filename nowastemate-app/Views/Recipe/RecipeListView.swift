@@ -10,7 +10,7 @@ import SwiftUI
 struct RecipeListView: View {
     
     @State private var searchText = ""
-
+    @EnvironmentObject var recipeVM: RecipeViewModel
     
     var body: some View {
         ZStack{
@@ -20,8 +20,7 @@ struct RecipeListView: View {
                 startPoint: .top,
                 endPoint: .bottom
             ).ignoresSafeArea()
-            
-            VStack (alignment: .leading){
+            ScrollView(){
                 
                 TitleHeader(titleText: "My Cookbook")
                     .padding()
@@ -35,9 +34,13 @@ struct RecipeListView: View {
                 
                 SubtitleHeader(subtitleText: "Suggested Recipes")
                     .padding(.horizontal, 16)
+                
+                GlassCardList()
                 Spacer()
-            
             }
+        }
+        .onAppear(){
+            recipeVM.loadRecipes()
         }
     }
 }
@@ -65,15 +68,16 @@ struct GlassCardCarousel: View{
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
            HStack(spacing: 16) {
-               GlassCard(cardTitle: "Recipe 1")
+          
+               FavouriteGlassCard(cardTitle: "Favourite Recipe 1")
                    .frame(width: 250,
                           height: 175)
                    .padding(.leading)
                
-               GlassCard(cardTitle: "Recipe 2")
+               FavouriteGlassCard(cardTitle: "Favourite Recipe 2")
                    .frame(width: 175,
                           height: 175)
-               GlassCard(cardTitle: "Recipe 3")
+               FavouriteGlassCard(cardTitle: "Favourite Recipe 3")
                    .frame(width: 175,
                           height: 175)
            }
@@ -82,7 +86,31 @@ struct GlassCardCarousel: View{
     }
 }
 
-struct GlassCard: View {
+struct GlassCardList: View {
+    @EnvironmentObject var recipeVM: RecipeViewModel
+    var body: some View {
+        HStack(spacing: 16) {
+            ForEach(recipeVM.recipes) { recipe in
+                ListGlassCard(recipe: recipe)
+            }
+        }
+    }
+}
+
+struct ListGlassCard: View {
+    let recipe: Recipe
+    
+    
+    var body: some View {
+        VStack{
+            Text(recipe.recipeName)
+                .font(.title3).bold()
+                .foregroundStyle(.white)
+        }
+    }
+}
+
+struct FavouriteGlassCard: View {
     let cardTitle: String
     var body: some View{
         VStack{

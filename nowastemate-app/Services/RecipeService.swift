@@ -38,7 +38,7 @@ struct RecipeService {
                 }
                 do {
                     let recipes = try JSONDecoder().decode([Recipe].self, from: data)
-                    print(recipes)
+                    completion(.success(recipes))
                 }
                 
                 catch {

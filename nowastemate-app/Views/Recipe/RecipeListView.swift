@@ -21,24 +21,25 @@ struct RecipeListView: View {
                 endPoint: .bottom
             ).ignoresSafeArea()
             ScrollView(){
-                VStack(alignment: .leading){
-                    TitleHeader(titleText: "My Cookbook")
-                        .padding()
-                    
-                    RecipeSearch(text: $searchText)
-                        .padding()
-                    
-                    SubtitleHeader(subtitleText: "Featured Recipes")
-                        .padding(.horizontal, 16)
-                    GlassCardCarousel()
-                    
-                    SubtitleHeader(subtitleText: "Suggested Recipes")
-                        .padding(.horizontal, 16)
-                    
-                    GlassCardList()
-                    Spacer()
+                NavigationStack{
+                    VStack(alignment: .leading){
+                        TitleHeader(titleText: "My Cookbook")
+                            .padding()
+                        
+                        RecipeSearch(text: $searchText)
+                            .padding()
+                        
+                        SubtitleHeader(subtitleText: "Featured Recipes")
+                            .padding(.horizontal, 16)
+                        GlassCardCarousel()
+                        
+                        SubtitleHeader(subtitleText: "Suggested Recipes")
+                            .padding(.horizontal, 16)
+                        
+                        GeneratedRecipeList()
+                        Spacer()
+                    }
                 }
-           
             }
         }
         .onAppear(){
@@ -88,12 +89,14 @@ struct GlassCardCarousel: View{
     }
 }
 
-struct GlassCardList: View {
+struct GeneratedRecipeList: View {
     @EnvironmentObject var recipeVM: RecipeViewModel
     var body: some View {
         HStack(spacing: 16) {
             ForEach(recipeVM.recipes) { recipe in
-                ListGlassCard(recipe: recipe)
+                NavigationLink(destination: RecipeDetailView(recipe: recipe)){
+                    ListGlassCard(recipe: recipe)
+                }
             }
         }
     }
@@ -104,13 +107,15 @@ struct ListGlassCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4){
-            VStack (alignment: .leading){
+            VStack (alignment: .leading, spacing: 4){
                 Text(recipe.recipeName)
                     .font(.title3).bold()
                     .foregroundStyle(.white)
+                    .multilineTextAlignment(.leading)
                 Text("Uses \(recipe.ingredientsUsed) items")
                     .font(.subheadline)
                     .foregroundStyle(.white)
+                    .italic()
                 
             }
             .padding()

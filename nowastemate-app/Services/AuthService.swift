@@ -5,16 +5,62 @@
 //  Created by Zackary Overend on 25/11/25.
 //
 
+// Firebase auth uses main thread, documentation recoomends callbacks. https://stackoverflow.com/questions/67941742/when-should-i-do-user-interface-work-on-the-main-thread-while-using-firebase
+// Information on Firebase Auth Tokens: https://firebase.google.com/docs/auth/users#auth_tokens
+// Retrieval of token code reference https://firebase.google.com/docs/auth/admin/verify-id-tokens#retrieve_id_tokens_on_clients
+
 import Foundation
 import FirebaseAuth
 
 struct AuthService {
     static let shared = AuthService()
     
+    var currentUser: User? {
+        Auth.auth().currentUser
+    }
+    
+    func signIn(email: String, password: String, completion: @escaping (Error?) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Sign In Error: \(error.localizedDescription)")
+                completion(error)
+                return
+            }
+            
+            let user = result?.user
+            print("Signed in as user: \(user?.uid ?? "not available")")
+            completion(nil) // Tells view model the operation was successful, without this the state change was not occuring in viewmodel, ui not updating
+        }
+    }
+    func signUp(email: String, password: String, completion: @escaping (Error?) -> Void) {
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Error creating user: \(error.localizedDescription)")
+                completion(error)
+                return
+            }
+            
+            let user = result?.user
+            print("Signed up as: \(user?.email ?? "unknown user")")
+            completion(nil)
+        }
+    }
+    func signOut(completion: @escaping (Error?) -> Void) {
+        do {
+            try Auth.auth().signOut()
+            print("Signing out")
+            completion(nil)
+        }
+        catch {
+            completion(error)
+        }
+    }
+    
+    
     let baseUrl = URL(string: "http://127.0.0.1:8000")!
     
-    func getUserEmail(user: User){
-        user.getIDTokenForcingRefresh(true) { idToken, error in
+    func getUserEmail(){
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -43,15 +89,21 @@ struct AuthService {
         
     }
     
-    // Information on Firebase Auth Tokens: https://firebase.google.com/docs/auth/users#auth_tokens
-    // Retrieval of token code reference https://firebase.google.com/docs/auth/admin/verify-id-tokens#retrieve_id_tokens_on_clients
-    func logAuthID(user: User) {
-        user.getIDTokenForcingRefresh(true) { idToken, error in
+
+    
+    // MARK: Debug
+    func logAuthID() {
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
           }
-          print(idToken ?? "")
+            print("------------------------------")
+            print(idToken ?? "")
+            print("------------------------------")
         }
     }
 }
+
+
+

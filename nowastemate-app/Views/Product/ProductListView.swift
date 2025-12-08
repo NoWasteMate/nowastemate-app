@@ -130,9 +130,10 @@ struct ProductListView: View {
                                 }
                             }
                         }
-                        .task {
+                        .onAppear() {
+                            print("Loading product data...")
                             guard let user = authVM.user else { return }
-                            await productVM.loadProducts(for: user)
+                            productVM.loadProducts(for: user)
                         }
                         .padding(.top, 8)
                     }

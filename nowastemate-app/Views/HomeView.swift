@@ -23,20 +23,10 @@ struct HomeView: View {
                 authVM.signOut()
             }
             
-            Button("Auth ID"){
-                AuthService.shared.getUserEmail(user: authVM.user!)
-            }
             Button("Log Token"){
-                AuthService.shared.logAuthID(user: authVM.user!)
+                authVM.logToken()
             }
             
-            Button("Fetch Products") {
-                if let user = authVM.user {
-                    Task {
-                        await productVM.loadProducts(for: user)
-                    }
-                }
-            }
             
             NavigationLink("ProductListView", destination: ProductListView())
             NavigationLink("FamilyView", destination: FamilyView())

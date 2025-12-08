@@ -39,7 +39,9 @@ struct ProductService {
                     
                     let products = try JSONDecoder().decode([Product].self, from: data)
                     print(products)
-                    completion(.success(products))
+                    DispatchQueue.main.async {
+                        completion(.success(products))
+                    }
 
                 }
                 

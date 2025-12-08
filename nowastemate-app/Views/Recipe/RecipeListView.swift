@@ -21,22 +21,24 @@ struct RecipeListView: View {
                 endPoint: .bottom
             ).ignoresSafeArea()
             ScrollView(){
-                
-                TitleHeader(titleText: "My Cookbook")
-                    .padding()
-                
-                RecipeSearch(text: $searchText)
-                    .padding()
-                
-                SubtitleHeader(subtitleText: "Featured Recipes")
-                    .padding(.horizontal, 16)
-                GlassCardCarousel()
-                
-                SubtitleHeader(subtitleText: "Suggested Recipes")
-                    .padding(.horizontal, 16)
-                
-                GlassCardList()
-                Spacer()
+                VStack(alignment: .leading){
+                    TitleHeader(titleText: "My Cookbook")
+                        .padding()
+                    
+                    RecipeSearch(text: $searchText)
+                        .padding()
+                    
+                    SubtitleHeader(subtitleText: "Featured Recipes")
+                        .padding(.horizontal, 16)
+                    GlassCardCarousel()
+                    
+                    SubtitleHeader(subtitleText: "Suggested Recipes")
+                        .padding(.horizontal, 16)
+                    
+                    GlassCardList()
+                    Spacer()
+                }
+           
             }
         }
         .onAppear(){
@@ -100,13 +102,34 @@ struct GlassCardList: View {
 struct ListGlassCard: View {
     let recipe: Recipe
     
-    
     var body: some View {
-        VStack{
-            Text(recipe.recipeName)
-                .font(.title3).bold()
-                .foregroundStyle(.white)
+        VStack(alignment: .leading, spacing: 4){
+            VStack (alignment: .leading){
+                Text(recipe.recipeName)
+                    .font(.title3).bold()
+                    .foregroundStyle(.white)
+                Text("Uses \(recipe.ingredientsUsed) items")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                
+            }
+            .padding()
+            VStack(alignment: .leading, spacing: 4){
+                Text("Cook Time: \(recipe.cookTime)")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                Text("Servings: \(recipe.servings)")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                Text("Difficulty: \(recipe.difficulty)")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+            }
+            .padding()
         }
+        .frame(maxWidth: .infinity)
+        .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
+        .padding()
     }
 }
 
@@ -121,8 +144,6 @@ struct FavouriteGlassCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 20)
-
-
         }
         .frame(maxWidth: .infinity)
         .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))

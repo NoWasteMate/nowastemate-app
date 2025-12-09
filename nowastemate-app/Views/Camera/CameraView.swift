@@ -135,6 +135,13 @@ struct CameraView: View {
             }
             .padding(.top, 12)
         }
+        //if an item is detected close the sheet
+//        .onChange(of: vm.recognizedItems.count) {
+//            if vm.recognizedItems.count > 0 {
+//                isPresented = false
+//                print(vm.recognizedItems)
+//            }
+//        }
     }
 }
 

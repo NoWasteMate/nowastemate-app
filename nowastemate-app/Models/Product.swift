@@ -8,10 +8,14 @@
 import Foundation
 
 struct Product: Identifiable, Codable {
-    var id: String
+    var id: String?
     var name: String
     var quantity: Int
     var createdAt: String
+    var createdBy: String?
+    var dateExpiredUserSet: String?
+    var dateRemoved: String?
+    var usedInRecipe: String?
     var category: String
 }
 

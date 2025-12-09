@@ -30,30 +30,30 @@ struct ProductListView: View {
     
     @State private var showCamera = false
     
-     let groceryItems: [Product] = [
-        Product(
-            id: UUID().uuidString,
-            name: "Lettuce",
-            quantity: 2,
-            createdAt: "2025-11-29T18:45:00Z",
-            category: "vegetable"
-        ),
-        Product(
-            id: UUID().uuidString,
-            name: "Tomato",
-            quantity: 6,
-            createdAt: "2025-11-29T18:46:00Z",
-            category: "fruit"
-        ),
-        Product(
-            id: UUID().uuidString,
-            name: "Red Onion",
-            quantity: 3,
-            createdAt: "2025-11-29T18:47:00Z",
-            category: "vegetable"
-        )
-        ]
-    
+//     let groceryItems: [Product] = [
+//        Product(
+//            id: UUID().uuidString,
+//            name: "Lettuce",
+//            quantity: 2,
+//            createdAt: "2025-11-29T18:45:00Z",
+//            category: "vegetable"
+//        ),
+//        Product(
+//            id: UUID().uuidString,
+//            name: "Tomato",
+//            quantity: 6,
+//            createdAt: "2025-11-29T18:46:00Z",
+//            category: "fruit"
+//        ),
+//        Product(
+//            id: UUID().uuidString,
+//            name: "Red Onion",
+//            quantity: 3,
+//            createdAt: "2025-11-29T18:47:00Z",
+//            category: "vegetable"
+//        )
+//        ]
+//    
     @State private var name: String = ""
     @State private var selectedIndex: Int = 0
     
@@ -98,13 +98,11 @@ struct ProductListView: View {
                     .foregroundColor(.white.opacity(0.9))
                     
                     HStack {
-                        TextField("New item", text: $name)
-                            .textFieldStyle(.roundedBorder)
                         
-                        Button("Add") {
-                            print(groupedProducts)
-                            print()
-                            print(sortedCategories)
+                        NavigationLink("Add") {
+                            AddProductView()
+                                .environmentObject(productVM)
+                                .environmentObject(authVM)
                         }
                         // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
                         Button("Camera") {

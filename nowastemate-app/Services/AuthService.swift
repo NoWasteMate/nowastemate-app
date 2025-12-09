@@ -106,6 +106,8 @@ struct AuthService {
         }
     }
     
+    // https://www.donnywals.com/migrating-callback-based-code-to-swift-concurrency-with-continuations/
+    // Code sourced from here, example of working with token in an async context
     func validToken() async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             Auth.auth().currentUser?.getIDTokenForcingRefresh(true){ idToken, error in

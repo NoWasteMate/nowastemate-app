@@ -30,9 +30,14 @@ struct RecipeService {
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                
+                if let error = error{
+                    completion(.failure(error))
+                    return
+                }
+                
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
 
                         let data = data else {
@@ -40,6 +45,7 @@ struct RecipeService {
                     return
                     
                 }
+                
                 
                 do {
                     let recipes = try JSONDecoder().decode([Recipe].self, from: data)
@@ -49,6 +55,39 @@ struct RecipeService {
                 catch {
                     print(error)
                 }
+            }
+            task.resume()
+        }
+    }
+    
+    func generateRecipe(completion: @escaping (Result<Void, Error>) -> Void) {
+        
+        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                return;
+            }
+            let url = URL(string: "\(baseUrl)/generateRecipe")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                if let error = error{
+                    completion(.failure(error))
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      
+                        let data = data else {
+                    print("Failed to Load Recipes")
+                    return
+                    
+                }
+                
+                completion(.success(()))
+                           
             }
             task.resume()
         }

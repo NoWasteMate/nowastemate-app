@@ -26,5 +26,19 @@ class ProductViewModel: ObservableObject {
             }
         }
     }
+    
+    func addProducts(for user: User, product: Product) {
+        
+        ProductService.shared.addProduct(user: user, product: product) { result in
+            switch result {
+            case .success(let products):
+                self.products = products
+                self.errorMessage = nil
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
+            }
+            
+        }
+    }
 
 }

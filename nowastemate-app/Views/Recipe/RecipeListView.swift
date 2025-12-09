@@ -123,7 +123,8 @@ struct GeneratedRecipeList: View {
         LazyVStack{
             if(recipeVM.isLoading){
                 ProgressView()
-                    .padding(48) 
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .padding(48)
             }
             else{
                 ForEach(recipeVM.recipes) { recipe in

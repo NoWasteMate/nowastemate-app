@@ -98,14 +98,8 @@ struct ProductListView: View {
                     .foregroundColor(.white.opacity(0.9))
                     
                     HStack {
-                        TextField("New item", text: $name)
-                            .textFieldStyle(.roundedBorder)
                         
-                        Button("Add") {
-                            print(groupedProducts)
-                            print()
-                            print(sortedCategories)
-                        }
+                        NavigationLink("Add") { AddProductView() }
                         // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
                         Button("Camera") {
                             showCamera = true

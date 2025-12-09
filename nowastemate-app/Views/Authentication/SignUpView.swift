@@ -15,11 +15,11 @@ struct SignUpView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
-    @State private var firstName = ""
-    @State private var lastName = ""
+    //@State private var firstName = ""
+    //@State private var lastName = ""
     
     var isFormValid: Bool {
-            !email.isEmpty && !firstName.isEmpty && !lastName.isEmpty && !password.isEmpty && !confirmPassword.isEmpty
+            !email.isEmpty && !password.isEmpty && !confirmPassword.isEmpty
     }
     
     @State private var showAlert = false
@@ -48,31 +48,31 @@ struct SignUpView: View {
 
                 VStack(spacing: 8) {
                     
-                    Text("First Name")
-                        .font(.headline)
-                        .foregroundColor(Color.brown)
+                    //Text("First Name")
+                    //    .font(.headline)
+                    //    .foregroundColor(Color.brown)
 
-                    TextField("", text: $firstName)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
-                        .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
-                        )
+                    //TextField("", text: $firstName)
+                    //    .padding()
+                    //    .background(Color.white)
+                    //    .border(Color.gray)
+                    //    .overlay(
+                    //            RoundedRectangle(cornerRadius: 6)
+                    //                .stroke(.gray, lineWidth: 2)
+                    //    )
                     
-                    Text("Last Name")
-                        .font(.headline)
-                        .foregroundColor(Color.brown)
+                    //Text("Last Name")
+                    //    .font(.headline)
+                    //    .foregroundColor(Color.brown)
 
-                    TextField("", text: $lastName)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
-                        .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
-                        )
+                    //TextField("", text: $lastName)
+                    //    .padding()
+                    //    .background(Color.white)
+                    //    .border(Color.gray)
+                    //    .overlay(
+                    //            RoundedRectangle(cornerRadius: 6)
+                    //                .stroke(.gray, lineWidth: 2)
+                    //    )
                     
                     Text("Email")
                         .font(.headline)
@@ -122,7 +122,6 @@ struct SignUpView: View {
                             
                             vm.signUp(email: email, password: password)
                             
-                            //vm.user = email
                             
                             dismiss()
                             

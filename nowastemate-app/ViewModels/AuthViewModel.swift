@@ -36,7 +36,7 @@ class AuthViewModel: ObservableObject {
     }
         
     func signUp(email: String, password: String) {
-        authService.signIn(email: email, password: password) { error in
+        authService.signUp(email: email, password: password) { error in
             if let error = error {
                 print("Sign Up Error:", error.localizedDescription)
                 return

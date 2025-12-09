@@ -28,11 +28,14 @@ struct RootView: View {
                 recipeVM.loadRecipes()
             }
         } else {
-            LogInView()
-                .environmentObject(authVM)
+            NavigationStack {
+                LogInView()
+                    .environmentObject(authVM)
+            }
         }
     }
 }
+
 
 #Preview {
     RootView()

@@ -8,6 +8,7 @@
 //References:
 // https://gurjit-singh.medium.com/how-to-use-completion-handler-in-swift-d1c26b30c67
 // https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-continuations-to-convert-completion-handlers-into-async-functions
+// https://www.hackingwithswift.com/forums/swift/help-needed-json-encoding/17744
 
 import Foundation
 import FirebaseAuth
@@ -66,6 +67,7 @@ struct ProductService {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             
             
             let encoder = JSONEncoder()

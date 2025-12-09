@@ -13,6 +13,7 @@ struct AddProductView: View {
     
     @State private var name = ""
     @State private var quantity = 1
+    @State private var category = ""
     
     var body: some View {
         ZStack {
@@ -48,7 +49,23 @@ struct AddProductView: View {
                                 .foregroundStyle(.white)
                         }
                     }.padding(8)
-                
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Category of the product").font(.headline)
+                        TextField("example: Fruit", text: $category)
+                            .padding()
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(12)
+                    }.padding(8)
+                    
+                    //Button to send the user inputted product to ProductViewModel
+                    Button("Save Product") {
+                        guard let user = authVM.user else { return }
+                        
+                        let userInputtedProduct = Product(name: name, quantity: quantity, createdAt: "", category: category)
+                        
+                        productVM.addProducts(for: user, product: userInputtedProduct)
+                    }
                     
                 }
             }

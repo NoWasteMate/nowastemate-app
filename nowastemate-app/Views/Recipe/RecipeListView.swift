@@ -29,15 +29,23 @@ struct RecipeListView: View {
                         RecipeSearch(text: $searchText)
                             .padding()
                         HStack(alignment: .center){
-                            Button{
-                                Label("Sign In", systemImage: "sparkles")     .foregroundColor(.white)
-                                    .imageScale(.large)
+                            Button(action: recipeVM.generateRecipe){
+                                if (recipeVM.isLoading){
+                                    // https://stackoverflow.com/questions/66568382/change-swiftui-progressview-color-macos-not-ios
+                                    // ProgressView() styling
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    Text("Generating Recipe")
+                                        .disabled(true)
+                                }
+                                else{
+                                    Label("Generate Recipe", systemImage: "sparkles")     .foregroundColor(.white)
+                                        .imageScale(.large)
+                                        .disabled(false)
+                                }
+                          
                             }
-                            label: {
-                                Image(systemName: "sparkles")
-                                       
-                                Text("Generate Recipe")
-                            }
+                            
                             .foregroundColor(.white)
                             .padding(.vertical, 12)
                             .padding(.horizontal, 48)
@@ -111,10 +119,17 @@ struct GlassCardCarousel: View{
 struct GeneratedRecipeList: View {
     @EnvironmentObject var recipeVM: RecipeViewModel
     var body: some View {
+        // Using Lazy Stack for better performance. Glass views should be created as they come because the visual is quite taxing on the system
         LazyVStack{
-            ForEach(recipeVM.recipes) { recipe in
-                NavigationLink(destination: RecipeDetailView(recipe: recipe)){
-                    ListGlassCard(recipe: recipe)
+            if(recipeVM.isLoading){
+                ProgressView()
+                    .padding(48) 
+            }
+            else{
+                ForEach(recipeVM.recipes) { recipe in
+                    NavigationLink(destination: RecipeDetailView(recipe: recipe)){
+                        ListGlassCard(recipe: recipe)
+                    }
                 }
             }
         }

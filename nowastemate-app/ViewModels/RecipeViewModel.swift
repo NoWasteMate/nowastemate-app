@@ -21,27 +21,34 @@ final class RecipeViewModel: ObservableObject {
     
     
     func loadRecipes(){
+        self.isLoading = true
+
         RecipeService.shared.getAllRecipes() {result in
             DispatchQueue.main.async {
-                self.isLoading = true
                 switch result {
                 case .success(let recipes):
                     self.recipes = recipes
+                    self.isLoading = false
                 case .failure:
                     self.isLoading = false
                     return
                 }
+                self.isLoading = false
             }
         }
     }
     
     func generateRecipe(){
+        self.isLoading = true
+
         RecipeService.shared.generateRecipe() {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success():
                     self.loadRecipes()
+                    // loadRecipes() will call isLoading = false
                 case .failure:
+                    self.isLoading = false
                     return
                 }
                 

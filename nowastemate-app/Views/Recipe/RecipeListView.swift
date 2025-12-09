@@ -33,15 +33,24 @@ struct RecipeListView: View {
                                 if (recipeVM.isLoading){
                                     // https://stackoverflow.com/questions/66568382/change-swiftui-progressview-color-macos-not-ios
                                     // ProgressView() styling
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    Text("Generating Recipe")
-                                        .disabled(true)
+                                    HStack{
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        Text("Generating Recipe")
+                                            .disabled(true)
+                                    }
+                                    .frame(height: 36)
+                                    .frame(width: 196) // Set same height to avoid ui "jumping" when state changes
                                 }
                                 else{
-                                    Label("Generate Recipe", systemImage: "sparkles")     .foregroundColor(.white)
-                                        .imageScale(.large)
-                                        .disabled(false)
+                                    HStack{
+                                        Label("Generate Recipe", systemImage: "sparkles")     .foregroundColor(.white)
+                                            .imageScale(.large)
+                                            .disabled(false)
+                                    }
+                                    .frame(height: 36)
+                                    .frame(width: 196)
+                                    
                                 }
                           
                             }

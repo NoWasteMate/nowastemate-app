@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var recipeVM: RecipeViewModel
 
     var body: some View {
         
@@ -21,6 +22,10 @@ struct RootView: View {
                 HomeView()
                     .environmentObject(authVM)
                     .environmentObject(familyVM)
+                    .environmentObject(recipeVM)
+            }
+            .onAppear{
+                recipeVM.loadRecipes()
             }
         } else {
             LogInView()
@@ -33,5 +38,6 @@ struct RootView: View {
     RootView()
         .environmentObject(AuthViewModel())
         .environmentObject(FamilyViewModel())
+        .environmentObject(RecipeViewModel())
     
 }

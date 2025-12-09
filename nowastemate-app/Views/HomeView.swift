@@ -25,7 +25,9 @@ struct HomeView: View {
             }
             
             Button("Log Token"){
-                authVM.logToken()
+                Task{
+                    await authVM.logToken()
+                }
             }
             
             Button("Log All Recipes") {

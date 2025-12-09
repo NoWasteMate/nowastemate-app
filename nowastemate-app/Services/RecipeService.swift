@@ -32,10 +32,15 @@ struct RecipeService {
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+
+                        let data = data else {
+                    print("Failed to Load Recipes")
                     return
+                    
                 }
+                
                 do {
                     let recipes = try JSONDecoder().decode([Recipe].self, from: data)
                     completion(.success(recipes))
@@ -48,4 +53,5 @@ struct RecipeService {
             task.resume()
         }
     }
+    
 }

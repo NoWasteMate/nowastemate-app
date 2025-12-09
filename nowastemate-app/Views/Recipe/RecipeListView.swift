@@ -28,8 +28,27 @@ struct RecipeListView: View {
                         
                         RecipeSearch(text: $searchText)
                             .padding()
+                        HStack(alignment: .center){
+                            Button{
+                                Label("Sign In", systemImage: "sparkles")     .foregroundColor(.white)
+                                    .imageScale(.large)
+                            }
+                            label: {
+                                Image(systemName: "sparkles")
+                                       
+                                Text("Generate Recipe")
+                            }
+                            .foregroundColor(.white)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 48)
+                            .background(Color.buttonBackgroundPrimary)
+                            .cornerRadius(30)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                        }
                         
-                        SubtitleHeader(subtitleText: "Featured Recipes")
+                        
+                        SubtitleHeader(subtitleText: "Favourite Recipes")
                             .padding(.horizontal, 16)
                         GlassCardCarousel()
                         
@@ -92,7 +111,7 @@ struct GlassCardCarousel: View{
 struct GeneratedRecipeList: View {
     @EnvironmentObject var recipeVM: RecipeViewModel
     var body: some View {
-        HStack(spacing: 16) {
+        LazyVStack{
             ForEach(recipeVM.recipes) { recipe in
                 NavigationLink(destination: RecipeDetailView(recipe: recipe)){
                     ListGlassCard(recipe: recipe)
@@ -134,7 +153,9 @@ struct ListGlassCard: View {
         }
         .frame(maxWidth: .infinity)
         .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 4)
+        
     }
 }
 

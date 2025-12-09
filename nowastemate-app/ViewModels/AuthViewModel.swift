@@ -57,8 +57,8 @@ class AuthViewModel: ObservableObject {
         }
     }
         
-    func logToken() {
-        AuthService.shared.logAuthID()
+    func logToken() async {
+        await AuthService.shared.logAuthID()
         
     }
 }

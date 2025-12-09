@@ -16,17 +16,20 @@ class RecipeViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     func loadRecipes(){
-        print(recipes)
-        
         RecipeService.shared.getAllRecipes() {result in
-            switch result {
-            case .success(let recipes):
-                self.recipes = recipes
-//                print(recipes)
-            case .failure:
-                return
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let recipes):
+                    self.recipes = recipes
+                case .failure:
+                    return
+                }
                 
             }
         }
+    }
+    
+    func generateRecipe(){
+        
     }
 }

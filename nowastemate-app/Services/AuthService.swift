@@ -92,15 +92,31 @@ struct AuthService {
 
     
     // MARK: Debug
-    func logAuthID() {
-        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
-          if let error = error {
-            print(error)
-            return;
-          }
+    func logAuthID() async {
+        do{
+            let idToken = try await validToken()
             print("------------------------------")
-            print(idToken ?? "")
+            print(idToken)
             print("------------------------------")
+        }
+        catch{
+            print("------------------------------")
+            print("ERROR LOGGING TOKEN \(error)")
+            print("------------------------------")
+        }
+    }
+    
+    func validToken() async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            Auth.auth().currentUser?.getIDTokenForcingRefresh(true){ idToken, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    print("error validation user")
+                }
+                else{
+                    continuation.resume(returning: idToken ?? "No token found")
+                }
+            }
         }
     }
 }

@@ -121,6 +121,35 @@ struct AuthService {
             }
         }
     }
+    
+    func syncUser(){
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(baseUrl)/syncUser")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    print(response)
+                }
+                
+                catch {
+                    print(error)
+                }
+            }
+            task.resume()
+        }
+        
+    }
 }
 
 

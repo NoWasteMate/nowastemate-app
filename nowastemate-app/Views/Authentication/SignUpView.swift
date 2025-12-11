@@ -12,9 +12,9 @@ import SwiftUI
 struct SignUpView: View {
     
     //state variables for user input
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirmPassword = ""
+    @State private var email = "Test1@gmail.com"
+    @State private var password = "pwwwww"
+    @State private var confirmPassword = "pwwwww"
     //@State private var firstName = ""
     //@State private var lastName = ""
     
@@ -24,7 +24,7 @@ struct SignUpView: View {
     
     @State private var showAlert = false
     
-    @EnvironmentObject var vm: AuthViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -120,7 +120,7 @@ struct SignUpView: View {
                         if (password == confirmPassword && isFormValid){
                             
                             
-                            vm.signUp(email: email, password: password)
+                            authVM.signUp(email: email, password: password)
                             
                             
                             dismiss()

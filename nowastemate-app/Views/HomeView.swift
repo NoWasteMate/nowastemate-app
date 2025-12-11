@@ -39,6 +39,9 @@ struct HomeView: View {
             NavigationLink("RecipeListView", destination: RecipeListView())
         }
         .padding()
+        .onAppear {
+            authVM.createUser()
+        }
     }
 }
 

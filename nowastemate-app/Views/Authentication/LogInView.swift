@@ -76,9 +76,13 @@ struct LogInView: View {
                     
                     
                     Button("Sign In"){
+                        
+                        
 
                         authVM.signIn(email: email, password: password)
                         //TODO: Navigation to new view
+                        
+                        
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

@@ -61,6 +61,10 @@ class AuthViewModel: ObservableObject {
         await AuthService.shared.logAuthID()
         
     }
+    
+    func createUser() {
+        authService.syncUser()
+    }
 }
     
 

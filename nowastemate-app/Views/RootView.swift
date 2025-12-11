@@ -19,10 +19,29 @@ struct RootView: View {
         if authVM.isSignedIn {
            
             NavigationStack {
-                HomeView()
-                    .environmentObject(authVM)
-                    .environmentObject(familyVM)
-                    .environmentObject(recipeVM)
+                TabView {
+                    Tab("Home", systemImage: "house") {
+                        HomeView()
+                    }
+
+                    Tab("Inventory", systemImage: "checklist") {
+                        ProductListView()
+                    }
+
+                    Tab("Recipes", systemImage: "book.pages.fill") {
+                        RecipeListView()
+                    }
+        
+                    
+                    Tab("Families", systemImage: "person.3.fill") {
+                        FamilyView()
+                        
+                    }
+                }
+                .environmentObject(authVM)
+                .environmentObject(familyVM)
+                .environmentObject(recipeVM)
+             
             }
             .onAppear{
                 recipeVM.loadRecipes()

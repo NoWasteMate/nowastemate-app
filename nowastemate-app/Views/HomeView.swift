@@ -16,27 +16,35 @@ struct HomeView: View {
 
     var body: some View {
         VStack {
+            Spacer()
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello " + (authVM.user?.email ?? "None") )
+            Text("Hello, \(authVM.user?.email ?? "None")!" )
+                .font(.title)
+            Spacer()
+
             Button("Logout"){
                 authVM.signOut()
             }
+            .foregroundStyle(.white)
+            .padding()
+            .background(Color.buttonBackgroundPrimary)
+            .cornerRadius(32)
             
-            Button("Log Token"){
+            Button("(ADMIN) Log Active Token"){
                 Task{
                     await authVM.logToken()
                 }
             }
+            .padding()
+    
             
-            Button("Log All Recipes") {
-                recipeVM.loadRecipes()
-            }
             
-            NavigationLink("ProductListView", destination: ProductListView())
-            NavigationLink("FamilyView", destination: FamilyView())
-            NavigationLink("RecipeListView", destination: RecipeListView())
+            
+            
+            
+            
         }
         .padding()
     }

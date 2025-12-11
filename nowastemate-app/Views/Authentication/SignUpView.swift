@@ -24,7 +24,7 @@ struct SignUpView: View {
     
     @State private var showAlert = false
     
-    @EnvironmentObject var vm: AuthViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -120,7 +120,7 @@ struct SignUpView: View {
                         if (password == confirmPassword && isFormValid){
                             
                             
-                            vm.signUp(email: email, password: password)
+                            authVM.signUp(email: email, password: password)
                             
                             
                             dismiss()

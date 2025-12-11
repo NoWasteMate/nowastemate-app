@@ -56,24 +56,22 @@ struct FamilyView: View {
                 HStack {
                 
                     if let family = familyVM.familyId {
-                        Text("\(family)")
+                        Text("Your family invite code: \(family)")
                     } else if let errorMessage = familyVM.errorMessage {
                         Text(errorMessage)
                             .foregroundColor(.red)
                     } else {
                         Text("Loading Invite Code")
-                            .onAppear {
-                                familyVM.findFamilyId()
-                            }
                     }
-                
-                
+            
+                    
+                    
                     
                     //https://sarunw.com/posts/swiftui-image-button/
                     if let familyId = familyVM.familyId {
                         Button {
                             isClicked = true
-                            UIPasteboard.general.string = "I would like for you to join my family on NoWasteMate, please join using code:\n \(familyId)"
+                            UIPasteboard.general.string = "\(familyId)"
                         } label: {
                             Image(systemName: "doc.on.clipboard")
                                         .foregroundColor(.gray)
@@ -135,8 +133,13 @@ struct FamilyView: View {
                 
             }
             .padding(.horizontal, 30)
+            
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            familyVM.findFamilyId()
+        }
+        
     }
 }
 

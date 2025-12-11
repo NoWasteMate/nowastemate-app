@@ -47,6 +47,9 @@ struct HomeView: View {
             
         }
         .padding()
+        .onAppear {
+            authVM.createUser()
+        }
     }
 }
 

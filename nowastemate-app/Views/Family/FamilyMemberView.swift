@@ -48,14 +48,15 @@ struct FamilyMemberView: View {
                         .foregroundColor(.red)
                 } else {
                     Text("Loading Family Members")
-                        .onAppear {
-                            familyVM.findFamilyMembers()
-                        }
                 }
                 
             }
             .padding()
+            
         }
+    }
+    .onAppear {
+        familyVM.findFamilyMembers()
     }
 }
 }

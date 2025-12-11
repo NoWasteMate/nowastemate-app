@@ -56,6 +56,7 @@ struct FamilyService {
                 
                 catch {
                     print(error)
+                    
                 }
             }
             task.resume()
@@ -105,6 +106,9 @@ struct FamilyService {
             task.resume()
         }
     }
+    
+    
+    
     //https://lukerobertsapps.medium.com/how-to-fetch-data-from-an-api-in-swift-d2ed6d9481a
     func getFamilyId(completion: @escaping (Result<[String], Error>) -> Void){
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
@@ -129,13 +133,16 @@ struct FamilyService {
                 
                 catch {
                     print(error)
+                    
                 }
             }
             task.resume()
-
+            
         }
-        
     }
+    
+    
+    
     
     func getFamilyMembers(completion: @escaping (Result<[String], Error>) -> Void){
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
@@ -153,13 +160,13 @@ struct FamilyService {
                     return
                 }
                 do {
-                    
                     let code = try JSONDecoder().decode([String].self, from: data)
                               completion(.success(code))
                 }
                 
                 catch {
                     print(error)
+                    completion(.failure(error))
                 }
             }
             task.resume()

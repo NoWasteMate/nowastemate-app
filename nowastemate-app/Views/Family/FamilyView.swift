@@ -19,26 +19,40 @@ struct FamilyView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.white, .white, .cyan]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient,.familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
             
             VStack(alignment: .leading, spacing: 24) {
                 
             
                 
-                           
-                Text("Eliminate Waste as a family")
-                    //https://sarunw.com/posts/swiftui-text-font/
-                    .font(.title)
-                    .foregroundColor(.black)
-                    .padding(.bottom, 20)
                 
+                Text("Eliminate Waste as a Family")
+                    //https://sarunw.com/posts/swiftui-text-font/
+                    .font(.largeTitle)
+                    .bold()
+                    .foregroundColor(.white)
+                    .padding(.bottom, 20)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                                
+                /*
                 NavigationLink("View Current Family Members", destination: FamilyMemberView())
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.black)
                     .cornerRadius(30)
+                 */
+                //https://www.createwithswift.com/using-sf-symbols-in-swiftui/
+                //https://www.codegenes.net/blog/clip-image-to-square-in-swiftui/
+                Image(systemName: "person.3")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .symbolVariant(.fill)
+                    .foregroundStyle(.white)
                 
+                /*
                 HStack{
                     
                     Text("Let others join you, simply share the code below?")
@@ -94,9 +108,10 @@ struct FamilyView: View {
                                         .transition(.opacity.combined(with: .move(edge: .top)))
 
                 }
+                 */
                 
                 
-
+                /*
                 //title
                 Text("Are you looking to join your family in eliminating waste?")
                     //https://sarunw.com/posts/swiftui-text-font/
@@ -106,15 +121,11 @@ struct FamilyView: View {
 
                         )
                     .foregroundColor(.black)
-                
-                NavigationLink("Join a Family", destination: JoinFamilyView())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.black)
-                    .cornerRadius(30)
+                */
                 
                 
+                
+                /*
                 Text("Ready to start your own family?")
                     //https://sarunw.com/posts/swiftui-text-font/
                     .font(
@@ -123,17 +134,25 @@ struct FamilyView: View {
 
                         )
                     .foregroundColor(.black)
-                
-                NavigationLink("Start a Family", destination: CreateFamilyView())
-                    .foregroundColor(.white)
+                */
+                NavigationLink("Create Family", destination: CreateFamilyView())
+                    .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
+                    .background(Color.white)
                     .cornerRadius(30)
+                    .bold()
                 
+                NavigationLink("Join Family", destination: JoinFamilyView())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 40)
+                    .padding(.vertical)
+                    .background(Color.buttonBackgroundPrimary)
+                    .cornerRadius(32)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding(.horizontal, 30)
-            
+                        
         }
         .edgesIgnoringSafeArea(.all)
         .onAppear {

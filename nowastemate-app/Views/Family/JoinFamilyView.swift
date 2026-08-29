@@ -14,85 +14,96 @@ struct JoinFamilyView: View {
     @EnvironmentObject var familyVM: FamilyViewModel
     
     var isFormValid: Bool {
-            !code.isEmpty
+        !code.isEmpty
     }
     
     @State private var showAlert = false
     
-
+    
     var body: some View {
         ZStack {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.white, .white, .blue]), startPoint: .top, endPoint: .bottom)
-            
-            VStack(alignment: .leading, spacing: 24) {
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient,.familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
 
-                //title
-                Text("Join a Family below!")
+                VStack(alignment: .leading, spacing: 24) {
+                                        
+                    //title
+                    Text("You’re not a Part of Any Family Yet")
                     //https://sarunw.com/posts/swiftui-text-font/
-                    .font(
-                            .largeTitle
-                            .weight(.bold)
-
-                        )
-                    .foregroundColor(.black)
-
-                VStack(spacing: 8) {
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundColor(.white)
+                        .padding(.bottom, 20)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
                     
-                    Text("Please paste the code provided by your family member.")
-                        .font(.headline)
-                        .foregroundColor(Color.black)
-
-                    TextField("", text: $code)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
-                        .overlay(
+                    VStack(spacing: 8) {
+                        //https://stackoverflow.com/questions/57688242/swiftui-how-to-change-the-placeholder-color-of-the-textfield
+                        TextField("", text: $code, prompt: Text("Enter Family Code").foregroundColor(.white))
+                            .padding()
+                            .background(Color.white.opacity(0.5))
+                            .border(Color.gray)
+                            .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
-                        )
-                    
-                    
-
-                    Button("Join Family"){
+                                    .stroke(.white, lineWidth: 2)
+                            )
+                            .cornerRadius(12)
                         
-                        if (isFormValid){
+                        Button("Join Family"){
                             
-                            familyVM.findFamily(code: code)
-                            
-                            print(code)
-                            
-                            
-                        } else {
-                            showAlert = true
+                            if (isFormValid){
+                                
+                                familyVM.findFamily(code: code)
+                                
+                                print(code)
+                                
+                                
+                            } else {
+                                showAlert = true
+                            }
                         }
-                    }
-                    .disabled(!isFormValid)
-                    
-                    //https://developer.apple.com/documentation/swiftui/alert
-                    .alert(isPresented: $showAlert) {
-                        Alert(
-                            title: Text("Missing Input"),
-                            message: Text("Please fill in the information required")
-                        )
+                        .disabled(!isFormValid)
+                        
+                        //https://developer.apple.com/documentation/swiftui/alert
+                        .alert(isPresented: $showAlert) {
+                            Alert(
+                                title: Text("Missing Input"),
+                                message: Text("Please fill in the information required")
+                            )
                             
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.black)
+                        .cornerRadius(30)
+                        .padding(.top)
+                        
+                        Text("Please have the family owner share their code with you.")
+                            //https://sarunw.com/posts/swiftui-text-font/
+                            .font(.subheadline)
+                            .bold()
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .multilineTextAlignment(.center)
+                        
+                        //TODO: Add button with FAQ
+                        
+                        
+                        
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
-                    .cornerRadius(30)
-                    .padding(.top)
                 }
-                .padding()
+                .padding(.horizontal, 30)
             }
-            .padding(.horizontal, 30)
+            .edgesIgnoringSafeArea(.all)
+            
         }
-        .edgesIgnoringSafeArea(.all)
     }
-}
+
 
 #Preview {
     JoinFamilyView()

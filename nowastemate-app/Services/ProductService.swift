@@ -16,8 +16,6 @@ import FirebaseAuth
 struct ProductService {
     static let shared = ProductService()
     
-    let baseUrl = URL(string: "http://127.0.0.1:8000")!
-    
     //Getting the list of products depending on user
     func getProducts(user: User, completion: @escaping (Result<[Product], Error>) -> Void){
         user.getIDTokenForcingRefresh(true) { idToken, error in
@@ -25,7 +23,7 @@ struct ProductService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/getProducts")!
+            let url = URL(string: "\(AppConfig.baseUrl)/getProducts")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -63,7 +61,7 @@ struct ProductService {
                 return;
             }
             
-            let url = URL(string: "\(baseUrl)/products")!
+            let url = URL(string: "\(AppConfig.baseUrl)/products")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

@@ -12,8 +12,6 @@ import FirebaseAuth
 struct FamilyService {
     static let shared = FamilyService()
     
-    let baseUrl = URL(string: "http://127.0.0.1:8000")!
-    
     var currentUser: User? {
         Auth.auth().currentUser
     }
@@ -28,7 +26,7 @@ struct FamilyService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/family")!
+            let url = URL(string: "\(AppConfig.baseUrl)/family")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -73,7 +71,7 @@ struct FamilyService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/family/join")!
+            let url = URL(string: "\(AppConfig.baseUrl)/family/join")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -116,7 +114,7 @@ struct FamilyService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/family_id")!
+            let url = URL(string: "\(AppConfig.baseUrl)/family_id")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -150,7 +148,7 @@ struct FamilyService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/family_members")!
+            let url = URL(string: "\(AppConfig.baseUrl)/family_members")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

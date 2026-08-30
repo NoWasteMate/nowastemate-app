@@ -12,8 +12,6 @@ import FirebaseAuth
 struct RecipeService {
     static let shared = RecipeService()
     
-    let baseUrl = URL(string: "http://127.0.0.1:8000")!
-    
     var currentUser: User? {
         Auth.auth().currentUser
     }
@@ -26,7 +24,7 @@ struct RecipeService {
                 print(error)
                 return;
             }
-            let url = URL(string: "\(baseUrl)/getAllRecipes")!
+            let url = URL(string: "\(AppConfig.baseUrl)/getAllRecipes")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -67,7 +65,7 @@ struct RecipeService {
                 print(error)
                 return;
             }
-            let url = URL(string: "\(baseUrl)/generateRecipe")!
+            let url = URL(string: "\(AppConfig.baseUrl)/generateRecipe")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

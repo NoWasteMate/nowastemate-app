@@ -57,15 +57,13 @@ struct AuthService {
     }
     
     
-    let baseUrl = URL(string: "http://127.0.0.1:8000")!
-    
     func getUserEmail(){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/userInformation")!
+            let url = URL(string: "\(AppConfig.baseUrl)/userInformation")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
@@ -128,7 +126,7 @@ struct AuthService {
             print(error)
             return;
           }
-            let url = URL(string: "\(baseUrl)/syncUser")!
+            let url = URL(string: "\(AppConfig.baseUrl)/syncUser")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

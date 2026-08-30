@@ -78,6 +78,12 @@ struct ProductListView: View {
                 .ignoresSafeArea()
                 
                 Spacer()
+                
+                VStack {
+                    
+                }.padding(40)
+                
+               
                             
                 VStack{
                     //Grocery List
@@ -105,9 +111,7 @@ struct ProductListView: View {
                                 .environmentObject(authVM)
                         }
                         // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
-                        Button("Camera") {
-                            showCamera = true
-                        }
+                        scanButton
                         .sheet(isPresented: $showCamera) {
                             CameraView(isPresented: $showCamera)
                                 .environmentObject(dataScannerVM)
@@ -150,41 +154,89 @@ struct ProductListView: View {
 //            groceryItems[selectedIndex].items.remove(at: index)
 //        }
 //    }
+
+    private var scanButton: some View {
+        Button {
+            showCamera = true
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: "barcode.viewfinder")
+                    .font(.system(size: 20, weight: .semibold))
+                Text("Scan")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.white)
+            .frame(width: 72, height: 72)
+            .background(Color(red: 0.35, green: 0.60, blue: 0.40))
+            .clipShape(Circle())
+            .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
+        }.padding(.bottom, 24)
+    }
+    
+    
 }
 
 #Preview {
     ProductListView()
+        .environmentObject(AuthViewModel())
+        .environmentObject(CameraViewModel())
 }
 
-struct ProductCardView: View {
+private struct ProductCardView: View {
     
     var title: String
     var items: [Product]
   
     var body: some View {
-        VStack() {
-            Text(title)
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title.capitalized)
+                .font(.subheadline.weight(.bold))
+                .foregroundColor(.secondary)
             
-            Divider()
-            
-            ForEach(items) { product in
-                HStack {
-                    Text(product.name)
-                        .font(.subheadline)
-                    Text("Quantity: \(product.quantity)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            VStack(spacing: 10) {
+                ForEach(items) { product in
+                    ProductRowView(product: product)
                 }
             }
         }
-        .frame(width: 350,alignment: .center)
-        .padding(10)
-        .background(
-            Color.white
-                .shadow(radius: 5)
-        )
-        
-        .clipShape(RoundedRectangle(cornerRadius: 25))
+//        .frame(width: 350,alignment: .center)
+//        .padding(10)
+//        .background(
+//            Color.white
+//                .shadow(radius: 5)
+//        )
+//        
+//        .clipShape(RoundedRectangle(cornerRadius: 25))
     }
 }
+
+private struct ProductRowView: View {
+    var product: Product
+    
+    var body: some View {
+        HStack {
+            Text(product.name)
+                .font(.body.weight(.medium))
+                .foregroundColor(.primary)
+            
+            Spacer()
+            
+            Text("Qty \(product.quantity)")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Color(red: 0.90, green: 0.96,
+                                  blue: 0.90))
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+}
+        
+        
+    
+

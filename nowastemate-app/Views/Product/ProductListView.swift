@@ -103,14 +103,7 @@ struct ProductListView: View {
 //                    }
 //                    .foregroundColor(.white.opacity(0.9))
                     
-                    HStack {
-                        
-                        NavigationLink("Add") {
-                            AddProductView()
-                                .environmentObject(productVM)
-                                .environmentObject(authVM)
-                        }
-                    }
+                   
                     
                     
     
@@ -138,7 +131,13 @@ struct ProductListView: View {
             // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
             // https://www.swiftbysundell.com/articles/backgrounds-and-overlays-in-swiftui/
             .overlay(alignment: .bottom) {
-                scanButton
+                HStack {
+                    addButton
+                    Spacer()
+                    scanButton
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24) 
             }
             .sheet(isPresented: $showCamera) {
                 CameraView(isPresented: $showCamera)
@@ -173,9 +172,28 @@ struct ProductListView: View {
             .background(Color(red: 0.35, green: 0.60, blue: 0.40))
             .clipShape(Circle())
             .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
-        }.padding(.bottom, 24)
+        }
     }
     
+    private var addButton: some View {
+        NavigationLink {
+            AddProductView()
+                .environmentObject(productVM)
+                .environmentObject(authVM)
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .semibold))
+                Text("Add")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.white)
+            .frame(width: 72, height: 72)
+            .background(Color(red: 0.35, green: 0.60, blue: 0.40))
+            .clipShape(Circle())
+            .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
+        }
+    }
     
 }
 

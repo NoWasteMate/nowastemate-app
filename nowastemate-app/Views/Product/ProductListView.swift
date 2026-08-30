@@ -95,13 +95,13 @@ struct ProductListView: View {
                         Spacer()
                     }
                     //Filter List
-                    HStack(spacing: 8) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                        Text("Filter List")
-                            .font(.subheadline.weight(.semibold))
-                        Spacer()
-                    }
-                    .foregroundColor(.white.opacity(0.9))
+//                    HStack(spacing: 8) {
+//                        Image(systemName: "line.3.horizontal.decrease.circle")
+//                        Text("Filter List")
+//                            .font(.subheadline.weight(.semibold))
+//                        Spacer()
+//                    }
+//                    .foregroundColor(.white.opacity(0.9))
                     
                     HStack {
                         
@@ -109,12 +109,6 @@ struct ProductListView: View {
                             AddProductView()
                                 .environmentObject(productVM)
                                 .environmentObject(authVM)
-                        }
-                        // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
-                        scanButton
-                        .sheet(isPresented: $showCamera) {
-                            CameraView(isPresented: $showCamera)
-                                .environmentObject(dataScannerVM)
                         }
                     }
                     
@@ -140,6 +134,15 @@ struct ProductListView: View {
                         .padding(.top, 8)
                     }
                 }.padding(20)
+            }
+            // reference: https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-new-view-using-sheets
+            // https://www.swiftbysundell.com/articles/backgrounds-and-overlays-in-swiftui/
+            .overlay(alignment: .bottom) {
+                scanButton
+            }
+            .sheet(isPresented: $showCamera) {
+                CameraView(isPresented: $showCamera)
+                    .environmentObject(dataScannerVM)
             }
         }
     }

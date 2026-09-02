@@ -5,6 +5,10 @@
 //  Created by Julius Nillo on 2025-12-08.
 //
 
+
+//references:
+// to show how to use date picker - https://www.youtube.com/watch?v=9UovPNh4Csw
+
 import SwiftUI
 
 struct AddProductView: View {
@@ -14,6 +18,7 @@ struct AddProductView: View {
     @State private var name = ""
     @State private var quantity = 1
     @State private var category = ""
+    @State private var isPerishable = true
     
     var body: some View {
         ZStack {
@@ -35,20 +40,38 @@ struct AddProductView: View {
                     
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Name of the Product").font(.headline)
+                        Text("Name of Product").fontWeight(.bold)
+                            .foregroundStyle(.white)
                         TextField("example: Apples", text: $name)
                             .padding()
                             .background(Color.white.opacity(0.2))
                             .cornerRadius(12)
                     }.padding(8)
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Quantity").font(.headline).foregroundStyle(.white)
-                        Stepper(value: $quantity, in: 1...50) {
-                            Text("\(quantity)")
-                                .foregroundStyle(.white)
+                    HStack {
+                        VStack(spacing: 2) {
+                            Button { quantity += 1 } label: { Image(systemName: "chevron.up") }
+                            Button { if quantity > 1 { quantity -= 1 } } label: { Image(systemName: "chevron.down") }
                         }
-                    }.padding(8)
+                        Text("\(quantity)")
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.3))
+                    .cornerRadius(12)
+                    
+                    HStack(spacing: 0) {
+                        Text("Perishable")
+                            .frame(maxWidth: .infinity).padding()
+                            .background(isPerishable ? Color.white : .clear)
+                            .onTapGesture { isPerishable = true }
+                        Text("Non Perishable")
+                            .frame(maxWidth: .infinity).padding()
+                            .background(!isPerishable ? Color.white : .clear)
+                            .onTapGesture { isPerishable = false }
+                    }
+                    .background(Color.white.opacity(0.3))
+                    .clipShape(Capsule())
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Category of the product").font(.headline)
@@ -59,14 +82,25 @@ struct AddProductView: View {
                     }.padding(8)
                     
                     //Button to send the user inputted product to ProductViewModel
+//                    Button("Save Product") {
+//                        guard let user = authVM.user else { return }
+//                        
+//                        let userInputtedProduct = Product(name: name, quantity: quantity, createdAt: "", category: category)
+//                        
+//                        productVM.addProducts(for: user, product: userInputtedProduct)
+//                    }
+                    //perishable not added in yet
                     Button("Save Product") {
                         guard let user = authVM.user else { return }
-                        
                         let userInputtedProduct = Product(name: name, quantity: quantity, createdAt: "", category: category)
-                        
                         productVM.addProducts(for: user, product: userInputtedProduct)
                     }
-                    
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.black)
+                    .foregroundStyle(.white)
+                    .clipShape(Capsule())
+                    .padding(.horizontal)
                 }
             }
             

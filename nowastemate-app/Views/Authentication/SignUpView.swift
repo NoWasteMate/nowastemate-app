@@ -23,7 +23,9 @@ struct SignUpView: View {
     }
     
     @State private var showAlert = false
-    
+    @State private var alertMessage = ""
+
+
     @EnvironmentObject var authVM: AuthViewModel
     @Environment(\.dismiss) private var dismiss
 
@@ -79,6 +81,7 @@ struct SignUpView: View {
                         .foregroundColor(Color.brown)
 
                     TextField("", text: $email)
+                        .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color.white)
                         .border(Color.gray)
@@ -116,29 +119,42 @@ struct SignUpView: View {
                         )
 
                     Button("Sign Up"){
-                        
-                        if (password == confirmPassword && isFormValid){
-                            
-                            
-                            authVM.signUp(email: email, password: password)
-                            
-                            
-                            dismiss()
-                            
-                            
-                        } else {
+
+                        guard isFormValid else { return }
+
+                        guard password == confirmPassword else {
+                            alertMessage = "Password inputs must match!"
                             showAlert = true
+                            return
+                        }
+
+                        // Firebase requires a 6 character minimum password: https://firebase.google.com/docs/auth/ios/password-auth
+                        guard password.count >= 6 else {
+                            alertMessage = "Password must be at least 6 characters."
+                            showAlert = true
+                            return
+                        }
+
+                        // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
+                        authVM.signUp(email: email, password: password) { error in
+                            if let error = error {
+                                alertMessage = error.localizedDescription
+                                showAlert = true
+                                
+                            } else {
+                                dismiss()
+                            }
                         }
                     }
                     .disabled(!isFormValid)
-                    
+
                     //https://developer.apple.com/documentation/swiftui/alert
                     .alert(isPresented: $showAlert) {
                         Alert(
                             title: Text("Incorrect Input"),
-                            message: Text("Password inputs must match!")
+                            message: Text(alertMessage)
                         )
-                            
+
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

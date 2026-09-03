@@ -96,7 +96,16 @@ struct AddProductView: View {
                     }.padding(8)
                     
                     HStack {
-                        Button("Pick Date", systemImage: "calendar") { showDatePicker = true }
+                        Button("Pick Date", systemImage: "calendar") {
+                            showDatePicker = true
+                        }
+                            .padding()
+                            .background(Color.white)
+                            .foregroundStyle(.black)
+                            .clipShape(Capsule())
+                        Button("Estimate with AI", systemImage: "apple.intelligence") {
+                            // no AI implementation yet, just making UI similar to the Figma
+                        }
                             .padding()
                             .background(Color.white)
                             .foregroundStyle(.black)
@@ -131,6 +140,8 @@ struct AddProductView: View {
                     .foregroundStyle(.black)
                     .clipShape(Capsule())
                     .padding(.horizontal)
+                    
+                    
                     
                     //perishable not added in yet
                     Button("Save Product") {

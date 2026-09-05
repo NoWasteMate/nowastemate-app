@@ -20,8 +20,9 @@ class ProductViewModel: ObservableObject {
             switch result {
             case .success(let products):
                 self.products = products
-            case .failure:
-                return
+                self.errorMessage = nil
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
             
             }
         }

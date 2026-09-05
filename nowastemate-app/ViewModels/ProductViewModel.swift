@@ -27,6 +27,12 @@ class ProductViewModel: ObservableObject {
         }
     }
     
+    // The view model is app-scoped instead of account levll, so it outlives sign out. Clear it to fix this carryover
+    func resetProducts() {
+        products = []
+        errorMessage = nil
+    }
+
     func addProducts(for user: User, product: Product) {
         
         ProductService.shared.addProduct(user: user, product: product) { result in

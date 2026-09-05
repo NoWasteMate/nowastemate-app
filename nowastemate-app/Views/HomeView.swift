@@ -11,7 +11,7 @@ import FirebaseAuth
 struct HomeView: View {
     
     @EnvironmentObject var authVM: AuthViewModel
-    @StateObject private var productVM = ProductViewModel()
+    @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
 
     var body: some View {

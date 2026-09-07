@@ -75,8 +75,8 @@ struct ProductListView: View {
             //Background Gradient
             ZStack {
                 LinearGradient(colors: [
-                    Color(red: 0.55, green: 0.80, blue: 0.60),
-                    Color(red: 0.99, green: 0.96, blue: 0.90)
+                    Color(red: 0.30, green: 0.48, blue: 0.36),
+                    Color(red: 0.64, green: 0.82, blue: 0.68)
                 ], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
                 

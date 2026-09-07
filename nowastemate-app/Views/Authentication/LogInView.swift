@@ -14,6 +14,10 @@ struct LogInView: View {
     @State private var password = ""
     
     @EnvironmentObject var authVM: AuthViewModel
+    
+    var isFormValid: Bool {
+            !email.isEmpty && !password.isEmpty
+    }
 
     var body: some View {
         
@@ -64,7 +68,6 @@ struct LogInView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(.gray, lineWidth: 2)
                         )
-                        
 
                     Button(action: {}) {
                         Text("Can’t Log In?")
@@ -73,24 +76,24 @@ struct LogInView: View {
                     }
                     .padding(.top, 6)
 
-                    
-                    
-                    Button("Sign In"){
-                        
-                        
-
+                    Button(!isFormValid ? "Please enter your details" : isFormValid ? "Sign In" : "Please enter your details"){
                         authVM.signIn(email: email, password: password)
-                        //TODO: Navigation to new view
+                        //https://www.avanderlee.com/swiftui/swiftui-alert-presenting/
+                    }.alert("Error", isPresented: $authVM.loginError, actions: {
                         
-                        
-                    }
+                    }, message: {
+                        Text("Unable to Log In")
+                    })
+                    
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.brown)
+                    //https://stackoverflow.com/questions/71446122/custom-coloring-with-if-else-in-swiftui Conditional coloring
+                    .background(!isFormValid ? .gray : isFormValid ? .brown : .gray)
+                    //https://sarunw.com/posts/swiftui-button-disable/
+                    .disabled(!isFormValid)
                     .cornerRadius(30)
-                    
-
+                   
                     NavigationLink("Sign Up", destination: SignUpView())
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -112,7 +115,6 @@ struct LogInView: View {
     
     @Previewable @StateObject var authVM = AuthViewModel()
 
-    
     LogInView()
         .environmentObject(authVM)
 }

@@ -115,7 +115,7 @@ struct SignUpView: View {
                                     .stroke(.gray, lineWidth: 2)
                         )
 
-                    Button("Sign Up"){
+                    Button(!isFormValid ? "Please enter your details" : isFormValid ? "Sign Up" : "Please enter your details"){
                         
                         if (password == confirmPassword && isFormValid){
                             
@@ -143,7 +143,7 @@ struct SignUpView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
+                    .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
                     .cornerRadius(30)
                     .padding(.top)
                 }

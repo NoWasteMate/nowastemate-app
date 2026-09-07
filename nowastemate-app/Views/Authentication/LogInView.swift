@@ -76,14 +76,14 @@ struct LogInView: View {
                     
                     
                     Button("Sign In"){
-                        
-                        
-
                         authVM.signIn(email: email, password: password)
-                        //TODO: Navigation to new view
+                        //https://www.avanderlee.com/swiftui/swiftui-alert-presenting/
+                    }.alert("Error", isPresented: $authVM.loginError, actions: {
                         
-                        
-                    }
+                    }, message: {
+                        Text("Unable to Log In")
+                    })
+                    
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()

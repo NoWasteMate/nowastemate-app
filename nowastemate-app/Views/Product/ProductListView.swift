@@ -26,7 +26,7 @@ import Foundation
 struct ProductListView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var dataScannerVM: CameraViewModel
-    @StateObject private var productVM = ProductViewModel()
+    @EnvironmentObject var productVM: ProductViewModel
     
     @State private var showCamera = false
     
@@ -188,7 +188,6 @@ struct ProductListView: View {
     private var addButton: some View {
         NavigationLink {
             AddProductView()
-                .environmentObject(productVM)
                 .environmentObject(authVM)
         } label: {
             VStack(spacing: 4) {
@@ -211,6 +210,7 @@ struct ProductListView: View {
     ProductListView()
         .environmentObject(AuthViewModel())
         .environmentObject(CameraViewModel())
+        .environmentObject(ProductViewModel())
 }
 
 private struct ProductCardView: View {

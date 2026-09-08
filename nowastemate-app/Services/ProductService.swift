@@ -21,6 +21,9 @@ struct ProductService {
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
+            DispatchQueue.main.async {
+                completion(.failure(error))
+            }
             return;
           }
             let url = URL(string: "\(AppConfig.baseUrl)/getProducts")!
@@ -30,6 +33,10 @@ struct ProductService {
             
             let task = URLSession.shared.dataTask(with: request) {data, _, error in
                 guard let data = data, error == nil else {
+
+                    DispatchQueue.main.async {
+                        completion(.failure(error ?? URLError(.badServerResponse)))
+                    }
                     return
                 }
                 do {
@@ -46,6 +53,9 @@ struct ProductService {
                 
                 catch {
                     print(error)
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
                 }
             }
             task.resume()

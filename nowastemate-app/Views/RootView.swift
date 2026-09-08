@@ -11,6 +11,7 @@ struct RootView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
+    @EnvironmentObject var productVM: ProductViewModel
 
     var body: some View {
         
@@ -41,6 +42,7 @@ struct RootView: View {
                 .environmentObject(authVM)
                 .environmentObject(familyVM)
                 .environmentObject(recipeVM)
+                .environmentObject(productVM)
              
             }
             .onAppear{
@@ -50,6 +52,9 @@ struct RootView: View {
             NavigationStack {
                 LogInView()
                     .environmentObject(authVM)
+            }
+            .onAppear {
+                productVM.resetProducts()
             }
         }
     }
@@ -61,5 +66,6 @@ struct RootView: View {
         .environmentObject(AuthViewModel())
         .environmentObject(FamilyViewModel())
         .environmentObject(RecipeViewModel())
+        .environmentObject(ProductViewModel())
     
 }

@@ -11,6 +11,8 @@ struct RecipeListView: View {
     
     @State private var searchText = ""
     @EnvironmentObject var recipeVM: RecipeViewModel
+    @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     
     var body: some View {
         ZStack{
@@ -80,6 +82,11 @@ struct RecipeListView: View {
         }
         .onAppear(){
             recipeVM.loadRecipes()
+            // Recipes store the productIds they were generated from, so the inventory has to be current
+
+            if let user = authVM.user {
+                productVM.loadProducts(for: user)
+            }
         }
     }
 }
@@ -148,6 +155,7 @@ struct GeneratedRecipeList: View {
 
 struct ListGlassCard: View {
     let recipe: Recipe
+    @EnvironmentObject var productVM: ProductViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4){
@@ -156,7 +164,8 @@ struct ListGlassCard: View {
                     .font(.title3).bold()
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.leading)
-                Text("Uses \(recipe.ingredientsUsed) items")
+                // Falls back to the count the recipe was generated with
+                Text("Uses \(productVM.ownedIngredientCount(in: recipe.ingredients) ?? recipe.ingredientsUsed) items")
                     .font(.subheadline)
                     .foregroundStyle(.white)
                     .italic()

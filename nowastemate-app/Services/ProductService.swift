@@ -175,6 +175,9 @@ struct ProductService {
                 
                 catch {
                     print(error)
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
                 }
             }
             task.resume()

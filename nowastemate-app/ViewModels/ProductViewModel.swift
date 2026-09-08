@@ -28,6 +28,10 @@ class ProductViewModel: ObservableObject {
         Set(products.compactMap { $0.id })
     }
 
+    private var ownedProductNames: Set<String> {
+        Set(products.map { normalizedName($0.name) })
+    }
+
     func loadProducts(for user: User){
 
         ProductService.shared.getProducts(user: user) {result in
@@ -64,13 +68,31 @@ class ProductViewModel: ObservableObject {
         }
     }
 
-    // A recipe stores the productId it was generated from, but that is just a snapshot,
-    // so availability refreshes the check. Added guard for proper error checking as well.
-    
+    // A recipe stores the productId it was generated from, but that is just a snapshot and not updating based on live product availability
     func availability(for ingredient: Ingredient) -> IngredientAvailability {
         guard hasLoadedProducts else { return .unknown }
-        guard let productId = ingredient.productId, !productId.isEmpty else { return .missing }
-        return ownedProductIds.contains(productId) ? .owned : .missing
+
+        let productId = ingredient.productId ?? ""
+        let hasMatchingId = !productId.isEmpty && ownedProductIds.contains(productId)
+
+        let ingredientName = normalizedName(ingredient.name)
+        let hasMatchingName = ownedProductNames.contains(ingredientName)
+
+        if hasMatchingId || hasMatchingName {
+            return .owned
+        }
+        return .missing
+        
+    }
+    
+    // Normalize names so matching ignores capitalization, accents, and extra spaces provided by user.
+    // https://stackoverflow.com/questions/25525171/uitextview-highlight-all-matches-using-swift
+    private func normalizedName(_ name: String) -> String {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedName.folding(
+            options: [.diacriticInsensitive, .caseInsensitive],
+            locale: .current
+        )
     }
 
 

@@ -57,6 +57,9 @@ struct ProductListView: View {
     @State private var name: String = ""
     @State private var selectedIndex: Int = 0
     
+    @State private var searchText = ""
+    @State private var selectedFilter = "All"
+    
     // create dictionary - key = category, value = Product
     // switch between groceryItems if you want to modify the UI
 //    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
@@ -72,8 +75,8 @@ struct ProductListView: View {
             //Background Gradient
             ZStack {
                 LinearGradient(colors: [
-                    Color(red: 0.55, green: 0.80, blue: 0.60),
-                    Color(red: 0.99, green: 0.96, blue: 0.90)
+                    Color(red: 0.30, green: 0.48, blue: 0.36),
+                    Color(red: 0.64, green: 0.82, blue: 0.68)
                 ], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
                 
@@ -94,18 +97,25 @@ struct ProductListView: View {
                         
                         Spacer()
                     }
-                    //Filter List
-//                    HStack(spacing: 8) {
-//                        Image(systemName: "line.3.horizontal.decrease.circle")
-//                        Text("Filter List")
-//                            .font(.subheadline.weight(.semibold))
-//                        Spacer()
-//                    }
-//                    .foregroundColor(.white.opacity(0.9))
                     
-                   
-                    
-                    
+                    //Filtering Section
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        TextField("Search Products", text: $searchText)
+                    }
+                    .padding(12)
+                    .background(Color.white.opacity(0.3))
+                    .clipShape(Capsule())
+
+                    HStack {
+                        ForEach(["All", "Quick", "Healthy", "Protein"], id: \.self) { filter in
+                            Text(filter)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 14).padding(.vertical, 6)
+                                .background(filter == selectedFilter ? Color.white.opacity(0.4) : Color.white.opacity(0.15))
+                                .clipShape(Capsule())
+                        }
+                    }
     
                     ScrollView() {
                         
@@ -213,6 +223,7 @@ private struct ProductCardView: View {
             Text(title.capitalized)
                 .font(.subheadline.weight(.bold))
                 .foregroundColor(.secondary)
+            Rectangle().frame(height: 1).foregroundColor(.secondary)
             
             VStack(spacing: 10) {
                 ForEach(items) { product in
@@ -220,14 +231,15 @@ private struct ProductCardView: View {
                 }
             }
         }
-//        .frame(width: 350,alignment: .center)
-//        .padding(10)
-//        .background(
-//            Color.white
-//                .shadow(radius: 5)
-//        )
-//        
-//        .clipShape(RoundedRectangle(cornerRadius: 25))
+        //.frame(width: 380,alignment: .center)
+        .padding(10)
+        .background(
+            Color.white
+                .shadow(radius: 5)
+                .opacity(0.45)
+        )
+        
+        .clipShape(RoundedRectangle(cornerRadius: 25))
     }
 }
 

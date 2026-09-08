@@ -118,21 +118,30 @@ struct SignUpView: View {
                                     .stroke(.gray, lineWidth: 2)
                         )
 
-                    Button("Sign Up"){
 
-                        guard isFormValid else { return }
-
-                        guard password == confirmPassword else {
-                            alertMessage = "Password inputs must match!"
+                    Button(!isFormValid ? "Please enter your details" : isFormValid ? "Sign Up" : "Please enter your details"){
+                      
+                          guard isFormValid else { 
+                            alertMessage = "Please enter your details."
                             showAlert = true
-                            return
-                        }
+                            return }
 
-                        // Firebase requires a 6 character minimum password: https://firebase.google.com/docs/auth/ios/password-auth
-                        guard password.count >= 6 else {
-                            alertMessage = "Password must be at least 6 characters."
-                            showAlert = true
-                            return
+                          guard password == confirmPassword else {
+                              alertMessage = "Password inputs must match!"
+                              showAlert = true
+                              return
+                          }
+
+                          // Firebase requires a 6 character minimum password: https://firebase.google.com/docs/auth/ios/password-auth
+                          guard password.count >= 6 else {
+                              alertMessage = "Password must be at least 6 characters."
+                              showAlert = true
+                              return
+                          }
+
+                          authVM.signUp(email: email, password: password)
+                          dismiss()                
+                      
                         }
 
                         // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
@@ -159,7 +168,7 @@ struct SignUpView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
+                    .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
                     .cornerRadius(30)
                     .padding(.top)
                 }

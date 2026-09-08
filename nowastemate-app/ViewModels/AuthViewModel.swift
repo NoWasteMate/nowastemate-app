@@ -35,7 +35,7 @@ class AuthViewModel: ObservableObject {
         }
     }
         
-    func signUp(email: String, password: String) {
+    func signUp(email: String, password: String, firstName: String, lastName: String, dietaryRestrictions: String) {
         authService.signUp(email: email, password: password) { error in
             if let error = error {
                 print("Sign Up Error:", error.localizedDescription)
@@ -43,6 +43,8 @@ class AuthViewModel: ObservableObject {
             }
             self.user = self.authService.currentUser
             self.isSignedIn = true
+            
+            self.createUser(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
         }
     }
         
@@ -62,8 +64,8 @@ class AuthViewModel: ObservableObject {
         
     }
     
-    func createUser() {
-        authService.syncUser()
+    func createUser(firstName: String, lastName: String, dietaryRestrictions: String) {
+        authService.syncUser(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
     }
 }
     

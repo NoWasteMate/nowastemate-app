@@ -9,6 +9,7 @@
 // https://gurjit-singh.medium.com/how-to-use-completion-handler-in-swift-d1c26b30c67
 // https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-continuations-to-convert-completion-handlers-into-async-functions
 // https://www.hackingwithswift.com/forums/swift/help-needed-json-encoding/17744
+// https://developer.apple.com/documentation/dispatch/dispatchqueue/main
 
 import Foundation
 import FirebaseAuth
@@ -139,4 +140,48 @@ struct ProductService {
             
     }
     
+    func editProduct(user: User, product: Product, completion: @escaping (Result<Void, Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                return;
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/putProduct/\(product.id ?? "")")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let encoder = JSONEncoder()
+            
+            do {
+                request.httpBody = try encoder.encode(product)
+            } catch {
+                print("Failed to encode object: \(error)")
+                return
+            }
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    print(response)
+                    DispatchQueue.main.async {
+                        completion(.success(()))
+                    }
+                }
+                
+                catch {
+                    print(error)
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
+                }
+            }
+            task.resume()
+
+        }
+    }
 }

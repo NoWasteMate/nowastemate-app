@@ -5,6 +5,9 @@
 //  Created by Julius Nillo on 2025-11-27.
 //
 
+// references: https://developer.apple.com/documentation/swift/array
+// https://developer.apple.com/documentation/combine/published
+
 import Foundation
 import SwiftUI
 import FirebaseAuth
@@ -73,6 +76,20 @@ class ProductViewModel: ObservableObject {
             switch result {
             case .success:
                 self.products.removeAll { $0.id == product.id }
+                self.errorMessage = nil
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    func editProduct(for user: User, product: Product) {
+        ProductService.shared.editProduct(user: user, product: product) { result in
+            switch result {
+            case .success:
+                if let index = self.products.firstIndex(where: { $0.id == product.id }) {
+                    self.products[index] = product
+                }
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription

@@ -129,6 +129,7 @@ struct ProductListView: View {
                                 }
                             }
                         }
+                        .environmentObject(productVM) 
                         .onAppear() {
                             print("Loading product data...")
                             guard let user = authVM.user else { return }

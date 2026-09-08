@@ -41,14 +41,16 @@ class AuthViewModel: ObservableObject {
         }
     }
         
-    func signUp(email: String, password: String) {
+    func signUp(email: String, password: String, completion: @escaping (Error?) -> Void = { _ in }) {
         authService.signUp(email: email, password: password) { error in
             if let error = error {
                 print("Sign Up Error:", error.localizedDescription)
+                completion(error)
                 return
             }
             self.user = self.authService.currentUser
             self.isSignedIn = true
+            completion(nil)
         }
     }
         

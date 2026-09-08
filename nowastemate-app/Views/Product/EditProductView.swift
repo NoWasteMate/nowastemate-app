@@ -37,8 +37,8 @@ struct EditProductView: View {
     var body: some View {
         ZStack {
             LinearGradient(colors: [
-                Color(red: 0.30, green: 0.48, blue: 0.36),
-                Color(red: 0.64, green: 0.82, blue: 0.68)
+                Color(red: 0.23, green: 0.29, blue: 0.24),
+                Color(red: 0.49, green: 0.57, blue: 0.50)
             ], startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             
@@ -47,7 +47,7 @@ struct EditProductView: View {
                     
                     Spacer()
                     
-                    Text("Enter Item Details Below")
+                    Text("Edit Item Details Below")
                         .font(.title.bold())
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
@@ -157,18 +157,7 @@ struct EditProductView: View {
                     
                     
                     
-                    //perishable not added in yet
-                    Button("Save Product") {
-                        guard let user = authVM.user else { return }
-                        let userInputtedProduct = Product(name: name, quantity: quantity, createdAt: "", category: category)
-                        productVM.addProducts(for: user, product: userInputtedProduct)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.black)
-                    .foregroundStyle(.white)
-                    .clipShape(Capsule())
-                    .padding(.horizontal)
+                    //@TODO Adding two buttons to edit product (Not done yet) and deleting buttons
                 }
             }
             

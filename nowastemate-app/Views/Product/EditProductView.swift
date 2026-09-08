@@ -159,7 +159,15 @@ struct EditProductView: View {
                     
                     HStack(spacing: 12) {
                         Button("Edit Product") {
-                            
+                            guard let user = authVM.user else { return }
+
+                            var updatedProduct = product
+                            updatedProduct.name = name
+                            updatedProduct.quantity = quantity
+                            updatedProduct.category = category
+
+                            productVM.editProduct(for: user, product: updatedProduct)
+                            dismiss()
                         }
                         .frame(maxWidth: .infinity)
                         .padding()

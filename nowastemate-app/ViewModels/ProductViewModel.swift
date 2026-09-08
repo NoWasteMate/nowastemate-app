@@ -40,5 +40,17 @@ class ProductViewModel: ObservableObject {
             
         }
     }
+    
+    func deleteProduct(for user: User, product: Product) {
+        ProductService.shared.deleteProduct(user: user, product: product) { result in
+            switch result {
+            case .success:
+                self.products.removeAll { $0.id == product.id }
+                self.errorMessage = nil
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
 
 }

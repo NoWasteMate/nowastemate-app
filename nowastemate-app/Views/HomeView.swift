@@ -15,15 +15,37 @@ struct HomeView: View {
     @EnvironmentObject var recipeVM: RecipeViewModel
 
     var body: some View {
-        VStack {
-            Spacer()
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, \(authVM.user?.email ?? "None")!" )
-                .font(.title)
-            Spacer()
-
+        VStack{
+            ScrollView{
+                VStack{
+                    Text("Hello, \(authVM.user?.email ?? "None")!" )
+                        .font(.title)
+                        .foregroundStyle(Color.black)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack (spacing: 16){
+                        VStack{
+                            Text("Total Products Stats")
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 264)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                     
+                        VStack{
+                            Text("Expiring Soon")
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 164)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        VStack{
+                            Text("Suggested Recipe")
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 164)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        
+                    }
+                    .padding(16)
+                }
+                .padding(16)
+                
+            }
             Button("Logout"){
                 authVM.signOut()
             }
@@ -37,16 +59,17 @@ struct HomeView: View {
                     await authVM.logToken()
                 }
             }
-            .padding()
-    
-            
-            
-            
-            
-            
-            
         }
-        .padding()
+
+        
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                LinearGradient(
+                    colors: [.homeViewGradientPrimary, .homeViewGradientSecondary],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ).ignoresSafeArea()
+            )
         .onAppear {
             authVM.createUser()
         }
@@ -55,4 +78,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+        .environmentObject(AuthViewModel())
 }

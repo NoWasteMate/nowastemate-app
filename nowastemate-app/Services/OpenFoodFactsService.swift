@@ -34,4 +34,6 @@ struct OpenFoodFactsService {
         let product_name: String?
         let categories_tags: [String]?
     }
+    
+    //@TODO GET method functionality
 }

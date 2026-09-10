@@ -36,4 +36,14 @@ struct OpenFoodFactsService {
     }
     
     //@TODO GET method functionality
+    func getBarcodeDetails(barcode: String, completion: @escaping (Result<Product, Error>) -> Void) {
+        
+        let url = URL(string: "\(baseUrl)/\(barcode).json")!
+        
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            //@TODO need to put what happens (error checking)
+            
+        }
+        task.resume()
+    }
 }

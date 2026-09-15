@@ -16,6 +16,7 @@ import Combine
 class AuthViewModel: ObservableObject {
     @Published var user: User? = nil
     @Published var isSignedIn: Bool = false
+    @Published var loginError: Bool = false
     
     private let authService = AuthService.shared
     
@@ -28,6 +29,11 @@ class AuthViewModel: ObservableObject {
         authService.signIn(email: email, password: password) { error in
             if let error = error {
                 print("Sign In Error:", error.localizedDescription)
+                //https://www.avanderlee.com/swiftui/swiftui-alert-presenting/
+                //https://stackoverflow.com/questions/77907410/how-to-show-swiftui-alerts-based-on-conditions
+                //TODO: Better custom messaging as current method is fairly generic. Issue currently is that the errors from are not user friendly to read
+                self.loginError = true
+                
                 return
             }
             self.user = self.authService.currentUser
@@ -39,12 +45,14 @@ class AuthViewModel: ObservableObject {
         authService.signUp(email: email, password: password) { error in
             if let error = error {
                 print("Sign Up Error:", error.localizedDescription)
+                completion(error)
                 return
             }
             self.user = self.authService.currentUser
             self.isSignedIn = true
             
             self.createUser(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            completion(nil)
         }
     }
         

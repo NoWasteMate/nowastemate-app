@@ -26,7 +26,7 @@ import Foundation
 struct ProductListView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var dataScannerVM: CameraViewModel
-    @StateObject private var productVM = ProductViewModel()
+    @EnvironmentObject var productVM: ProductViewModel
     
     @State private var showCamera = false
     
@@ -75,8 +75,8 @@ struct ProductListView: View {
             //Background Gradient
             ZStack {
                 LinearGradient(colors: [
-                    Color(red: 0.55, green: 0.80, blue: 0.60),
-                    Color(red: 0.99, green: 0.96, blue: 0.90)
+                    Color(red: 0.30, green: 0.48, blue: 0.36),
+                    Color(red: 0.64, green: 0.82, blue: 0.68)
                 ], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
                 
@@ -129,6 +129,7 @@ struct ProductListView: View {
                                 }
                             }
                         }
+                        .environmentObject(productVM) 
                         .onAppear() {
                             print("Loading product data...")
                             guard let user = authVM.user else { return }
@@ -188,7 +189,6 @@ struct ProductListView: View {
     private var addButton: some View {
         NavigationLink {
             AddProductView()
-                .environmentObject(productVM)
                 .environmentObject(authVM)
         } label: {
             VStack(spacing: 4) {
@@ -211,6 +211,7 @@ struct ProductListView: View {
     ProductListView()
         .environmentObject(AuthViewModel())
         .environmentObject(CameraViewModel())
+        .environmentObject(ProductViewModel())
 }
 
 private struct ProductCardView: View {
@@ -245,28 +246,36 @@ private struct ProductCardView: View {
 
 private struct ProductRowView: View {
     var product: Product
+    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var productVM: ProductViewModel
     
     var body: some View {
-        HStack {
-            Text(product.name)
-                .font(.body.weight(.medium))
-                .foregroundColor(.primary)
-            
-            Spacer()
-            
-            Text("Qty \(product.quantity)")
-                .font(.caption.weight(.semibold))
-                .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color(red: 0.90, green: 0.96,
-                                  blue: 0.90))
-                .clipShape(Capsule())
+        NavigationLink {
+            EditProductView(product: product)
+                .environmentObject(productVM)
+                .environmentObject(authVM)
+        } label: {
+            HStack {
+                Text(product.name)
+                    .font(.body.weight(.medium))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text("Qty \(product.quantity)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color(red: 0.90, green: 0.96, blue: 0.90))
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .buttonStyle(.plain)
     }
 }
         

@@ -9,6 +9,8 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     let recipe: Recipe
+    @EnvironmentObject var productVM: ProductViewModel
+
     var body: some View {
     
         ZStack {
@@ -33,7 +35,16 @@ struct RecipeDetailView: View {
                             .font(.title2)
                             .padding(.vertical)
                         ForEach(recipe.ingredients.indices, id: \.self) { index in
-                            Text(recipe.ingredients[index].name)
+                            let ingredient = recipe.ingredients[index]
+                            let availability = productVM.availability(for: ingredient)
+                            HStack(spacing: 8) {
+                                Image(systemName: icon(for: availability))
+                                    .foregroundStyle(iconColour(for: availability))
+                                    .accessibilityLabel(accessibilityLabel(for: availability))
+                                Text(ingredient.name)
+                            }
+                        
+                            
                         }
                         
                     }
@@ -66,6 +77,32 @@ struct RecipeDetailView: View {
             }
             .padding()
                 
+        }
+    }
+
+    private func icon(for availability: IngredientAvailability) -> String {
+        switch availability {
+        case .owned: return "checkmark.circle.fill"
+        case .missing: return "xmark.circle"
+        case .unknown: return "circle.dotted"
+        }
+    }
+
+    private func iconColour(for availability: IngredientAvailability) -> Color {
+        switch availability {
+        case .owned: return .green
+        case .missing: return .white.opacity(0.6)
+        case .unknown: return .white.opacity(0.35)
+        }
+    }
+
+    // The icon is the only thing carrying availability, so VoiceOver needs it named.
+    // https://developer.apple.com/documentation/swiftui/view/accessibilitylabel(_:)-1d7jv
+    private func accessibilityLabel(for availability: IngredientAvailability) -> String {
+        switch availability {
+        case .owned: return "In your inventory"
+        case .missing: return "Not in your inventory"
+        case .unknown: return "Checking your inventory"
         }
     }
 }

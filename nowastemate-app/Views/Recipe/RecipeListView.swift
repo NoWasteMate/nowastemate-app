@@ -158,38 +158,53 @@ struct ListGlassCard: View {
     @EnvironmentObject var productVM: ProductViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4){
-            VStack (alignment: .leading, spacing: 4){
+        HStack(alignment: .center, spacing: 12){
+            Image(systemName: icon(for: recipe.category))
+                .font(.title)
+                .foregroundStyle(.white)
+                .frame(width: 64, height: 64)
+                .background(.white.opacity(0.15), in: .rect(cornerRadius: 12))
+            VStack(alignment: .leading, spacing: 4){
                 Text(recipe.recipeName)
-                    .font(.title3).bold()
+                    .font(.headline)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.leading)
+                    .lineLimit(2)
                 // Falls back to the count the recipe was generated with
                 Text("Uses \(productVM.ownedIngredientCount(in: recipe.ingredients) ?? recipe.ingredientsUsed) items")
                     .font(.subheadline)
                     .foregroundStyle(.white)
                     .italic()
-                
+                HStack(spacing: 12){
+                    Label("\(recipe.cookTime) min", systemImage: "clock")
+                    Label("\(recipe.servings) servings", systemImage: "person.2")
+                    Label(recipe.difficulty.capitalized, systemImage: "chart.bar")
+                }
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.85))
             }
-            .padding()
-            VStack(alignment: .leading, spacing: 4){
-                Text("Cook Time: \(recipe.cookTime)")
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
-                Text("Servings: \(recipe.servings)")
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
-                Text("Difficulty: \(recipe.difficulty)")
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
-            }
-            .padding()
         }
-        .frame(maxWidth: .infinity)
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
         .padding(.horizontal)
         .padding(.vertical, 4)
         
+    }
+
+    private func icon(for category: RecipeCategory?) -> String {
+        switch category {
+        case .soup: return "cup.and.heat.waves.fill"
+        case .salad: return "leaf.fill"
+        case .pasta: return "frying.pan.fill"
+        case .handheld: return "takeoutbag.and.cup.and.straw.fill"
+        case .breakfast: return "sunrise.fill"
+        case .dessert: return "birthday.cake.fill"
+        case .drink: return "waterbottle.fill"
+        case .platedMain: return "fork.knife"
+        case .general: return "menucard.fill"
+        case nil: return "questionmark.square.dashed"
+        }
     }
 }
 

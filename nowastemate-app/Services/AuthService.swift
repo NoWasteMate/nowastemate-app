@@ -120,7 +120,7 @@ struct AuthService {
         }
     }
     
-    func syncUser(){
+    func syncUser(firstName: String, lastName: String, dietaryRestrictions: String){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
@@ -128,15 +128,29 @@ struct AuthService {
           }
             let url = URL(string: "\(AppConfig.baseUrl)/syncUser")!
             var request = URLRequest(url: url)
+            
+            let newUser = UserInfo(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            
+            let encoder = JSONEncoder()
+            do {
+                request.httpBody = try encoder.encode(newUser)
+                print(request.httpBody!)
+            } catch {
+                print("Failed to encode object: \(error)")
+                return
+            }
+            
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
             let task = URLSession.shared.dataTask(with: request) {data, _, error in
                 guard let data = data, error == nil else {
                     return
                 }
                 do {
                     let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    print(response)
                 }
                 
                 catch {

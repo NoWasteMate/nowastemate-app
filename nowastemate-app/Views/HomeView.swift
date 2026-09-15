@@ -60,19 +60,7 @@ struct HomeView: View {
                 }
             }
         }
-
-        
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                LinearGradient(
-                    colors: [.homeViewGradientPrimary, .homeViewGradientSecondary],
-                    startPoint: .top,
-                    endPoint: .bottom
-                ).ignoresSafeArea()
-            )
-        .onAppear {
-            authVM.createUser()
-        }
+        .padding()
     }
 }
 

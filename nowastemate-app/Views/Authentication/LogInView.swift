@@ -25,54 +25,51 @@ struct LogInView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.white, .white, .brown]), startPoint: .top, endPoint: .bottom)
-            
+            LinearGradient(gradient: Gradient(colors: [.userManagementBrown, .offWhite, .offWhite, .offWhite, .userManagementBrown]), startPoint: .top, endPoint: .bottom)
             VStack(alignment: .leading, spacing: 24) {
 
                 //title
-                Text("Welcome Back!")
+                Text("Start Reducing Waste Today!")
                     //https://sarunw.com/posts/swiftui-text-font/
                     .font(
                             .largeTitle
-                            .weight(.bold)
-
+                            .weight(.medium)
                         )
                     .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 16) {
                     Text("Email")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     TextField("", text: $email)
                         .textInputAutocapitalization(.never)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                         
 
                     Text("Password")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     //https://stackoverflow.com/questions/77755756/how-to-add-a-border-in-swiftui-with-clipshape
                     //adding the rounded border
                     SecureField("", text: $password)
-                        .padding()
-                        .background(Color.white)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
 
                     Button(action: {}) {
                         Text("Can’t Log In?")
                             .font(.subheadline)
-                            .foregroundColor(.brown)
+                            .foregroundColor(.foreGroundBrown)
+                            .underline()
                     }
                     .padding(.top, 6)
 
@@ -87,22 +84,29 @@ struct LogInView: View {
                     
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
                     //https://stackoverflow.com/questions/71446122/custom-coloring-with-if-else-in-swiftui Conditional coloring
-                    .background(!isFormValid ? .gray : isFormValid ? .brown : .gray)
+                    .background(!isFormValid ? .gray : isFormValid ? .buttonBrown : .gray)
                     //https://sarunw.com/posts/swiftui-button-disable/
                     .disabled(!isFormValid)
                     .cornerRadius(30)
                    
                     NavigationLink("Sign Up", destination: SignUpView())
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.black)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 24)
+                        .background(.black)
                         .cornerRadius(30)
+                        .padding(.bottom)
                     
                 }
                 .padding()
+                //https://stackoverflow.com/questions/65202061/swiftui-apply-background-color-to-rounded-rectangle
+                .background(
+                    RoundedRectangle(cornerRadius: 40)
+                        .fill(Color.white.opacity(0.5))
+                )
             }
             .padding(.horizontal, 30)
         }

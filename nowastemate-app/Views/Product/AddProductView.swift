@@ -148,7 +148,14 @@ struct AddProductView: View {
                     //perishable not added in yet
                     Button("Save Product") {
                         guard let user = authVM.user else { return }
-                        let userInputtedProduct = Product(name: name, quantity: quantity, createdAt: "", category: category)
+                        let userInputtedProduct = Product(
+                            name: name,
+                            quantity: quantity,
+                            createdAt: "",
+                            dateExpiration: ISO8601DateFormatter().string(from: expiryDate),
+                            category: category
+                        )
+                        
                         productVM.addProducts(for: user, product: userInputtedProduct)
                     }
                     .frame(maxWidth: .infinity)

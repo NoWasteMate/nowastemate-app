@@ -190,7 +190,17 @@ struct ListGlassCard: View {
         .padding(.horizontal)
         .padding(.vertical, 4)
         
+        .visualEffect { content, proxy in
+            let progress = min(max(proxy.frame(in: .global).origin.y / rampDistance, 0), 1)
+            return content
+                .saturation(topSaturation + (bottomSaturation - topSaturation) * progress)
+        }
     }
+
+    // Distance down the screen over which the saturation ramp plays out.
+    private let rampDistance: CGFloat = 1000
+    private let topSaturation: Double = 0.6
+    private let bottomSaturation: Double = 3.0
 
     private func icon(for category: RecipeCategory?) -> String {
         switch category {
@@ -226,9 +236,4 @@ struct FavouriteGlassCard: View {
         //https://medium.com/icommunity/liquid-glass-in-swiftui-uikit-77d480db1d29
     }
 }
-
-#Preview {
-    RecipeListView()
-}
-
 

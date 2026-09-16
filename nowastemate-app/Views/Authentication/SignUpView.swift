@@ -35,19 +35,19 @@ struct SignUpView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.white, .white, .brown]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.userManagementBrown, .offWhite, .offWhite, .offWhite, .userManagementBrown]), startPoint: .top, endPoint: .bottom)
             
             VStack(alignment: .leading, spacing: 24) {
 
                 //title
-                Text("Start Reducing Waste Today!")
+                Text("Sign Up Today")
                     //https://sarunw.com/posts/swiftui-text-font/
                     .font(
                             .largeTitle
-                            .weight(.bold)
-
+                            .weight(.medium)
                         )
                     .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 8) {
                     
@@ -56,12 +56,10 @@ struct SignUpView: View {
                         .foregroundColor(Color.brown)
 
                     TextField("", text: $firstName)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                     
                     Text("Last Name")
@@ -69,39 +67,35 @@ struct SignUpView: View {
                         .foregroundColor(Color.brown)
 
                     TextField("", text: $lastName)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                     
                     Text("Dietary Restrictions?")
                     .font(.headline)
-                        .foregroundColor(Color.brown)
+                    .foregroundColor(Color.brown)
+                    
 
                     TextField("", text: $dietaryRestrictions)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                     
                     Text("Email")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
+                        .bold()
 
                     TextField("", text: $email)
                         .textInputAutocapitalization(.never)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                     
                     Text("Password")
@@ -109,27 +103,24 @@ struct SignUpView: View {
                         .foregroundColor(Color.brown)
 
                     SecureField("", text: $password)
-                        .padding()
-                        .background(Color.white)
-                        .border(Color.gray)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
                         
 
-                    Text("Confirm Password")
+                    Text("Repeat Password")
                         .font(.headline)
                         .foregroundColor(Color.brown)
 
                     //https://stackoverflow.com/questions/77755756/how-to-add-a-border-in-swiftui-with-clipshape
                     //adding the rounded border
                     SecureField("", text: $confirmPassword)
-                        .padding()
-                        .background(Color.white)
+                        .padding(.vertical, 6)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.gray, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
                         )
 
 
@@ -176,8 +167,8 @@ struct SignUpView: View {
 
                     }
                     .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
                     .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
                     .cornerRadius(30)
                     .padding(.top)

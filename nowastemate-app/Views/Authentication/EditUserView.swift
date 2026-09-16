@@ -118,16 +118,15 @@ struct EditUserView: View {
                               return
                           }
                       
-                        // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
-                        //authVM.editRequest(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
-                        //    if let error = error {
-                        //        alertMessage = error.localizedDescription
-                        //        showAlert = true
+                        authVM.editRequest(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
+                            if let error = error {
+                                alertMessage = error.localizedDescription
+                                showAlert = true
                                 
-                        //    } else {
-                        //        dismiss()
-                        //    }
-                        //}
+                            } else {
+                                dismiss()
+                            }
+                        }
                     }
                     .disabled(!isFormValid)
 

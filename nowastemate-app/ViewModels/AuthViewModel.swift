@@ -51,7 +51,7 @@ class AuthViewModel: ObservableObject {
             self.user = self.authService.currentUser
             self.isSignedIn = true
             
-            self.createUser(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            self.createUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
             completion(nil)
         }
     }
@@ -72,8 +72,30 @@ class AuthViewModel: ObservableObject {
         
     }
     
-    func createUser(firstName: String, lastName: String, dietaryRestrictions: String) {
-        authService.syncUser(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+    func createUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String) {
+        authService.syncUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+    }
+    
+    func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void = { _ in }){
+        authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
+            if let error = error {
+                print("Error:", error.localizedDescription)
+                completion(error)
+                return
+            }
+            
+            Auth.auth().currentUser?.reload() { error in
+                if let error = error {
+                    print(error)
+                    return;
+                }
+            
+                self.user = self.authService.currentUser
+                self.isSignedIn = true
+                completion(nil)
+            }
+        }
+        
     }
 }
     

@@ -59,10 +59,10 @@ struct AuthService {
     
     func getUserEmail(){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
-          if let error = error {
-            print(error)
-            return;
-          }
+            if let error = error {
+                print(error)
+                return;
+            }
             let url = URL(string: "\(AppConfig.baseUrl)/userInformation")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
@@ -82,12 +82,12 @@ struct AuthService {
                 }
             }
             task.resume()
-
+            
         }
         
     }
     
-
+    
     
     // MARK: Debug
     func logAuthID() async {
@@ -120,16 +120,16 @@ struct AuthService {
         }
     }
     
-    func syncUser(firstName: String, lastName: String, dietaryRestrictions: String){
+    func syncUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
-          if let error = error {
-            print(error)
-            return;
-          }
+            if let error = error {
+                print(error)
+                return;
+            }
             let url = URL(string: "\(AppConfig.baseUrl)/syncUser")!
             var request = URLRequest(url: url)
             
-            let newUser = UserInfo(firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            let newUser = UserInfo(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
             
             let encoder = JSONEncoder()
             do {
@@ -143,7 +143,7 @@ struct AuthService {
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+            
             let task = URLSession.shared.dataTask(with: request) {data, _, error in
                 guard let data = data, error == nil else {
                     return
@@ -159,9 +159,54 @@ struct AuthService {
             }
             task.resume()
         }
+    }
+    
+    func editUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void){
         
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                completion(error)
+                return;
+            }
+            
+            let url = URL(string: "\(AppConfig.baseUrl)/editUser")!
+            var request = URLRequest(url: url)
+            
+            let newUser = UserInfo(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            
+            let encoder = JSONEncoder()
+            do {
+                request.httpBody = try encoder.encode(newUser)
+                print(request.httpBody!)
+            } catch {
+                print("Failed to encode object: \(error)")
+                return
+            }
+            
+            request.httpMethod = "PUT"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    completion(error)
+                    return
+                }
+                                
+                do {
+                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    print(response)
+                    completion(nil)
+                }
+                catch {
+                    print(error)
+                    completion(error)
+                }
+            }
+            task.resume()
+        }
     }
 }
-
 
 

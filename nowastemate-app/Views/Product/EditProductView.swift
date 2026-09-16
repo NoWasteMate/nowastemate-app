@@ -10,6 +10,8 @@ import FirebaseAuth
 
 // Going to be the same format as the AddProductView
 // Need to add a Navigation Link from the AddProductView so that each product can be edited and redirected here
+// Reference: https://developer.apple.com/documentation/swiftui/state
+// https://medium.com/@eyupcimen/state-is-now-a-macro-in-xcode-27-heres-why-it-matters-b42c219aade6
 
 struct EditProductView: View {
     
@@ -31,6 +33,12 @@ struct EditProductView: View {
         _name = State(initialValue: product.name)
         _quantity = State(initialValue: product.quantity)
         _category = State(initialValue: product.category)
+        if let dateExpiration = product.dateExpiration,
+               let parsedDate = ISO8601DateFormatter().date(from: dateExpiration) {
+                _expiryDate = State(initialValue: parsedDate)
+        } else {
+            _expiryDate = State(initialValue: Date())
+        }
     }
     
     // going to take the AddProductView code and see if it works
@@ -165,6 +173,7 @@ struct EditProductView: View {
                             updatedProduct.name = name
                             updatedProduct.quantity = quantity
                             updatedProduct.category = category
+                            updatedProduct.dateExpiration = ISO8601DateFormatter().string(from: expiryDate)
 
                             productVM.editProduct(for: user, product: updatedProduct)
                             dismiss()

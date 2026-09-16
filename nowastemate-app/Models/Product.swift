@@ -13,7 +13,7 @@ struct Product: Identifiable, Codable {
     var quantity: Int
     var createdAt: String
     var createdBy: String?
-    var dateExpiredUserSet: String?
+    var dateExpiration: String?
     var dateRemoved: String?
     var usedInRecipe: String?
     var category: String

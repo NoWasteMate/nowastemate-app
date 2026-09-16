@@ -46,6 +46,8 @@ struct LogInView: View {
                     TextField("", text: $email)
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
+
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -60,6 +62,8 @@ struct LogInView: View {
                     //adding the rounded border
                     SecureField("", text: $password)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
+
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)

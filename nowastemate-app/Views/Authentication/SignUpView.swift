@@ -57,6 +57,7 @@ struct SignUpView: View {
 
                     TextField("", text: $firstName)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -68,6 +69,7 @@ struct SignUpView: View {
 
                     TextField("", text: $lastName)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -80,6 +82,7 @@ struct SignUpView: View {
 
                     TextField("", text: $dietaryRestrictions)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -93,6 +96,7 @@ struct SignUpView: View {
                     TextField("", text: $email)
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -104,6 +108,7 @@ struct SignUpView: View {
 
                     SecureField("", text: $password)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
@@ -112,12 +117,13 @@ struct SignUpView: View {
 
                     Text("Repeat Password")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     //https://stackoverflow.com/questions/77755756/how-to-add-a-border-in-swiftui-with-clipshape
                     //adding the rounded border
                     SecureField("", text: $confirmPassword)
                         .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)

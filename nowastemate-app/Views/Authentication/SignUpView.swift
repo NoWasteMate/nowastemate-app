@@ -136,9 +136,10 @@ struct SignUpView: View {
                     Button(!isFormValid ? "Please enter your details" : isFormValid ? "Sign Up" : "Please enter your details"){
                       
                           guard isFormValid else {
-                            alertMessage = "Please enter your details."
-                            showAlert = true
-                            return }
+                              alertMessage = "Please enter your details."
+                              showAlert = true
+                              return
+                          }
 
                           guard password == confirmPassword else {
                               alertMessage = "Password inputs must match!"
@@ -152,12 +153,9 @@ struct SignUpView: View {
                               showAlert = true
                               return
                           }
-
-                          authVM.signUp(email: email, password: password)
-                          dismiss()
                       
                         // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
-                        authVM.signUp(email: email, password: password) { error in
+                        authVM.signUp(email: email, password: password, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
                             if let error = error {
                                 alertMessage = error.localizedDescription
                                 showAlert = true

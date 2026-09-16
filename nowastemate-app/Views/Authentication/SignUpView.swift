@@ -53,7 +53,7 @@ struct SignUpView: View {
                     
                     Text("First Name")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     TextField("", text: $firstName)
                         .padding(.vertical, 6)
@@ -63,8 +63,8 @@ struct SignUpView: View {
                         )
                     
                     Text("Last Name")
-                    .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .font(.headline)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     TextField("", text: $lastName)
                         .padding(.vertical, 6)
@@ -75,8 +75,8 @@ struct SignUpView: View {
                     
                     Text("Dietary Restrictions?")
                     .font(.headline)
-                    .foregroundColor(Color.brown)
-                    
+                    .foregroundColor(Color.foreGroundBrown)
+
 
                     TextField("", text: $dietaryRestrictions)
                         .padding(.vertical, 6)
@@ -100,7 +100,7 @@ struct SignUpView: View {
                     
                     Text("Password")
                         .font(.headline)
-                        .foregroundColor(Color.brown)
+                        .foregroundColor(Color.foreGroundBrown)
 
                     SecureField("", text: $password)
                         .padding(.vertical, 6)

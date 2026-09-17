@@ -80,6 +80,8 @@ struct FamilyView: View {
     }
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     FamilyView()
 }
+#endif

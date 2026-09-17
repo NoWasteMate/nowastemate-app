@@ -14,7 +14,7 @@
 import Foundation
 import FirebaseAuth
 
-//Protocol lets previews inject a design-time service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
+//Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
 protocol ProductServiceProtocol {
     func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)

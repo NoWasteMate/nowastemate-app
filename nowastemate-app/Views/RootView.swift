@@ -61,11 +61,8 @@ struct RootView: View {
 }
 
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     RootView()
-        .environmentObject(AuthViewModel())
-        .environmentObject(FamilyViewModel())
-        .environmentObject(RecipeViewModel())
-        .environmentObject(ProductViewModel())
-    
 }
+#endif

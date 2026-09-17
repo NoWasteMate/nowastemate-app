@@ -207,12 +207,11 @@ struct ProductListView: View {
     
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     ProductListView()
-        .environmentObject(AuthViewModel())
-        .environmentObject(CameraViewModel())
-        .environmentObject(ProductViewModel())
 }
+#endif
 
 private struct ProductCardView: View {
     

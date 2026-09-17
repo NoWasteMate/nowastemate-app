@@ -188,6 +188,8 @@ struct SignUpView: View {
 }
 
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     SignUpView()
 }
+#endif

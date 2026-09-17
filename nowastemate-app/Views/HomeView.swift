@@ -64,7 +64,8 @@ struct HomeView: View {
     }
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     HomeView()
-        .environmentObject(AuthViewModel())
 }
+#endif

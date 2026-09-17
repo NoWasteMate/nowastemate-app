@@ -15,15 +15,15 @@ struct RecipeListView: View {
     @EnvironmentObject var authVM: AuthViewModel
     
     var body: some View {
-        ZStack{
-            // Gradient Background
-            LinearGradient(
-                colors: [Color("RecipeListGradientPrimary"), Color("RecipeListGradientSecondary")],
-                startPoint: .top,
-                endPoint: .bottom
-            ).ignoresSafeArea()
-            ScrollView(){
-                NavigationStack{
+        NavigationStack{
+            ZStack{
+                // Gradient Background
+                LinearGradient(
+                    colors: [Color("RecipeListGradientPrimary"), Color("RecipeListGradientSecondary")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ).ignoresSafeArea()
+                ScrollView(){
                     VStack(alignment: .leading){
                         TitleHeader(titleText: "My Cookbook")
                             .padding()
@@ -237,3 +237,8 @@ struct FavouriteGlassCard: View {
     }
 }
 
+#if DEBUG
+#Preview(traits: .appEnvironment) {
+    RecipeListView()
+}
+#endif

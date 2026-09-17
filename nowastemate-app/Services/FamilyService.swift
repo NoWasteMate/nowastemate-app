@@ -9,7 +9,16 @@
 import Foundation
 import FirebaseAuth
 
-struct FamilyService {
+//Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
+// around 22mins
+protocol FamilyServiceProtocol {
+    func postFamily(title: String)
+    func joinFamily(code: String)
+    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void)
+    func getFamilyMembers(completionHandler: @escaping (Result<[String], Error>) -> Void)
+}
+
+struct FamilyService: FamilyServiceProtocol {
     static let shared = FamilyService()
     
     var currentUser: User? {
@@ -108,7 +117,7 @@ struct FamilyService {
     
     
     //https://lukerobertsapps.medium.com/how-to-fetch-data-from-an-api-in-swift-d2ed6d9481a
-    func getFamilyId(completion: @escaping (Result<[String], Error>) -> Void){
+    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void){
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
@@ -126,7 +135,7 @@ struct FamilyService {
                 do {
                     
                     let code = try JSONDecoder().decode([String].self, from: data)
-                              completion(.success(code))
+                              completionHandler(.success(code))
                 }
                 
                 catch {
@@ -142,7 +151,7 @@ struct FamilyService {
     
     
     
-    func getFamilyMembers(completion: @escaping (Result<[String], Error>) -> Void){
+    func getFamilyMembers(completionHandler: @escaping (Result<[String], Error>) -> Void){
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
@@ -159,12 +168,12 @@ struct FamilyService {
                 }
                 do {
                     let code = try JSONDecoder().decode([String].self, from: data)
-                              completion(.success(code))
+                              completionHandler(.success(code))
                 }
                 
                 catch {
                     print(error)
-                    completion(.failure(error))
+                    completionHandler(.failure(error))
                 }
             }
             task.resume()

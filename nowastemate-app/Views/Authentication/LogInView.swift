@@ -119,10 +119,8 @@ struct LogInView: View {
 }
 
 
-#Preview {
-    
-    @Previewable @StateObject var authVM = AuthViewModel()
-
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     LogInView()
-        .environmentObject(authVM)
 }
+#endif

@@ -160,6 +160,8 @@ struct CreateFamilyView: View {
     }
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     CreateFamilyView()
 }
+#endif

@@ -155,6 +155,8 @@ struct EditUserView: View {
 }
 
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     EditUserView()
 }
+#endif

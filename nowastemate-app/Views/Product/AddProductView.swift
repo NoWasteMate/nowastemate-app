@@ -171,6 +171,8 @@ struct AddProductView: View {
     }
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     AddProductView()
 }
+#endif

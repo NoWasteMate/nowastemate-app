@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum ProductCategory: String, Codable {
+// reference: https://developer.apple.com/documentation/swift/caseiterable
+enum ProductCategory: String, Codable, CaseIterable {
+    
     case produce
     case dairy
     case meat
@@ -16,6 +18,14 @@ enum ProductCategory: String, Codable {
     case frozen
     case beverage
     case other
+    
+    // there are issues when previous products that got added is strings so this defaults it to other
+    // reference: https://developer.apple.com/documentation/swift/rawrepresentable
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = ProductCategory(rawValue: rawValue) ?? .other
+    }
+    
 }
 
 struct Product: Identifiable, Codable {

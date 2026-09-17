@@ -14,16 +14,25 @@
 import Foundation
 import FirebaseAuth
 
-struct ProductService {
+//Protocol lets previews inject a design-time service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
+// around 22mins
+protocol ProductServiceProtocol {
+    func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+    func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
+}
+
+struct ProductService: ProductServiceProtocol {
     static let shared = ProductService()
     
     //Getting the list of products depending on user
-    func getProducts(user: User, completion: @escaping (Result<[Product], Error>) -> Void){
+    func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void){
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             DispatchQueue.main.async {
-                completion(.failure(error))
+                completionHandler(.failure(error))
             }
             return;
           }
@@ -36,7 +45,7 @@ struct ProductService {
                 guard let data = data, error == nil else {
 
                     DispatchQueue.main.async {
-                        completion(.failure(error ?? URLError(.badServerResponse)))
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
                     }
                     return
                 }
@@ -47,7 +56,7 @@ struct ProductService {
                     let products = try JSONDecoder().decode([Product].self, from: data)
                     print(products)
                     DispatchQueue.main.async {
-                        completion(.success(products))
+                        completionHandler(.success(products))
                     }
 
                 }
@@ -55,7 +64,7 @@ struct ProductService {
                 catch {
                     print(error)
                     DispatchQueue.main.async {
-                        completion(.failure(error))
+                        completionHandler(.failure(error))
                     }
                 }
             }
@@ -65,7 +74,7 @@ struct ProductService {
         
     }
     
-    func addProduct(user: User, product: Product, completion: @escaping (Result<[Product], Error>) -> Void) {
+    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -107,7 +116,7 @@ struct ProductService {
         
     }
     
-    func deleteProduct(user: User, product: Product, completion: @escaping (Result<[Product], Error>) -> Void) {
+    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -140,7 +149,7 @@ struct ProductService {
             
     }
     
-    func editProduct(user: User, product: Product, completion: @escaping (Result<Void, Error>) -> Void) {
+    func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -169,14 +178,14 @@ struct ProductService {
                     let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                     print(response)
                     DispatchQueue.main.async {
-                        completion(.success(()))
+                        completionHandler(.success(()))
                     }
                 }
                 
                 catch {
                     print(error)
                     DispatchQueue.main.async {
-                        completion(.failure(error))
+                        completionHandler(.failure(error))
                     }
                 }
             }

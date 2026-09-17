@@ -9,7 +9,14 @@ import Foundation
 import FirebaseAuth
 
 
-struct RecipeService {
+//Protocol lets previews inject a design-time service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
+// around 22mins
+protocol RecipeServiceProtocol {
+    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
+    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void)
+}
+
+struct RecipeService: RecipeServiceProtocol {
     static let shared = RecipeService()
     
     var currentUser: User? {
@@ -17,7 +24,7 @@ struct RecipeService {
     }
     
     //Getting the list of recipes depending on user
-    func getAllRecipes(completion: @escaping (Result<[Recipe], Error>) -> Void) {
+    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
         
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
@@ -32,7 +39,7 @@ struct RecipeService {
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
                 
                 if let error = error{
-                    completion(.failure(error))
+                    completionHandler(.failure(error))
                     return
                 }
                 
@@ -47,7 +54,7 @@ struct RecipeService {
                 
                 do {
                     let recipes = try JSONDecoder().decode([Recipe].self, from: data)
-                    completion(.success(recipes))
+                    completionHandler(.success(recipes))
                 }
                 
                 catch {
@@ -58,7 +65,7 @@ struct RecipeService {
         }
     }
     
-    func generateRecipe(completion: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void) {
         
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
@@ -72,7 +79,7 @@ struct RecipeService {
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
                 if let error = error{
-                    completion(.failure(error))
+                    completionHandler(.failure(error))
                     return
                 }
                 
@@ -84,7 +91,7 @@ struct RecipeService {
                     
                 }
                 
-                completion(.success(()))
+                completionHandler(.success(()))
                            
             }
             task.resume()

@@ -16,19 +16,27 @@ class FamilyViewModel: ObservableObject {
     @Published var familyMembers: [String]?
     
     @Published var errorMessage: String?
+
+    //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
+    // https://www.swiftbysundell.com/articles/mocking-in-swift/
+    private let service: FamilyServiceProtocol
+
+    init(service: FamilyServiceProtocol = FamilyService.shared) {
+        self.service = service
+    }
     
     //specifically grab userid as it is all that is needed
     let currentUser = Auth.auth().currentUser
     
     func createFamily(title: String){
         
-        FamilyService.shared.postFamily(title: title)
+        service.postFamily(title: title)
         
     }
     
     func findFamily(code: String){
         
-        FamilyService.shared.joinFamily(code: code)
+        service.joinFamily(code: code)
     }
     
     func findFamilyId(){
@@ -36,7 +44,7 @@ class FamilyViewModel: ObservableObject {
         DispatchQueue.main.async {
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
-            FamilyService.shared.getFamilyId() { result in
+            self.service.getFamilyId() { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let familyId):
@@ -55,7 +63,7 @@ class FamilyViewModel: ObservableObject {
         DispatchQueue.main.async {
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
-            FamilyService.shared.getFamilyMembers() { result in
+            self.service.getFamilyMembers() { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let familyMembers):

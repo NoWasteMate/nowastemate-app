@@ -88,11 +88,11 @@ extension Product {
     static var previewSamples: [Product] {
         [
             Product(id: "preview-1", name: "Tomatoes", quantity: 4,
-                    createdAt: "2026-09-15T00:00:00Z", category: "produce"),
+                    createdAt: "2026-09-15T00:00:00Z", category: .produce),
             Product(id: "preview-2", name: "Pasta", quantity: 1,
-                    createdAt: "2026-09-15T00:00:00Z", category: "dry goods"),
+                    createdAt: "2026-09-15T00:00:00Z", category: .grains),
             Product(id: "preview-3", name: "Parmesan", quantity: 1,
-                    createdAt: "2026-09-15T00:00:00Z", category: "dairy")
+                    createdAt: "2026-09-15T00:00:00Z", category: .dairy)
         ]
     }
 }

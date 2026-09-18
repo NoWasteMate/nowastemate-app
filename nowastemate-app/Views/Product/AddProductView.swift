@@ -17,7 +17,7 @@ struct AddProductView: View {
     
     @State private var name = ""
     @State private var quantity = 1
-    @State private var category = ""
+    @State private var category: ProductCategory = .other
     @State private var isPerishable = true
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
@@ -84,16 +84,17 @@ struct AddProductView: View {
                     .background(Color.white.opacity(0.3))
                     .clipShape(Capsule())
                     
-                    //Category might be depracated later.
+                    
                     Text("Category of Product")
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                    VStack(alignment: .leading, spacing: 8) {
-                        TextField("example: Fruit", text: $category)
-                            .padding()
-                            .background(Color.white.opacity(0.2))
-                            .cornerRadius(12)
-                    }.padding(8)
+                    Picker("Category", selection: $category) {
+                        ForEach(ProductCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue.capitalized)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.white)
                     
                     Text("Expiry Date").fontWeight(.bold)
                         .foregroundStyle(.white)

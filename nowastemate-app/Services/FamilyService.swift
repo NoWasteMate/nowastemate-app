@@ -16,6 +16,9 @@ protocol FamilyServiceProtocol {
     func joinFamily(code: String)
     func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void)
     func getFamilyMembers(completionHandler: @escaping (Result<[String], Error>) -> Void)
+    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void)
+    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
+
 }
 
 struct FamilyService: FamilyServiceProtocol {
@@ -148,6 +151,37 @@ struct FamilyService: FamilyServiceProtocol {
         }
     }
     
+    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void){
+        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(AppConfig.baseUrl)/family")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let family = try JSONDecoder().decode(Family.self, from: data)
+                    completionHandler(.success(family))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+                }
+            }
+            task.resume()
+
+        }
+        
+    }
+    
     
     
     
@@ -180,6 +214,52 @@ struct FamilyService: FamilyServiceProtocol {
 
         }
         
+    }
+    
+    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
+        //logic for API call
+        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(AppConfig.baseUrl)/family_name")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let newFamily = Family(title: title)
+            
+            let encoder = JSONEncoder()
+            do {
+                request.httpBody = try encoder.encode(newFamily)
+            } catch {
+                print("Failed to encode object: \(error)")
+                return
+            }
+            
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                guard let data = data, error == nil else {
+                    completionHandler(.failure(error!))
+                    return
+                }
+                
+                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
+                guard let httpResponse = response as? HTTPURLResponse,
+                            (200...299).contains(httpResponse.statusCode) else {
+                        print("Error occured")
+                        return
+                }
+                //TODO: Network error handling and displaying to client
+
+                completionHandler(.success(title))
+                
+                
+            }
+            task.resume()
+        }
     }
     
 }

@@ -11,6 +11,15 @@ struct FamilyMemberView: View {
     
     @EnvironmentObject var familyVM: FamilyViewModel
     
+    @State private var editNameAlert: Bool = false
+    
+    @State private var newName: String = ""
+    
+    var validName: Bool {
+        !newName.isEmpty
+    }
+
+    
     var body: some View {
 
         ZStack {
@@ -28,31 +37,53 @@ struct FamilyMemberView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.bottom)
 
-                VStack(spacing: 8) {
-                    
-                    HStack (spacing: 4) {
+                if familyVM.family != nil && familyVM.familyMembers != nil {
+                
+                    VStack(spacing: 8) {
                         
-                        Text("Family name")
-                            .font(.title).bold()
-                            .foregroundColor(.white)
-                        
-                        Button {
+                        HStack (spacing: 4) {
                             
-                        } label: {
-                            Image(systemName: "pencil")
+                            Text(familyVM.family?.title ?? "")
+                                .font(.title).bold()
+                                .foregroundColor(.white)
+                            
+                            if (familyVM.isOwner){
+                                Button {
+                                    editNameAlert = true
+                                }
+                                label: {
+                                    Image(systemName: "pencil")
                                         .foregroundColor(.white)
                                         .imageScale(.small).bold()
+                                }
+                                .alert("Change Family Name", isPresented: $editNameAlert, actions: {
+                                        TextField("", text: $newName)
+                                        
+                                        Button("Cancel", role: .cancel) {
+                                            //simply dismiss here
+                                        }
+                                        
+                                        Button("Confirm", role: .confirm) {
+                                            
+                                            familyVM.editFamilyName(title: newName)
+                                            
+                                        }
+                                    
+                                    
+                                        }, message: {
+                                            Text("Please enter the new desired family name")
+                                        })
+                            }
                         }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-                    
-                    
-                    
-                    //https://medium.com/@jpmtech/swiftui-list-from-beginner-to-merlin-5308261b78b6
-                    //https://sarunw.com/posts/swiftui-list-with-foreach/
-                    if familyVM.familyMembers != nil {
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
                         
+                        
+                        
+                        
+                        
+                        //https://medium.com/@jpmtech/swiftui-list-from-beginner-to-merlin-5308261b78b6
+                        //https://sarunw.com/posts/swiftui-list-with-foreach/
                         ForEach(familyVM.familyMembers!, id: \.self) { item in
                             Button(item){}
                                 .foregroundColor(.black)
@@ -65,27 +96,33 @@ struct FamilyMemberView: View {
                                         .stroke(.black, lineWidth: 1)
                                 )
                                 .padding(.horizontal, 12)
-                                
                             }
+                        }
+                    }
                         
-                    } else if let errorMessage = familyVM.errorMessage {
+                    else if let errorMessage = familyVM.errorMessage {
                         Text(errorMessage)
                             .foregroundColor(.red)
                     } else {
-                        Text("Loading Family Members")
+                        Text("Loading Your Family")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.bottom)
                     }
-                    
                 }
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 40)
-                        .fill(Color.white.opacity(0.5))
+                        .fill(Color.white.opacity(0.2))
                         .padding(.horizontal, 12)
                 )
-            }
+            
+                
         }
         .onAppear {
             familyVM.findFamilyMembers()
+            familyVM.findExistingFamily()
         }
         .edgesIgnoringSafeArea(.all)
 

@@ -55,7 +55,7 @@ struct JoinFamilyView: View {
                             
                             if (isFormValid){
                                 
-                                familyVM.findFamily(code: code)
+                                familyVM.findNewFamily(code: code)
                                 
                                 print(code)
                                 

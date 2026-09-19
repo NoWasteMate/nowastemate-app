@@ -13,9 +13,15 @@ class FamilyViewModel: ObservableObject {
     
     @Published var familyId: String?
     
+    @Published var family: Family?
+
     @Published var familyMembers: [String]?
     
     @Published var errorMessage: String?
+    
+    var isOwner: Bool {
+        family?.ownerId == currentUser?.uid && family?.ownerId != nil
+    }
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -34,7 +40,7 @@ class FamilyViewModel: ObservableObject {
         
     }
     
-    func findFamily(code: String){
+    func findNewFamily(code: String){
         
         service.joinFamily(code: code)
     }
@@ -73,6 +79,42 @@ class FamilyViewModel: ObservableObject {
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
                         self.familyMembers = nil
+                    }
+                }
+            }
+        }
+    }
+    
+    func findExistingFamily(){
+        DispatchQueue.main.async {
+            self.service.getFamily() { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let family):
+                        self.family = family
+                        self.errorMessage = nil
+                        print(family)
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                        self.family = nil
+                    }
+                }
+            }
+        }
+    }
+    
+    func editFamilyName(title: String){
+        
+        DispatchQueue.main.async {
+            self.service.updateFamilyName(title: title) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let success):
+                        self.errorMessage = nil
+                        //ensure UI is updated with new name
+                        self.findExistingFamily()
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
                     }
                 }
             }

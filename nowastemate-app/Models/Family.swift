@@ -8,6 +8,7 @@
 struct Family: Codable {
 
     var title: String
-    //var members: [String]
+    //https://stackoverflow.com/questions/46814313/ignore-non-codable-optional-properties-in-codable-object
+    var ownerId: String? = nil
     
 }

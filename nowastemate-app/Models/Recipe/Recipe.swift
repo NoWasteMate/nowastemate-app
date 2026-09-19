@@ -7,6 +7,18 @@
 
 import Foundation
 
+enum RecipeCategory: String, Codable {
+    case soup
+    case salad
+    case pasta
+    case handheld
+    case breakfast
+    case dessert
+    case drink
+    case platedMain
+    case general
+}
+
 struct Recipe: Codable, Identifiable {
     let id: String
     let recipeName: String
@@ -19,4 +31,5 @@ struct Recipe: Codable, Identifiable {
     let ingredients: [Ingredient]
     let instructions: [String]
     let createdAt: String
+    let category: RecipeCategory?
 }

@@ -105,6 +105,8 @@ struct JoinFamilyView: View {
     }
 
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     JoinFamilyView()
 }
+#endif

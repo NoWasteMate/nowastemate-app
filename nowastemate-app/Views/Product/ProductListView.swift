@@ -63,11 +63,13 @@ struct ProductListView: View {
     // create dictionary - key = category, value = Product
     // switch between groceryItems if you want to modify the UI
 //    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
-    private var groupedProducts: [String: [Product]] { Dictionary(grouping: productVM.products, by: { $0.category })}
+    private var groupedProducts: [ProductCategory: [Product]] {
+        Dictionary(grouping: productVM.products, by: { $0.category ?? .other })
+    }
     
     // array for storing total number of categories
-    private var sortedCategories: [String] {
-        groupedProducts.keys.sorted()
+    private var sortedCategories: [ProductCategory] {
+        ProductCategory.allCases.filter { groupedProducts[$0] != nil }
     }
     
     var body: some View {
@@ -123,7 +125,7 @@ struct ProductListView: View {
                             ForEach(sortedCategories, id: \.self) { category in
                                 if let items = groupedProducts[category] {
                                     ProductCardView(
-                                        title: category,
+                                        title: category.rawValue,
                                         items: items
                                     )
                                 }
@@ -207,12 +209,11 @@ struct ProductListView: View {
     
 }
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     ProductListView()
-        .environmentObject(AuthViewModel())
-        .environmentObject(CameraViewModel())
-        .environmentObject(ProductViewModel())
 }
+#endif
 
 private struct ProductCardView: View {
     

@@ -24,6 +24,14 @@ class ProductViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasLoadedProducts = false
 
+    //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
+    // https://www.swiftbysundell.com/articles/mocking-in-swift/
+    private let service: ProductServiceProtocol
+
+    init(service: ProductServiceProtocol = ProductService.shared) {
+        self.service = service
+    }
+
 
     // compactMap allows for nil items to be in the list
     // https://developer.apple.com/documentation/swift/sequence/compactmap(_:)
@@ -37,7 +45,7 @@ class ProductViewModel: ObservableObject {
 
     func loadProducts(for user: User){
 
-        ProductService.shared.getProducts(user: user) {result in
+        service.getProducts(user: user) {result in
             switch result {
             case .success(let products):
                 self.products = products
@@ -59,7 +67,7 @@ class ProductViewModel: ObservableObject {
 
     func addProducts(for user: User, product: Product) {
         
-        ProductService.shared.addProduct(user: user, product: product) { result in
+        service.addProduct(user: user, product: product) { result in
             switch result {
             case .success(let products):
                 self.products = products
@@ -72,7 +80,7 @@ class ProductViewModel: ObservableObject {
     }
     
     func deleteProduct(for user: User, product: Product) {
-        ProductService.shared.deleteProduct(user: user, product: product) { result in
+        service.deleteProduct(user: user, product: product) { result in
             switch result {
             case .success:
                 self.products.removeAll { $0.id == product.id }
@@ -84,7 +92,7 @@ class ProductViewModel: ObservableObject {
     }
     
     func editProduct(for user: User, product: Product) {
-        ProductService.shared.editProduct(user: user, product: product) { result in
+        service.editProduct(user: user, product: product) { result in
             switch result {
             case .success:
                 if let index = self.products.firstIndex(where: { $0.id == product.id }) {

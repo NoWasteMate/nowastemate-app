@@ -93,6 +93,8 @@ struct FamilyMemberView: View {
 }
 
 
-#Preview {
+#if DEBUG
+#Preview(traits: .appEnvironment) {
     FamilyMemberView()
 }
+#endif

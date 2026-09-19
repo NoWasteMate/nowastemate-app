@@ -23,7 +23,7 @@ struct EditProductView: View {
 
     @State private var name: String
     @State private var quantity: Int
-    @State private var category: String
+    @State private var category: ProductCategory
     @State private var isPerishable = true
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
@@ -32,7 +32,7 @@ struct EditProductView: View {
         self.product = product
         _name = State(initialValue: product.name)
         _quantity = State(initialValue: product.quantity)
-        _category = State(initialValue: product.category)
+        _category = State(initialValue: product.category ?? .other)
         if let dateExpiration = product.dateExpiration,
                let parsedDate = ISO8601DateFormatter().date(from: dateExpiration) {
                 _expiryDate = State(initialValue: parsedDate)
@@ -104,16 +104,17 @@ struct EditProductView: View {
                     .background(Color.white.opacity(0.3))
                     .clipShape(Capsule())
                     
-                    //Category might be depracated later.
+                    
                     Text("Category of Product")
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                    VStack(alignment: .leading, spacing: 8) {
-                        TextField("example: Fruit", text: $category)
-                            .padding()
-                            .background(Color.white.opacity(0.2))
-                            .cornerRadius(12)
-                    }.padding(8)
+                    Picker("Category", selection: $category) {
+                        ForEach(ProductCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue.capitalized)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.white)
                     
                     Text("Expiry Date").fontWeight(.bold)
                         .foregroundStyle(.white)

@@ -18,12 +18,18 @@ final class RecipeViewModel: ObservableObject {
     var recipes: [Recipe] = []
     var isLoading = false
     var errorMessage: String?
-    
-    
+    //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
+    // https://www.swiftbysundell.com/articles/mocking-in-swift/
+    private let service: RecipeServiceProtocol
+
+    init(service: RecipeServiceProtocol = RecipeService.shared) {
+        self.service = service
+    }
+
     func loadRecipes(){
         self.isLoading = true
 
-        RecipeService.shared.getAllRecipes() {result in
+        service.getAllRecipes() {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let recipes):
@@ -41,7 +47,7 @@ final class RecipeViewModel: ObservableObject {
     func generateRecipe(){
         self.isLoading = true
 
-        RecipeService.shared.generateRecipe() {result in
+        service.generateRecipe() {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success():

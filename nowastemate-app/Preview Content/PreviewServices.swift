@@ -34,6 +34,13 @@ struct PreviewFamilyService: FamilyServiceProtocol {
     func getFamilyMembers(completionHandler: @escaping (Result<[String], Error>) -> Void) {
         completionHandler(.success(["Preview Member One", "Preview Member Two"]))
     }
+    
+    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void) {
+        completionHandler(.success(Family(title: "Family Preview", ownerId: "Placeholder")))
+    }
+    
+    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    
 }
 
 struct PreviewProductService: ProductServiceProtocol {

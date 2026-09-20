@@ -22,7 +22,7 @@ struct PreviewRecipeService: RecipeServiceProtocol {
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {
-
+    
     func postFamily(title: String) {}
 
     func joinFamily(code: String) {}
@@ -31,8 +31,8 @@ struct PreviewFamilyService: FamilyServiceProtocol {
         completionHandler(.success(["preview-family"]))
     }
 
-    func getFamilyMembers(completionHandler: @escaping (Result<[String], Error>) -> Void) {
-        completionHandler(.success(["Preview Member One", "Preview Member Two"]))
+    func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void) {
+        completionHandler(.success([FamilyMember(member: "id", email: "email")]))
     }
     
     func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void) {
@@ -40,6 +40,8 @@ struct PreviewFamilyService: FamilyServiceProtocol {
     }
     
     func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    
+    func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, any Error>) -> Void) {}
     
 }
 

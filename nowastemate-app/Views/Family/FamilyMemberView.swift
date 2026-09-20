@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct FamilyMemberView: View {
     
@@ -14,6 +15,8 @@ struct FamilyMemberView: View {
     @State private var editNameAlert: Bool = false
     @State private var manageFamilyAlert: Bool = false
     @State private var confirmTransfer: Bool = false
+    @State private var confirmDelete: Bool = false
+    
     @State private var clickedMember: FamilyMember = FamilyMember(member: "", email: "")
     
     @State private var newName: String = ""
@@ -85,7 +88,7 @@ struct FamilyMemberView: View {
                         //https://sarunw.com/posts/swiftui-list-with-foreach/
                         //https://www.hackingwithswift.com/books/ios-swiftui/why-does-self-work-for-foreach
                         ForEach(familyVM.familyMembers!, id: \.self) { item in
-                            Button(item.member){
+                            Button(item.email!){
                                 clickedMember = item
                                 manageFamilyAlert = true
                             }
@@ -99,7 +102,7 @@ struct FamilyMemberView: View {
                                     .stroke(.black, lineWidth: 1)
                             )
                             .padding(.horizontal, 12)
-                            .disabled(!familyVM.isOwner)
+                            .disabled(!familyVM.isOwner || familyVM.currentUser?.uid == item.member )
                         }
                         .alert("Manage Family", isPresented: $manageFamilyAlert, actions: {
                             Button("Transfer Ownership", role: .confirm) {
@@ -107,7 +110,7 @@ struct FamilyMemberView: View {
                             }
                             
                             Button("Remove Member", role: .destructive) {
-                                
+                                confirmDelete = true
                             }
                             
                             Button("Cancel", role: .cancel) {
@@ -128,6 +131,17 @@ struct FamilyMemberView: View {
                             
                         }, message: {
                             Text("Confirm you intend to transfer ownership to this user - This cannot be undone")
+                        })
+                        .alert("Delete member", isPresented: $confirmDelete, actions: {
+                            Button("Confirm", role: .confirm) {
+                                familyVM.removeFamilyMembership(member: clickedMember)
+                            }
+                            Button("Cancel", role: .cancel) {
+                                //do nothing
+                            }
+                            
+                        }, message: {
+                            Text("Confirm you intend to delete this member - This cannot be undone")
                         })
                     }
                 }

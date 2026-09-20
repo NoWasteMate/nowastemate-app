@@ -13,6 +13,7 @@ import Combine
 
 //https://medium.com/@authfy/getting-started-with-swiftui-and-firebase-a-complete-guide-e7c25b7cd9c4
 
+
 class AuthViewModel: ObservableObject {
     @Published var user: User? = nil
     @Published var isSignedIn: Bool = false
@@ -57,13 +58,15 @@ class AuthViewModel: ObservableObject {
     }
         
     func signOut() {
-        authService.signOut(){ error in
-            if let error = error {
-                print("Error Signing out:", error.localizedDescription)
-                return
+        DispatchQueue.main.async {
+            self.authService.signOut(){ error in
+                if let error = error {
+                    print("Error Signing out:", error.localizedDescription)
+                    return
+                }
+                self.user = self.authService.currentUser
+                self.isSignedIn = false
             }
-            self.user = self.authService.currentUser
-            self.isSignedIn = false
         }
     }
         
@@ -77,25 +80,19 @@ class AuthViewModel: ObservableObject {
     }
     
     func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void = { _ in }){
-        authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
-            if let error = error {
-                print("Error:", error.localizedDescription)
-                completion(error)
-                return
-            }
-            
-            Auth.auth().currentUser?.reload() { error in
+        DispatchQueue.main.async {
+            self.authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
                 if let error = error {
-                    print(error)
-                    return;
+                    print("Error:", error.localizedDescription)
+                    completion(error)
+                    return
                 }
-            
-                self.user = self.authService.currentUser
-                self.isSignedIn = true
+                
+                
+                self.signOut()
                 completion(nil)
             }
         }
-        
     }
 }
     

@@ -14,6 +14,7 @@ struct FamilyMemberView: View {
     @State private var editNameAlert: Bool = false
     @State private var manageFamilyAlert: Bool = false
     @State private var confirmTransfer: Bool = false
+    @State private var clickedMember: FamilyMember = FamilyMember(member: "", email: "")
     
     @State private var newName: String = ""
     
@@ -80,16 +81,54 @@ struct FamilyMemberView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                         
-                        
-                        
-                        
-                        
                         //https://medium.com/@jpmtech/swiftui-list-from-beginner-to-merlin-5308261b78b6
                         //https://sarunw.com/posts/swiftui-list-with-foreach/
                         //https://www.hackingwithswift.com/books/ios-swiftui/why-does-self-work-for-foreach
                         ForEach(familyVM.familyMembers!, id: \.self) { item in
-                            CustomButton(item: item, manageFamilyAlert: $manageFamilyAlert, confirmTransfer: $confirmTransfer)
+                            Button(item.member){
+                                clickedMember = item
+                                manageFamilyAlert = true
+                            }
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(30)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(.black, lineWidth: 1)
+                            )
+                            .padding(.horizontal, 12)
+                            .disabled(!familyVM.isOwner)
                         }
+                        .alert("Manage Family", isPresented: $manageFamilyAlert, actions: {
+                            Button("Transfer Ownership", role: .confirm) {
+                                confirmTransfer = true
+                            }
+                            
+                            Button("Remove Member", role: .destructive) {
+                                
+                            }
+                            
+                            Button("Cancel", role: .cancel) {
+                                //do nothing
+                            }
+                            
+                            
+                        }, message: {
+                            Text("Do you wish to update this member?")
+                        })
+                        .alert("Transfer Family Ownership", isPresented: $confirmTransfer, actions: {
+                            Button("Transfer Ownership", role: .confirm) {
+                                familyVM.transferOwner(member: clickedMember)
+                            }
+                            Button("Cancel", role: .cancel) {
+                                //do nothing
+                            }
+                            
+                        }, message: {
+                            Text("Confirm you intend to transfer ownership to this user - This cannot be undone")
+                        })
                     }
                 }
                         
@@ -121,63 +160,6 @@ struct FamilyMemberView: View {
 
     }
 }
-//https://towardsdev.com/creating-reusable-views-in-swiftui-the-smart-way-58380cc68043
-//https://mimo.org/tutorials/swift/how-to-use-binding-in-swiftui
-
-struct CustomButton: View {
-    let item: FamilyMember
-    
-    @EnvironmentObject var familyVM: FamilyViewModel
-    @Binding var manageFamilyAlert: Bool
-    @Binding var confirmTransfer: Bool
-    
-    
-    var body: some View {
-        Button(item.email!){
-            manageFamilyAlert = true
-        }
-        .foregroundColor(.black)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.white)
-        .cornerRadius(30)
-        .overlay(
-            RoundedRectangle(cornerRadius: 30)
-                .stroke(.black, lineWidth: 1)
-        )
-        .padding(.horizontal, 12)
-        .disabled(!familyVM.isOwner)
-        .alert("Manage Family", isPresented: $manageFamilyAlert, actions: {
-            Button("Transfer Ownership", role: .confirm) {
-                confirmTransfer = true
-            }
-            
-            Button("Remove Member", role: .destructive) {
-                
-            }
-            
-            Button("Cancel", role: .cancel) {
-                //do nothing
-            }
-            
-            
-        }, message: {
-            Text("Do you wish to update this member?")
-        })
-        .alert("Transfer Family Ownership", isPresented: $confirmTransfer, actions: {
-            Button("Transfer Ownership", role: .confirm) {
-                familyVM.transferOwner(member: item)
-            }
-            Button("Cancel", role: .cancel) {
-                //do nothing
-            }
-            
-        }, message: {
-            Text("Confirm you intend to transfer ownership to this user - This cannot be undone")
-        })
-    }
-}
-
 
 #if DEBUG
 #Preview(traits: .appEnvironment) {

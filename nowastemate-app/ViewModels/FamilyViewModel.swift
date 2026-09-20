@@ -15,7 +15,7 @@ class FamilyViewModel: ObservableObject {
     
     @Published var family: Family?
 
-    @Published var familyMembers: [String]?
+    @Published var familyMembers: [FamilyMember]?
     
     @Published var errorMessage: String?
     
@@ -32,7 +32,9 @@ class FamilyViewModel: ObservableObject {
     }
     
     //specifically grab userid as it is all that is needed
-    let currentUser = Auth.auth().currentUser
+    var currentUser: User? {
+        Auth.auth().currentUser
+    }
     
     func createFamily(title: String){
         
@@ -107,6 +109,24 @@ class FamilyViewModel: ObservableObject {
         
         DispatchQueue.main.async {
             self.service.updateFamilyName(title: title) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let success):
+                        self.errorMessage = nil
+                        //ensure UI is updated with new name
+                        self.findExistingFamily()
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                    }
+                }
+            }
+        }
+    }
+    
+    func transferOwner(member: FamilyMember){
+        
+        DispatchQueue.main.async {
+            self.service.updateOwner(member: member) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let success):

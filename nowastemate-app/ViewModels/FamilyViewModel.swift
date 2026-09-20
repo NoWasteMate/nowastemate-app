@@ -22,6 +22,7 @@ class FamilyViewModel: ObservableObject {
     var isOwner: Bool {
         family?.ownerId == currentUser?.uid && family?.ownerId != nil
     }
+    
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -133,6 +134,24 @@ class FamilyViewModel: ObservableObject {
                         self.errorMessage = nil
                         //ensure UI is updated with new name
                         self.findExistingFamily()
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                    }
+                }
+            }
+        }
+    }
+    
+    func removeFamilyMembership(member: FamilyMember){
+        
+        DispatchQueue.main.async {
+            self.service.deleteFamilyMembership(member: member) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let success):
+                        self.errorMessage = nil
+                        //ensure UI is updated with new name
+                        self.findFamilyMembers()
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
                     }

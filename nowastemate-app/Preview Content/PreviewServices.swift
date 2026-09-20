@@ -43,6 +43,9 @@ struct PreviewFamilyService: FamilyServiceProtocol {
     
     func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, any Error>) -> Void) {}
     
+    func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, any Error>) -> Void) {}
+
+    
 }
 
 struct PreviewProductService: ProductServiceProtocol {

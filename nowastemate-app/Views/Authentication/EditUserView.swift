@@ -110,7 +110,7 @@ struct EditUserView: View {
                                 .stroke(Color.white, lineWidth: 1)
                         )
                     
-                    Button(!isFormValid ? "Please enter new details" : isFormValid ? "Save" : "Please enter new details"){
+                    Button(!isFormValid ? "Please enter new details" : isFormValid ? "Save and Sign out" : "Please enter new details"){
                       
                           guard isFormValid else {
                               alertMessage = "Please enter your details."

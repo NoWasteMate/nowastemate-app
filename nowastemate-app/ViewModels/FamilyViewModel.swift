@@ -49,8 +49,6 @@ class FamilyViewModel: ObservableObject {
     }
     
     func findFamilyId(){
-        
-        DispatchQueue.main.async {
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
             self.service.getFamilyId() { result in
@@ -65,11 +63,9 @@ class FamilyViewModel: ObservableObject {
                     }
                 }
             }
-        }
     }
     
     func findFamilyMembers(){
-        DispatchQueue.main.async {
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
             self.service.getFamilyMembers() { result in
@@ -85,11 +81,9 @@ class FamilyViewModel: ObservableObject {
                     }
                 }
             }
-        }
     }
     
     func findExistingFamily(){
-        DispatchQueue.main.async {
             self.service.getFamily() { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -103,12 +97,9 @@ class FamilyViewModel: ObservableObject {
                     }
                 }
             }
-        }
     }
     
     func editFamilyName(title: String){
-        
-        DispatchQueue.main.async {
             self.service.updateFamilyName(title: title) { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -121,12 +112,10 @@ class FamilyViewModel: ObservableObject {
                     }
                 }
             }
-        }
+        
     }
     
     func transferOwner(member: FamilyMember){
-        
-        DispatchQueue.main.async {
             self.service.updateOwner(member: member) { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -140,11 +129,8 @@ class FamilyViewModel: ObservableObject {
                 }
             }
         }
-    }
     
     func removeFamilyMembership(member: FamilyMember){
-        
-        DispatchQueue.main.async {
             self.service.deleteFamilyMembership(member: member) { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -158,6 +144,4 @@ class FamilyViewModel: ObservableObject {
                 }
             }
         }
-    }
-    
 }

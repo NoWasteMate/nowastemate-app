@@ -13,54 +13,74 @@ struct HomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
-
+    
     var body: some View {
-        VStack{
-            ScrollView{
-                VStack{
-                    Text("Hello, \(authVM.user?.email ?? "None")!" )
-                        .font(.title)
-                        .foregroundStyle(Color.black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack (spacing: 16){
-                        VStack{
-                            Text("Total Products Stats")
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 264)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                     
-                        VStack{
-                            Text("Expiring Soon")
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        VStack{
-                            Text("Suggested Recipe")
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+            
+            VStack{
+                ScrollView{
+                    VStack{
                         
+                        HStack{
+                            
+                            Text("Hello, \(authVM.user?.email ?? "None")!" )
+                                .font(.title)
+                                .foregroundStyle(Color.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            
+                            NavigationLink {
+                                EditUserView()
+                            }
+                            label: {
+                                Image(systemName: "person")
+                                    .foregroundColor(.white)
+                                    .imageScale(.small)
+                                    .padding()
+                                    .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
+                                    
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .topTrailing)
+                        .padding(.top, 40)
+                        
+                        
+                        
+                        VStack (spacing: 16){
+                            VStack{
+                                Text("Total Products Stats")
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 264)
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                            
+                            VStack{
+                                Text("Expiring Soon")
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 164)
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                            VStack{
+                                Text("Suggested Recipe")
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 164)
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                            
+                        }
+                        .padding(16)
                     }
                     .padding(16)
+                    
                 }
-                .padding(16)
                 
-            }
-            Button("Logout"){
-                authVM.signOut()
-            }
-            .foregroundStyle(.white)
-            .padding()
-            .background(Color.buttonBackgroundPrimary)
-            .cornerRadius(32)
-            
-            Button("(ADMIN) Log Active Token"){
-                Task{
-                    await authVM.logToken()
+                Button("(ADMIN) Log Active Token"){
+                    Task{
+                        await authVM.logToken()
+                    }
                 }
             }
+            .padding()
         }
-        .padding()
+        .edgesIgnoringSafeArea(.all)
     }
 }
 

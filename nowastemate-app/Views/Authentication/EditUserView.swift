@@ -145,6 +145,18 @@ struct EditUserView: View {
                     .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
                     .cornerRadius(30)
                     .padding(.top)
+                    .padding(.bottom, 40)
+                    
+                    Button("Logout"){
+                        authVM.signOut()
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
+                    .background(.white)
+                    .cornerRadius(30)
+                    .padding(.top)
                 }
                 .padding()
             }

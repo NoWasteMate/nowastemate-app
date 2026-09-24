@@ -155,6 +155,8 @@ struct ProductListView: View {
             .sheet(isPresented: $showCamera) {
                 CameraView(isPresented: $showCamera)
                     .environmentObject(dataScannerVM)
+                    .environmentObject(authVM)
+                    .environmentObject(productVM)
             }
         }
     }

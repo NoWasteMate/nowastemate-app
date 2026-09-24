@@ -8,7 +8,7 @@
 import SwiftUI
 
 // Sheet opened from the generate button on the recipe list.
-// Medium size: quick product picker, Large size: grouped by category
+// Medium size: quick product picker, Large size: grouped by category & generation options
 struct GenerateRecipeSheet: View {
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
@@ -17,6 +17,16 @@ struct GenerateRecipeSheet: View {
     @State private var selected: Set<String> = []
     @State private var isScrolled = false
     @State private var detent: PresentationDetent = .medium
+    @State private var showPreferences = false
+
+    @State private var mealType = "Any"
+    @State private var difficulty = "Any"
+    @State private var maxCookTime: Double = 45
+    @State private var servings = 2
+    @State private var prioritiseExpiring = true
+
+    private let mealTypes = ["Any", "Breakfast", "Soup", "Salad", "Pasta", "Handheld", "Plated Main", "Dessert", "Drink"]
+    private let difficulties = ["Any", "Easy", "Medium", "Hard"]
 
     // How far the content scrolls before the small title shows (roughly the height of the large title)
     private let titleScrollDistance: CGFloat = 56
@@ -52,12 +62,35 @@ struct GenerateRecipeSheet: View {
             withAnimation(.snappy) {
                 isScrolled = scrolled }
         }
+        // Tap outside to close the options panel
+        .overlay {
+            if showPreferences {
+                Color.clear
+                    .contentShape(.rect)
+                    .onTapGesture { setPreferences(open: false) }
+            }
+        }
         .safeAreaBar(edge: .top) { header }
-        .safeAreaBar(edge: .bottom) { generateButton }
+        .safeAreaBar(edge: .bottom) {
+            // Uses a small offset instead of .move(edge: .bottom), which slid past the Generate button on a fast drag
+            VStack(spacing: 12) {
+                if detent == .large {
+                    generationOptions
+                        .transition(.opacity.combined(with: .offset(y: 12)))
+                }
+                generateButton
+                    .zIndex(1)
+            }
+            .animation(.smooth, value: detent)
+        }
         .scrollEdgeEffectStyle(.soft, for: .all)
         .presentationDetents([.medium, .large], selection: $detent)
         .presentationDragIndicator(.visible)
         .onAppear { selected = allIDs }
+        // Close the options panel when the sheet is dragged back to medium
+        .onChange(of: detent) { _, newDetent in
+            if newDetent != .large { showPreferences = false }
+        }
     }
 
     // Small title fades in once the large title scrolls away, like system large titles
@@ -91,7 +124,8 @@ struct GenerateRecipeSheet: View {
         .frame(maxWidth: .infinity)
         .opacity(isScrolled ? 0 : 1)
     }
-
+    
+    
     // Flat list at medium, grouped by category at large
     private var productSection: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -146,7 +180,149 @@ struct GenerateRecipeSheet: View {
         }
     }
 
-    // TODO: send selected products once POST /generateRecipe takes a body (uses whole inventory at the moment)
+    
+    // One glass shape that resizes, contents swap inside it.
+    // Tried glassEffectID with two views first but the panel contents popped in at full size
+    // https://developer.apple.com/documentation/swiftui/view/glasseffect(_:in:)
+    private var generationOptions: some View {
+        // ZStack so during the swap the glass sizes to the bigger view, not both stacked
+        ZStack(alignment: .bottom) {
+            if showPreferences {
+                optionsPanel
+                    .transition(optionsContentTransition)
+            } else {
+                optionsSummary
+                    .transition(optionsContentTransition)
+            }
+        }
+        .clipShape(.rect(cornerRadius: 24))
+        // Regular not .interactive(), toggling interactive mid-animation made the transparency jump
+        .glassEffect(.regular, in: .rect(cornerRadius: 24))
+        .padding(.horizontal, 24)
+    }
+
+    // Old contents fade out fast, new contents fade in after the glass has resized
+    private var optionsContentTransition: AnyTransition {
+        .asymmetric(
+            insertion: .opacity.animation(.smooth(duration: 0.25).delay(0.2)),
+            removal: .opacity.animation(.smooth(duration: 0.1))
+        )
+    }
+
+    // Collapsed pill
+    private var optionsSummary: some View {
+        Button {
+            setPreferences(open: true)
+        } label: {
+            HStack(spacing: 8) {
+                Label("Generation options", systemImage: "slider.horizontal.3")
+                // Chevron up since it expands in place, a right chevron would suggest a new screen
+                Image(systemName: "chevron.up")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(Color("RecipeListGradientPrimary"))
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // Expanded panel. Checkmark is the iOS 26 Done button, styled like the close buttons on Maps cards
+    private var optionsPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "slider.horizontal.3")
+                    .foregroundStyle(Color("RecipeListGradientPrimary"))
+                Text("Generation options")
+                Spacer()
+                Button("Done", systemImage: "checkmark") { setPreferences(open: false) }
+                    .labelStyle(.iconOnly)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color("RecipeListGradientPrimary"))
+                    .frame(width: 30, height: 30)
+                    .background(.fill.tertiary, in: .circle)
+                    .contentShape(.circle)
+                    .buttonStyle(.plain)
+            }
+            .font(.headline)
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Meal")
+                    Spacer()
+                    mealPicker
+                }
+                .padding(.vertical, 6)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Difficulty")
+                    Picker("Difficulty", selection: $difficulty) {
+                        ForEach(difficulties, id: \.self) { Text($0) }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(.vertical, 10)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Cook time")
+                        Spacer()
+                        Text("Up to \(Int(maxCookTime)) min")
+                            .foregroundStyle(.secondary)
+                    }
+                    Slider(value: $maxCookTime, in: 10...120, step: 5)
+                        .tint(Color("RecipeListGradientPrimary"))
+                }
+                .padding(.vertical, 10)
+
+                HStack {
+                    Text("Servings")
+                    Spacer()
+                    Stepper("\(servings)", value: $servings, in: 1...8)
+                        .fixedSize()
+                }
+                .padding(.vertical, 6)
+
+                Toggle("Use expiring items first", isOn: $prioritiseExpiring)
+                    .tint(Color("RecipeListGradientPrimary"))
+                    .padding(.vertical, 10)
+            }
+        }
+        .padding(20)
+    }
+
+    // Menu labels don't update until the menu finishes closing so the value lagged behind.
+    // Drawing the value outside the menu and putting the menu behind it fixes it
+    // https://developer.apple.com/documentation/swiftui/menu
+    // https://developer.apple.com/documentation/swiftui/view/transaction(value:_:)
+    private var mealPicker: some View {
+        HStack(spacing: 4) {
+            Text(mealType)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.footnote.weight(.semibold))
+        }
+        .foregroundStyle(Color("RecipeListGradientPrimary"))
+        .transaction(value: mealType) { $0.animation = nil }
+        .frame(width: 200, alignment: .trailing)
+        .allowsHitTesting(false)
+        .background {
+            Menu {
+                Picker("Meal", selection: $mealType) {
+                    ForEach(mealTypes, id: \.self) { Text($0) }
+                }
+                .pickerStyle(.inline)
+            } label: {
+                Color.clear
+                    .contentShape(.rect)
+            }
+        }
+    }
+
+    // TODO: send selected products + options once POST /generateRecipe takes a body (uses whole inventory at the moment)
     private var generateButton: some View {
         Button {
             recipeVM.generateRecipe()
@@ -162,6 +338,14 @@ struct GenerateRecipeSheet: View {
         .disabled(selected.isEmpty)
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
+    }
+
+    // Smooth instead of bouncy it made the glass overshoot its final size
+    // https://developer.apple.com/documentation/swiftui/animation/smooth
+    private func setPreferences(open: Bool) {
+        withAnimation(.smooth(duration: 0.4)) {
+            showPreferences = open
+        }
     }
 
     private var showCategories: Bool { detent == .large }

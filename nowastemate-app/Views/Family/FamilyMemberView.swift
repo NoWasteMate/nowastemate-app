@@ -245,10 +245,10 @@ struct FamilyMemberView: View {
                     
                 }
                 
-                if familyVM.isOwner {
+                if !familyVM.isOwner {
                     VStack {
                         Button("Leave Family"){
-                            
+                            familyVM.leaveFamily(member: FamilyMember(member: familyVM.currentUser!.uid, email: familyVM.currentUser?.email))
                         }
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)

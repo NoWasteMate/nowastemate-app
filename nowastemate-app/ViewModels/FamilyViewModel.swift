@@ -43,13 +43,36 @@ class FamilyViewModel: ObservableObject {
     
     func createFamily(title: String){
         
-        service.postFamily(title: title)
-        
+        service.postFamily(title: title) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let success):
+                    self.errorMessage = nil
+                    //ensure UI is updated with new name
+                    self.findFamilyMembers()
+                    self.findExistingFamily()
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
     }
     
     func findNewFamily(code: String){
         
-        service.joinFamily(code: code)
+        service.joinFamily(code: code){ result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let success):
+                    self.errorMessage = nil
+                    //ensure UI is updated with new name
+                    self.findFamilyMembers()
+                    self.findExistingFamily()
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
     }
     
     func findFamilyId(){
@@ -149,5 +172,20 @@ class FamilyViewModel: ObservableObject {
             }
         }
     
-    
+    func leaveFamily(member: FamilyMember){
+                self.service.deleteOwnMembership(member: member) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let success):
+                            self.errorMessage = nil
+                            //ensure UI is updated with new name
+                            self.family = nil
+                            self.familyMembers = nil
+                        case .failure(let error):
+                            self.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
+            
 }

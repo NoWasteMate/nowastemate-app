@@ -17,6 +17,8 @@ struct JoinFamilyView: View {
         !code.isEmpty
     }
     
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var showAlert = false
     
     
@@ -57,8 +59,7 @@ struct JoinFamilyView: View {
                                 
                                 familyVM.findNewFamily(code: code)
                                 
-                                print(code)
-                                
+                                dismiss()
                                 
                             } else {
                                 showAlert = true

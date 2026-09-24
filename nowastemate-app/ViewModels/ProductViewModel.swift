@@ -128,13 +128,19 @@ class ProductViewModel: ObservableObject {
         lookUpBarcode(for: user, barcode: barcode)
     }
 
-    // called when the camera sheet closes, so the next scan starts clean
-    func resetBarcodeLookup() {
-        scannedProduct = nil
+  
+    // data from the camera sheet closing and can be handed to AddProductView
+    func resetScanSession() {
         isLookingUpBarcode = false
         barcodeErrorMessage = nil
         canAddManually = false
         lastLookedUpBarcode = nil
+    }
+
+    // used when the Add Product sheet closes, and on sign out
+    func resetBarcodeLookup() {
+        resetScanSession()
+        scannedProduct = nil
     }
     
     func deleteProduct(for user: User, product: Product) {

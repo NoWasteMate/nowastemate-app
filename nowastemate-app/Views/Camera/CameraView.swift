@@ -26,6 +26,8 @@ struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var isPresented : Bool
     
+    private var hasScanResult: Bool { productVM.scannedProduct != nil }
+    
 //    private let textContentTypes: [(title: String, textContentType: DataScannerViewController.TextContentType?)] = [
 //        ("All", .none),
 //        ("URL", .URL),
@@ -48,6 +50,25 @@ struct CameraView: View {
             case .notDetermined:
                 Text("Requesting camera access")
             }
+        }
+        .onChange(of: vm.recognizedItems.count) {
+            guard let barcode = vm.recognizedItems.compactMap({ item -> String? in
+                if case .barcode(let barcode) = item { return barcode.payloadStringValue }
+                return nil
+            }).first else { return }
+            
+            guard let user = authVM.user else {
+                productVM.barcodeErrorMessage = "Please sign in again"
+                return
+            }
+            productVM.lookUpBarcode(for: user, barcode: barcode)
+        }
+        .onChange(of: hasScanResult) { _, hasResult in
+            if hasResult { isPresented = false }
+        }
+        .onDisappear {
+            vm.recognizedItems = []        
+            productVM.resetScanSession()
         }
     }
     
@@ -145,19 +166,6 @@ struct CameraView: View {
             }
             .padding(.top, 12)
         }
-        //VisionKit keeps adding items for one barcode the view model helps with duplicates
-        .onChange(of: vm.recognizedItems.count) {
-            guard let user = authVM.user else { return }
-            guard let barcode = vm.recognizedItems.compactMap({ item -> String? in
-                if case .barcode(let barcode) = item { return barcode.payloadStringValue }
-                return nil
-            }).first else { return }
-            
-            productVM.lookUpBarcode(for: user, barcode: barcode)
-        }
-        .onDisappear {
-            productVM.resetBarcodeLookup()
-        }
     }
     
     @ViewBuilder
@@ -187,6 +195,7 @@ struct CameraView: View {
             }
             .padding()
         } else {
+            Text("Point the camera at a barcode")
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     ForEach(vm.recognizedItems) { item in

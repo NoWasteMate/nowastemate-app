@@ -10,6 +10,9 @@
 // https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-continuations-to-convert-completion-handlers-into-async-functions
 // https://www.hackingwithswift.com/forums/swift/help-needed-json-encoding/17744
 // https://developer.apple.com/documentation/dispatch/dispatchqueue/main
+// https://developer.apple.com/documentation/visionkit/datascannerviewcontroller/recognizeddatatype/barcode(symbologies:)
+// https://developer.apple.com/documentation/swift/sequence/allsatisfy(_:)
+
 
 import Foundation
 import FirebaseAuth
@@ -222,7 +225,13 @@ struct ProductService: ProductServiceProtocol {
                 }
                 return
             }
-            let url = URL(string: "\(AppConfig.baseUrl)/getBarcodeDetails/\(barcode)")!
+            let isValid = barcode.count >= 8 && barcode.count <= 14
+            && barcode.allSatisfy(\.isNumber)
+            guard isValid,
+                  let url = URL(string: "\(AppConfig.baseUrl)/getBarcodeDetails/\(barcode)") else {
+                DispatchQueue.main.async { completionHandler(.failure(BarcodeLookupError.unsupported)) }
+                return
+            }
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

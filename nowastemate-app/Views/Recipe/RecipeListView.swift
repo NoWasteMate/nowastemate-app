@@ -10,6 +10,7 @@ import SwiftUI
 struct RecipeListView: View {
     
     @State private var searchText = ""
+    @State private var showGenerateSheet = false
     @EnvironmentObject var recipeVM: RecipeViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var authVM: AuthViewModel
@@ -30,43 +31,6 @@ struct RecipeListView: View {
                         
                         RecipeSearch(text: $searchText)
                             .padding()
-                        HStack(alignment: .center){
-                            Button(action: recipeVM.generateRecipe){
-                                if (recipeVM.isLoading){
-                                    // https://stackoverflow.com/questions/66568382/change-swiftui-progressview-color-macos-not-ios
-                                    // ProgressView() styling
-                                    HStack{
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        Text("Generating Recipe")
-                                            .disabled(true)
-                                    }
-                                    .frame(height: 36)
-                                    .frame(width: 196) // Set same height to avoid ui "jumping" when state changes
-                                }
-                                else{
-                                    HStack{
-                                        Label("Generate Recipe", systemImage: "sparkles")     .foregroundColor(.white)
-                                            .imageScale(.large)
-                                            .disabled(false)
-                                    }
-                                    .frame(height: 36)
-                                    .frame(width: 196)
-                                    
-                                }
-                          
-                            }
-                            
-                            .foregroundColor(.white)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 48)
-                            .background(Color.buttonBackgroundPrimary)
-                            .cornerRadius(30)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        }
-                        
-                        
                         SubtitleHeader(subtitleText: "Favourite Recipes")
                             .padding(.horizontal, 16)
                         GlassCardCarousel()
@@ -78,7 +42,18 @@ struct RecipeListView: View {
                         Spacer()
                     }
                 }
+                // Keeps the button above the tab bar while the list scrolls
+                // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
+                .safeAreaInset(edge: .bottom) {
+                    GenerateRecipeButton(isLoading: recipeVM.isLoading) { showGenerateSheet = true }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                }
             }
+        }
+        .sheet(isPresented: $showGenerateSheet) {
+            GenerateRecipeSheet()
         }
         .onAppear(){
             recipeVM.loadRecipes()
@@ -107,6 +82,33 @@ struct RecipeSearch: View{
         }
         .padding(10)
         .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+    }
+}
+
+// Plain glass to match the tab bar below it
+// https://developer.apple.com/documentation/swiftui/primitivebuttonstyle/glass
+struct GenerateRecipeButton: View {
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Group {
+                if isLoading {
+                    ProgressView()
+                } else {
+                    Label("Generate Recipe", systemImage: "sparkles")
+                        .labelStyle(.iconOnly)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                }
+            }
+            .frame(width: 28, height: 28) // Same size in both states so the button doesn't resize
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .disabled(isLoading)
     }
 }
 

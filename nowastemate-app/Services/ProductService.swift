@@ -32,7 +32,7 @@ enum BarcodeLookupError: LocalizedError {
     }
 }
 
-private struct BackendErrorDetail: Decodable {
+private nonisolated struct BackendErrorDetail: Decodable {
     let detail: String
 }
 
@@ -214,8 +214,60 @@ struct ProductService: ProductServiceProtocol {
     }
     
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async {
+                    completionHandler(.failure(error))
+                }
+                return
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/getBarcodeDetails/\(barcode)")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+                    }
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard statusCode == 200 else {
+                    let detail = (try? JSONDecoder().decode(BackendErrorDetail.self, from: data))?.detail
+                    let failure: BarcodeLookupError
+                    
+                    switch statusCode {
+                    case 401: failure = .unauthorized
+                    case 404: failure = .notFound(detail ?? "Product not found, add manually")
+                    case 422: failure = .unsupported
+                    default:  failure = .retry(detail ?? "Barcode service unavailable, try again")
+                    }
+                    
+                    print("getBarcodeDetails failed: \(statusCode) \(detail ?? "")")
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(failure))
+                    }
+                    return
+                }
+                
+                do {
+                    let product = try JSONDecoder().decode(Product.self, from: data)
+                    DispatchQueue.main.async {
+                        completionHandler(.success(product))
+                    }
+                } catch {
+                    print(error)
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error))
+                    }
+                }
+            }
+            task.resume()
+        }
         
-        return
     }
 
 }

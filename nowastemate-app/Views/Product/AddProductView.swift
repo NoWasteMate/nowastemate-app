@@ -22,6 +22,8 @@ struct AddProductView: View {
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
     
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         ZStack {
             LinearGradient(colors: [
@@ -157,7 +159,9 @@ struct AddProductView: View {
                             category: category
                         )
                         
-                        productVM.addProducts(for: user, product: userInputtedProduct)
+                        productVM.addProducts(for: user, product: userInputtedProduct) {
+                            dismiss()
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding()

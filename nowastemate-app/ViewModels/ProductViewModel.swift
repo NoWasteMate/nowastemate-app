@@ -65,13 +65,14 @@ class ProductViewModel: ObservableObject {
         hasLoadedProducts = false
     }
 
-    func addProducts(for user: User, product: Product) {
+    func addProducts(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
         
         service.addProduct(user: user, product: product) { result in
             switch result {
-            case .success(let products):
-                self.products = products
+            case .success:
                 self.errorMessage = nil
+                self.loadProducts(for: user)
+                onSuccess?()
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
             }

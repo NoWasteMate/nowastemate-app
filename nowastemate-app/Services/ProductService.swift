@@ -18,7 +18,7 @@ import FirebaseAuth
 // around 22mins
 protocol ProductServiceProtocol {
     func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)
-    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
@@ -74,10 +74,10 @@ struct ProductService: ProductServiceProtocol {
         
     }
     
-    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
+    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
-                print(error)
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
                 return;
             }
             
@@ -93,22 +93,18 @@ struct ProductService: ProductServiceProtocol {
             do {
                 request.httpBody = try encoder.encode(product)
             } catch {
-                print("Failed to encode object: \(error)")
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
                 return
             }
             
             let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
+                guard data != nil, error == nil else {
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+                    }
                     return
                 }
-                do {
-                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    print(response)
-                }
-                
-                catch {
-                    print(error)
-                }
+                DispatchQueue.main.async { completionHandler(.success(())) }
             }
             task.resume()
             

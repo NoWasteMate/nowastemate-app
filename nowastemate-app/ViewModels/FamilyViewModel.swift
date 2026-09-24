@@ -23,6 +23,10 @@ class FamilyViewModel: ObservableObject {
         family?.ownerId == currentUser?.uid && family?.ownerId != nil
     }
     
+    var hasFamily: Bool {
+        family != nil
+    }
+    
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -144,4 +148,6 @@ class FamilyViewModel: ObservableObject {
                 }
             }
         }
+    
+    
 }

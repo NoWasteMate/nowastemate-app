@@ -47,6 +47,9 @@ struct RootView: View {
             }
             .onAppear{
                 recipeVM.loadRecipes()
+                familyVM.findExistingFamily()
+                familyVM.findFamilyMembers()
+                familyVM.findFamilyId()
             }
         } else {
             NavigationStack {

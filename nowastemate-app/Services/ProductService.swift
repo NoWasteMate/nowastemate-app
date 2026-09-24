@@ -14,6 +14,28 @@
 import Foundation
 import FirebaseAuth
 
+
+// is an array, not a string, so that decode is allowed to fail and falls back.
+enum BarcodeLookupError: LocalizedError {
+    case notFound(String)
+    case unsupported
+    case unauthorized
+    case retry(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .notFound(let message): return message
+        case .unsupported: return "This barcode isn't supported"
+        case .unauthorized: return "Please sign in again"
+        case .retry(let message): return message
+        }
+    }
+}
+
+private struct BackendErrorDetail: Decodable {
+    let detail: String
+}
+
 //Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
 protocol ProductServiceProtocol {
@@ -21,6 +43,7 @@ protocol ProductServiceProtocol {
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -189,4 +212,10 @@ struct ProductService: ProductServiceProtocol {
 
         }
     }
+    
+    func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void) {
+        
+        return
+    }
+
 }

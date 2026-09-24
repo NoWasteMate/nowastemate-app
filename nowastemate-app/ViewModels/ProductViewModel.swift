@@ -23,6 +23,15 @@ class ProductViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var errorMessage: String?
     @Published var hasLoadedProducts = false
+    
+    @Published var scannedProduct: Product?
+    @Published var isLookingUpBarcode = false
+    @Published var barcodeErrorMessage: String?
+    // allows the user can still continue to a blank form.
+    @Published var canAddManually = false
+
+    // VisionKit keeps firing didAdd for the same barcode, so only look each one up once.
+    private var lastLookedUpBarcode: String?
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -63,20 +72,75 @@ class ProductViewModel: ObservableObject {
         products = []
         errorMessage = nil
         hasLoadedProducts = false
+        resetBarcodeLookup()
     }
 
-    func addProducts(for user: User, product: Product) {
+    func addProducts(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
         
         service.addProduct(user: user, product: product) { result in
             switch result {
-            case .success(let products):
-                self.products = products
+            case .success:
                 self.errorMessage = nil
+                self.loadProducts(for: user)
+                onSuccess?()
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
             }
             
         }
+    }
+    
+    func lookUpBarcode(for user: User, barcode: String) {
+        guard !isLookingUpBarcode, barcode != lastLookedUpBarcode else { return }
+        
+        lastLookedUpBarcode = barcode
+        isLookingUpBarcode = true
+        barcodeErrorMessage = nil
+        canAddManually = false
+        
+        service.getBarcodeDetails(user: user, barcode: barcode) { result in
+            self.isLookingUpBarcode = false
+            
+            switch result {
+            case .success(let product):
+                self.scannedProduct = product
+            case .failure(let error):
+                switch error as? BarcodeLookupError {
+                case .notFound(let message):
+                    self.barcodeErrorMessage = message
+                    self.canAddManually = true
+                case .unsupported:
+                    self.barcodeErrorMessage = "This barcode isn't supported"
+                case .unauthorized:
+                    self.barcodeErrorMessage = "Please sign in again"
+                case .retry(let message):
+                    self.barcodeErrorMessage = message
+                case .none:
+                    self.barcodeErrorMessage = "Barcode service unavailable, try again"
+                }
+            }
+        }
+    }
+
+    func retryBarcodeLookup(for user: User) {
+        guard let barcode = lastLookedUpBarcode else { return }
+        lastLookedUpBarcode = nil          // clear so the guard above lets it through
+        lookUpBarcode(for: user, barcode: barcode)
+    }
+
+  
+    // data from the camera sheet closing and can be handed to AddProductView
+    func resetScanSession() {
+        isLookingUpBarcode = false
+        barcodeErrorMessage = nil
+        canAddManually = false
+        lastLookedUpBarcode = nil
+    }
+
+    // used when the Add Product sheet closes, and on sign out
+    func resetBarcodeLookup() {
+        resetScanSession()
+        scannedProduct = nil
     }
     
     func deleteProduct(for user: User, product: Product) {

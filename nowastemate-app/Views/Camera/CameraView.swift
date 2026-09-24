@@ -6,16 +6,27 @@
 //
 
 // Reference video: https://www.youtube.com/watch?v=QQjLOlkxpvc
-
+// other references:
+// https://developer.apple.com/documentation/swiftui/view/ondisappear(perform:)
+// @ViewBuilder so resultView can return a different view per branch:
+// https://developer.apple.com/documentation/swiftui/viewbuilder
+// https://developer.apple.com/documentation/swiftui/progressview
+// https://www.avanderlee.com/swiftui/viewbuilder/
+// compactMap to drop non-barcode items:
+// https://developer.apple.com/documentation/swift/sequence/compactmap(_:)
 
 import SwiftUI
 import VisionKit
 
 struct CameraView: View {
     
+    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var vm: CameraViewModel
     @Environment(\.dismiss) var dismiss
     @Binding var isPresented : Bool
+    
+    private var hasScanResult: Bool { productVM.scannedProduct != nil }
     
 //    private let textContentTypes: [(title: String, textContentType: DataScannerViewController.TextContentType?)] = [
 //        ("All", .none),
@@ -39,6 +50,25 @@ struct CameraView: View {
             case .notDetermined:
                 Text("Requesting camera access")
             }
+        }
+        .onChange(of: vm.recognizedItems.count) {
+            guard let barcode = vm.recognizedItems.compactMap({ item -> String? in
+                if case .barcode(let barcode) = item { return barcode.payloadStringValue }
+                return nil
+            }).first else { return }
+            
+            guard let user = authVM.user else {
+                productVM.barcodeErrorMessage = "Please sign in again"
+                return
+            }
+            productVM.lookUpBarcode(for: user, barcode: barcode)
+        }
+        .onChange(of: hasScanResult) { _, hasResult in
+            if hasResult { isPresented = false }
+        }
+        .onDisappear {
+            vm.recognizedItems = []        
+            productVM.resetScanSession()
         }
     }
     
@@ -107,24 +137,25 @@ struct CameraView: View {
     
         VStack {
             headerView
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    ForEach(vm.recognizedItems) { item in
-                        switch item {
-                        case .barcode(let barcode):
-                            Text(barcode.payloadStringValue ?? "Unknown barcode")
-                            
-                        case .text(let text):
-                            Text(text.transcript)
-                            
-                        @unknown default:
-                            Text("Unknown")
-                        }
-                    }
-                    
-                }
-                .padding()
-            }
+            resultView
+//            ScrollView {
+//                LazyVStack(alignment: .leading, spacing: 16) {
+//                    ForEach(vm.recognizedItems) { item in
+//                        switch item {
+//                        case .barcode(let barcode):
+//                            Text(barcode.payloadStringValue ?? "Unknown barcode")
+//                            
+//                        case .text(let text):
+//                            Text(text.transcript)
+//                            
+//                        @unknown default:
+//                            Text("Unknown")
+//                        }
+//                    }
+//                    
+//                }
+//                .padding()
+//            }
             Button {
                 dismiss()
             } label: {
@@ -135,15 +166,55 @@ struct CameraView: View {
             }
             .padding(.top, 12)
         }
-        //if an item is detected close the sheet
-//        .onChange(of: vm.recognizedItems.count) {
-//            if vm.recognizedItems.count > 0 {
-//                isPresented = false
-//                print(vm.recognizedItems)
-//            }
-//        }
+    }
+    
+    @ViewBuilder
+    private var resultView: some View {
+        if productVM.isLookingUpBarcode {
+            ProgressView("Looking up barcode")
+                .padding()
+        } else if let message = productVM.barcodeErrorMessage {
+            VStack(spacing: 12) {
+                Text(message)
+                    .multilineTextAlignment(.center)
+                HStack(spacing: 12) {
+                    Button("Try Again") {
+                        guard let user = authVM.user else { return }
+                        productVM.retryBarcodeLookup(for: user)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    
+                    if productVM.canAddManually {
+                        Button("Add Manually") {
+                           
+                            productVM.scannedProduct = Product(name: "", quantity: 1, createdAt: "")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+            .padding()
+        } else {
+            Text("Point the camera at a barcode")
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    ForEach(vm.recognizedItems) { item in
+                        switch item {
+                        case .barcode(let barcode):
+                            Text(barcode.payloadStringValue ?? "Unknown barcode")
+                        case .text(let text):
+                            Text(text.transcript)
+                        @unknown default:
+                            Text("Unknown")
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
     }
 }
+
 
 
 

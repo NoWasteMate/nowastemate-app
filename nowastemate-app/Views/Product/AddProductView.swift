@@ -15,12 +15,20 @@ struct AddProductView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     
+    // nil for the manual Add button, set when it comes from a barcode scan.
+    var prefill: Product? = nil
+    
     @State private var name = ""
     @State private var quantity = 1
     @State private var category: ProductCategory = .other
     @State private var isPerishable = true
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
+    
+    // onAppear fires again when navigating back this stops it wiping the user's edits
+    @State private var hasAppliedPrefill = false
+    
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -157,7 +165,9 @@ struct AddProductView: View {
                             category: category
                         )
                         
-                        productVM.addProducts(for: user, product: userInputtedProduct)
+                        productVM.addProducts(for: user, product: userInputtedProduct) {
+                            dismiss()
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -168,6 +178,13 @@ struct AddProductView: View {
                 }
             }
             
+        }
+        .onAppear {
+            guard let prefill, !hasAppliedPrefill else { return }
+            hasAppliedPrefill = true
+            name = prefill.name
+            quantity = max(prefill.quantity, 1)
+            category = prefill.category ?? .other
         }
     }
 }

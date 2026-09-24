@@ -6,11 +6,13 @@
 //
 
 // Reference video: https://www.youtube.com/watch?v=QQjLOlkxpvc
+// https://developer.apple.com/documentation/vision/barcodesymbology
 
 import AVKit
 import Foundation
 import SwiftUI
 import VisionKit
+import Vision
 import Combine
 
 enum ScanType: String {
@@ -42,7 +44,7 @@ final class CameraViewModel: ObservableObject {
 //    }
     
     var recognizedDataType: DataScannerViewController.RecognizedDataType {
-        .barcode()
+        .barcode(symbologies: [.ean8, .ean13, .upce])
     }
     
     var headerText: String {

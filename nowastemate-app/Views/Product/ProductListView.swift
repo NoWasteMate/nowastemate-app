@@ -28,6 +28,8 @@ struct ProductListView: View {
     @EnvironmentObject var dataScannerVM: CameraViewModel
     @EnvironmentObject var productVM: ProductViewModel
     
+    @State private var showScannedProduct = false
+    
     @State private var showCamera = false
     
 //     let groceryItems: [Product] = [
@@ -152,9 +154,20 @@ struct ProductListView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24) 
             }
-            .sheet(isPresented: $showCamera) {
+            .sheet(isPresented: $showCamera, onDismiss: {
+                if productVM.scannedProduct != nil { showScannedProduct = true }
+            }) {
                 CameraView(isPresented: $showCamera)
                     .environmentObject(dataScannerVM)
+                    .environmentObject(authVM)
+                    .environmentObject(productVM)
+            }
+            .sheet(isPresented: $showScannedProduct, onDismiss: {
+                productVM.resetBarcodeLookup()   // full clear
+            }) {
+                AddProductView(prefill: productVM.scannedProduct)
+                    .environmentObject(authVM)
+                    .environmentObject(productVM)
             }
         }
     }

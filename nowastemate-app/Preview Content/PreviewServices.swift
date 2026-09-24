@@ -56,8 +56,8 @@ struct PreviewProductService: ProductServiceProtocol {
         completionHandler(.success(Product.previewSamples))
     }
 
-    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
-        completionHandler(.success(Product.previewSamples))
+    func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        completionHandler(.success(()))
     }
 
     func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
@@ -66,6 +66,13 @@ struct PreviewProductService: ProductServiceProtocol {
 
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
+    }
+    
+    func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void) {
+        completionHandler(.success(
+            Product(id: "preview-scanned", name: "Nutella", quantity: 1,
+                    createdAt: "2026-09-15T00:00:00Z", category: .other)
+        ))
     }
 }
 

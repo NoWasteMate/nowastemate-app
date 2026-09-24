@@ -11,15 +11,20 @@ import FirebaseAuth
 
 //Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
+
+//resource on completionHandler https://medium.com/@kalidoss.shanmugam/swift-completion-handlers-an-overview-bd6e62251f1d
+
 protocol FamilyServiceProtocol {
-    func postFamily(title: String)
-    func joinFamily(code: String)
+    
+    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void)
     func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void)
     func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void)
     func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void)
     func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
     func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
     func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
 
 }
 
@@ -32,7 +37,7 @@ struct FamilyService: FamilyServiceProtocol {
     
     
     
-    func postFamily(title: String){
+    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         print("service called")
         //logic for API call
         currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
@@ -70,13 +75,16 @@ struct FamilyService: FamilyServiceProtocol {
                     print(error)
                     
                 }
+                
+                completionHandler(.success(title))
+                
             }
             task.resume()
         }
     }
     
     
-    func joinFamily(code: String){
+    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         //retrieve familyid and logic for API call
         print("service called")
         //logic for API call
@@ -114,6 +122,7 @@ struct FamilyService: FamilyServiceProtocol {
                 catch {
                     print(error)
                 }
+                completionHandler(.success(code))
             }
             task.resume()
         }
@@ -316,6 +325,50 @@ struct FamilyService: FamilyServiceProtocol {
             return;
           }
             let url = URL(string: "\(AppConfig.baseUrl)/family_member")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                        
+            let encoder = JSONEncoder()
+            do {
+                request.httpBody = try encoder.encode(member)
+            } catch {
+                print("Failed to encode object: \(error)")
+                return
+            }
+            
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                guard let data = data, error == nil else {
+                    completionHandler(.failure(error!))
+                    return
+                }
+                
+                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
+                guard let httpResponse = response as? HTTPURLResponse,
+                            (200...299).contains(httpResponse.statusCode) else {
+                        print("Error occured")
+                        return
+                }
+                //TODO: Network error handling and displaying to client
+
+                completionHandler(.success(member.member))
+                
+                
+            }
+            task.resume()
+        }
+    }
+    
+    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
+        //logic for API call
+        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(AppConfig.baseUrl)/leave_family")!
             var request = URLRequest(url: url)
             request.httpMethod = "DELETE"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")

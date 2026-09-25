@@ -28,6 +28,19 @@ enum ProductCategory: String, Codable, CaseIterable {
     
 }
 
+enum ProductOutcome: String, Codable {
+    case active
+    case consumed
+    case usedInRecipe
+    case wasted
+    
+    // same as product category
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = ProductOutcome(rawValue: rawValue) ?? .active
+    }
+}
+
 struct Product: Identifiable, Codable {
     var id: String?
     var name: String
@@ -35,8 +48,10 @@ struct Product: Identifiable, Codable {
     var createdAt: String
     var createdBy: String?
     var dateExpiration: String?
-    var dateRemoved: String?
-    var usedInRecipe: String?
+    //var dateRemoved: String?
+    //var usedInRecipe: String?
     var category: ProductCategory?
+    var outcome: ProductOutcome?
+    var outcomeAt: String?
 }
 

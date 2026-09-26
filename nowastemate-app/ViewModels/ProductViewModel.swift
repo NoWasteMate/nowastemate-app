@@ -82,6 +82,7 @@ class ProductViewModel: ObservableObject {
         errorMessage = nil
         hasLoadedProducts = false
         markingProductIds = []
+        lastOutcomeMessage = nil
         resetBarcodeLookup()
     }
 

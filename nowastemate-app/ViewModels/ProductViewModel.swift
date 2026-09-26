@@ -8,6 +8,11 @@
 // references: https://developer.apple.com/documentation/swift/array
 // https://developer.apple.com/documentation/combine/published
 
+// https://developer.apple.com/documentation/swift/set
+// https://developer.apple.com/documentation/swift/result
+// https://developer.apple.com/documentation/swiftui/withanimation(_:_:)
+// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/typecasting/
+
 import Foundation
 import SwiftUI
 import FirebaseAuth
@@ -32,6 +37,10 @@ class ProductViewModel: ObservableObject {
 
     // VisionKit keeps firing didAdd for the same barcode, so only look each one up once.
     private var lastLookedUpBarcode: String?
+    
+    @Published var lastOutcomeMessage: String?
+    // this stops multiple requests being processed
+    @Published var markingProductIds: Set<String> = []
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -72,6 +81,8 @@ class ProductViewModel: ObservableObject {
         products = []
         errorMessage = nil
         hasLoadedProducts = false
+        markingProductIds = []
+        lastOutcomeMessage = nil
         resetBarcodeLookup()
     }
 
@@ -165,6 +176,34 @@ class ProductViewModel: ObservableObject {
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    func markOutcome(for user: User, product: Product, outcome: ProductOutcome) {
+        guard let id = product.id, !markingProductIds.contains(id) else { return }
+        markingProductIds.insert(id)
+
+        service.markProductOutcome(user: user, product: product, outcome: outcome) { result in
+            self.markingProductIds.remove(id)
+
+            switch result {
+            case .success:
+                withAnimation { self.products.removeAll { $0.id == id } }
+                self.lastOutcomeMessage = "Marked as \(outcome.rawValue)"
+                self.errorMessage = nil
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
+                self.lastOutcomeMessage = error.localizedDescription
+
+                switch error as? ProductOutcomeError {
+                case .alreadyMarked:
+                    withAnimation { self.products.removeAll { $0.id == id } }
+                case .notFound:
+                    self.loadProducts(for: user)
+                default:
+                    break
+                }
             }
         }
     }

@@ -154,6 +154,24 @@ struct ProductListView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24) 
             }
+            // reference: https://developer.apple.com/documentation/swiftui/view/task(id:priority:_:)
+            .overlay(alignment: .top) {
+                if let message = productVM.lastOutcomeMessage {
+                    Text(message)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.regularMaterial, in: Capsule())
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .task(id: message) {
+                            try? await Task.sleep(for: .seconds(2))
+                            withAnimation { productVM.lastOutcomeMessage = nil }
+                        }
+                }
+            }.animation(.easeInOut, value: productVM.lastOutcomeMessage)
+            
             .sheet(isPresented: $showCamera, onDismiss: {
                 if productVM.scannedProduct != nil { showScannedProduct = true }
             }) {
@@ -263,33 +281,72 @@ private struct ProductRowView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     
+    @State private var showOutcomeChoice = false
+    private var isMarking: Bool {
+        guard let id = product.id else { return false }
+        return productVM.markingProductIds.contains(id)
+    }
+    
     var body: some View {
-        NavigationLink {
-            EditProductView(product: product)
-                .environmentObject(productVM)
-                .environmentObject(authVM)
-        } label: {
-            HStack {
-                Text(product.name)
-                    .font(.body.weight(.medium))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text("Qty \(product.quantity)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color(red: 0.90, green: 0.96, blue: 0.90))
-                    .clipShape(Capsule())
+        HStack(spacing: 0){
+            NavigationLink {
+                EditProductView(product: product)
+                    .environmentObject(productVM)
+                    .environmentObject(authVM)
+            } label: {
+                HStack {
+                    Text(product.name)
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    Text("Qty \(product.quantity)")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color(red: 0.90, green: 0.96, blue: 0.90))
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .buttonStyle(.plain)
+            
+            outcomeButton.padding(.trailing, 12)
         }
-        .buttonStyle(.plain)
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+    
+    private var outcomeButton: some View {
+        // reference: https://developer.apple.com/documentation/swiftui/menu
+        Menu {
+            Button("Consumed", systemImage: "fork.knife") { mark(.consumed) }
+            Button("Wasted", systemImage: "trash", role: .destructive) { mark(.wasted) }
+        } label: {
+            ZStack {
+                if isMarking {
+                    ProgressView()
+                } else {
+                    Image(systemName: "circle")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(width: 36, height: 36)
+            .contentShape(Rectangle())
+        }
+        .disabled(isMarking)
+        .accessibilityLabel("Mark \(product.name) as consumed or wasted")
+    }
+    
+    private func mark(_ outcome: ProductOutcome) {
+        guard let user = authVM.user else { return }
+        productVM.markOutcome(for: user, product: product, outcome: outcome)
     }
 }
         

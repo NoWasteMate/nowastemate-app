@@ -74,6 +74,9 @@ struct PreviewProductService: ProductServiceProtocol {
                     createdAt: "2026-09-15T00:00:00Z", category: .other)
         ))
     }
+    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        completionHandler(.success(()))
+    }
 }
 
 extension Recipe {

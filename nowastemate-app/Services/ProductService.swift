@@ -39,6 +39,22 @@ private nonisolated struct BackendErrorDetail: Decodable {
     let detail: String
 }
 
+enum ProductOutcomeError: LocalizedError {
+    case notFound
+    case alreadyMarked
+    case unauthorized
+    case failed(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .notFound: return "This product could not be found"
+        case .alreadyMarked: return "This product was already marked"
+        case .unauthorized: return "Please sign in again"
+        case .failed(let message): return message
+        }
+    }
+}
+
 //Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
 protocol ProductServiceProtocol {
@@ -47,6 +63,7 @@ protocol ProductServiceProtocol {
     func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
+    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -277,6 +294,61 @@ struct ProductService: ProductServiceProtocol {
             task.resume()
         }
         
+    }
+    
+    // marks a product consumed or wasted (soft delete, the backend keeps the document for analytics)
+    // same shape as getBarcodeDetails: every path calls the completion on the main queue
+    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
+                return
+            }
+            guard let productId = product.id,
+                  let url = URL(string: "\(AppConfig.baseUrl)/markProductOutcome/\(productId)") else {
+                DispatchQueue.main.async { completionHandler(.failure(ProductOutcomeError.notFound)) }
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            do {
+                request.httpBody = try JSONEncoder().encode(["outcome": outcome.rawValue])
+            } catch {
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
+                return
+            }
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+                    }
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard statusCode == 200 else {
+                    let detail = (try? JSONDecoder().decode(BackendErrorDetail.self, from: data))?.detail
+                    let failure: ProductOutcomeError
+                    
+                    switch statusCode {
+                    case 401: failure = .unauthorized
+                    case 404: failure = .notFound
+                    case 409: failure = .alreadyMarked
+                    default:  failure = .failed(detail ?? "Couldn't mark the product, try again")
+                    }
+                    
+                    print("markProductOutcome failed: \(statusCode) \(detail ?? "")")
+                    DispatchQueue.main.async { completionHandler(.failure(failure)) }
+                    return
+                }
+                DispatchQueue.main.async { completionHandler(.success(())) }
+            }
+            task.resume()
+        }
     }
 
 }

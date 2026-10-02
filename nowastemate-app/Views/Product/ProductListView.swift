@@ -281,7 +281,8 @@ private struct ProductRowView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     
-    @State private var showOutcomeChoice = false
+    @State private var showWasteReasons = false
+    
     private var isMarking: Bool {
         guard let id = product.id else { return false }
         return productVM.markingProductIds.contains(id)
@@ -320,13 +321,21 @@ private struct ProductRowView: View {
         }
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .confirmationDialog("Why was it wasted?", isPresented: $showWasteReasons, titleVisibility: .visible) {
+            ForEach(WasteReason.allCases) { reason in
+                Button(reason.displayName) { mark(.wasted, reason: reason) }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("\(product.name) will be removed from your list.")
+        }
     }
     
     private var outcomeButton: some View {
         // reference: https://developer.apple.com/documentation/swiftui/menu
         Menu {
             Button("Consumed", systemImage: "fork.knife") { mark(.consumed) }
-            Button("Wasted", systemImage: "trash", role: .destructive) { mark(.wasted) }
+            Button("Wasted", systemImage: "trash", role: .destructive) { showWasteReasons = true }
         } label: {
             ZStack {
                 if isMarking {
@@ -344,9 +353,9 @@ private struct ProductRowView: View {
         .accessibilityLabel("Mark \(product.name) as consumed or wasted")
     }
     
-    private func mark(_ outcome: ProductOutcome) {
+    private func mark(_ outcome: ProductOutcome, reason: WasteReason? = nil) {
         guard let user = authVM.user else { return }
-        productVM.markOutcome(for: user, product: product, outcome: outcome)
+        productVM.markOutcome(for: user, product: product, outcome: outcome, wasteReason: reason)
     }
 }
         

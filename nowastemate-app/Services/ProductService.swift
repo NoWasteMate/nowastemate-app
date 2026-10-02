@@ -63,7 +63,7 @@ protocol ProductServiceProtocol {
     func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
-    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -298,7 +298,7 @@ struct ProductService: ProductServiceProtocol {
     
     // marks a product consumed or wasted (soft delete, the backend keeps the document for analytics)
     // same shape as getBarcodeDetails: every path calls the completion on the main queue
-    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -315,8 +315,11 @@ struct ProductService: ProductServiceProtocol {
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             
+            var body = ["outcome": outcome.rawValue]
+            if let wasteReason { body["wasteReason"] = wasteReason.rawValue }
+            
             do {
-                request.httpBody = try JSONEncoder().encode(["outcome": outcome.rawValue])
+                request.httpBody = try JSONEncoder().encode(body)
             } catch {
                 DispatchQueue.main.async { completionHandler(.failure(error)) }
                 return

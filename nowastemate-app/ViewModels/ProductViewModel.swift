@@ -180,17 +180,21 @@ class ProductViewModel: ObservableObject {
         }
     }
     
-    func markOutcome(for user: User, product: Product, outcome: ProductOutcome) {
+    func markOutcome(for user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason? = nil) {
         guard let id = product.id, !markingProductIds.contains(id) else { return }
         markingProductIds.insert(id)
 
-        service.markProductOutcome(user: user, product: product, outcome: outcome) { result in
+        service.markProductOutcome(user: user, product: product, outcome: outcome, wasteReason: wasteReason) { result in
             self.markingProductIds.remove(id)
 
             switch result {
             case .success:
                 withAnimation { self.products.removeAll { $0.id == id } }
-                self.lastOutcomeMessage = "Marked as \(outcome.rawValue)"
+                if let wasteReason {
+                    self.lastOutcomeMessage = "Marked as wasted · \(wasteReason.displayName)"
+                } else {
+                    self.lastOutcomeMessage = "Marked as \(outcome.rawValue)"
+                }
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription

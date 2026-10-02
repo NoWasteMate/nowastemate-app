@@ -41,6 +41,33 @@ enum ProductOutcome: String, Codable {
     }
 }
 
+// reference for displayName (computed property): https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/#Computed-Properties
+// reference for switching on self in an enum: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations/
+enum WasteReason: String, Codable, CaseIterable, Identifiable {
+    case expired
+    case spoiledEarly
+    case boughtTooMuch
+    case other
+
+    var id: String { rawValue }
+
+    // rawValue.capitalized would show "Spoiledearly", so each case gets its own label
+    var displayName: String {
+        switch self {
+        case .expired: return "Expired"
+        case .spoiledEarly: return "Spoiled early"
+        case .boughtTooMuch: return "Bought too much"
+        case .other: return "Other"
+        }
+    }
+
+    // same as product category: unknown values fall back to other
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = WasteReason(rawValue: rawValue) ?? .other
+    }
+}
+
 struct Product: Identifiable, Codable {
     var id: String?
     var name: String
@@ -53,5 +80,6 @@ struct Product: Identifiable, Codable {
     var category: ProductCategory?
     var outcome: ProductOutcome?
     var outcomeAt: String?
+    var wasteReason: WasteReason?
 }
 

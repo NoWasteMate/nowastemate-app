@@ -1,8 +1,8 @@
 //
-//  InferenceService.swift
+//  ClassificationService.swift
 //  nowastemate-app
 //
-//  Created by Frederik Dahl Hansen on 26/09/2026.
+//  Created by Frederik Dahl Hansen on 04/10/2026.
 //
 //reference https://www.youtube.com/watch?v=EO7TAlMrUs4&t=765s
 
@@ -11,11 +11,10 @@ import CoreML
 import UIKit
 import Vision
 
-
-
-final class InferenceService {
-    static let shared = InferenceService()
-
+struct ClassificationService {
+    
+    static let shared = ClassificationService()
+    
     private let vnModel: VNCoreMLModel
 
     private init() {
@@ -37,7 +36,7 @@ final class InferenceService {
     }
 
     // Still images
-    func classify(_ image: UIImage) throws -> VNClassificationObservation? {
+    func classifyProduce(_ image: UIImage) throws -> VNClassificationObservation? {
         guard let cg = image.cgImage else { return nil }
         let request = VNCoreMLRequest(model: vnModel)
         //https://developer.apple.com/documentation/vision/vngenerateimagefeatureprintrequest/imagecropandscaleoption

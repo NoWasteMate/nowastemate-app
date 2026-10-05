@@ -25,9 +25,7 @@ struct ClassificationService {
             let model = ml.model
             self.vnModel = try VNCoreMLModel(for: model)
             
-            let desc = model.modelDescription
-            print(desc.inputDescriptionsByName.values.first as Any)
-            
+            let desc = model.modelDescription            
 
         } catch {
             assertionFailure("Failed to load model: \(error)")
@@ -36,7 +34,8 @@ struct ClassificationService {
     }
 
     // Still images
-    func classifyProduce(_ image: UIImage) throws -> VNClassificationObservation? {
+    //https://developer.apple.com/documentation/vision/vnclassificationobservation?changes=_2&language=objc
+    func classifyProduce(_ image: UIImage) throws -> String? {
         guard let cg = image.cgImage else { return nil }
         let request = VNCoreMLRequest(model: vnModel)
         //https://developer.apple.com/documentation/vision/vngenerateimagefeatureprintrequest/imagecropandscaleoption
@@ -46,9 +45,10 @@ struct ClassificationService {
         
         let results = (request.results as? [VNClassificationObservation]) ?? []
         let sorted  = results.sorted { $0.confidence > $1.confidence }
-        let top5    = sorted.prefix(5).map { "\($0.identifier)=\(Int($0.confidence * 100))%" }
-        print("Top5 (photo):", top5.joined(separator: ", "))
-
-        return sorted.first
+        //let top5    = sorted.prefix(5).map { "\($0.identifier)=\(Int($0.confidence * 100))%" }
+        
+        
+        
+        return sorted.first?.identifier
     }
 }

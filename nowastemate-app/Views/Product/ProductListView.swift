@@ -29,6 +29,7 @@ struct ProductListView: View {
     @EnvironmentObject var productVM: ProductViewModel
     
     @State private var showScannedProduct = false
+    @State private var showProduceClassification = false
     @State private var img = UIImage()
     @State private var showCamera = false
     @State private var prepPicture = false
@@ -192,9 +193,26 @@ struct ProductListView: View {
                     .environmentObject(productVM)
             }
             //https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-full-screen-modal-view-using-fullscreencover
-            .fullScreenCover(isPresented: $prepPicture) {
+            .fullScreenCover(isPresented: $prepPicture, onDismiss: {
+                let classifiedProduce = dataScannerVM.getClassification(img: img)
+                
+                guard let classifiedProduce: String? = dataScannerVM.getClassification(img: img)
+                else {
+                    return
+                }
+                productVM.produce = Product(name: classifiedProduce!.capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                
+                showProduceClassification = true
+
+                
+            }) {
                 PhotoCaptureView(selectedImage: $img)
             }
+            
+            .sheet(isPresented: $showProduceClassification) {
+                AddProductView(prefill: productVM.produce)
+            }
+            
         }
     }
 //    private func addItem() {

@@ -24,7 +24,6 @@ struct EditProductView: View {
     @State private var name: String
     @State private var quantity: Int
     @State private var category: ProductCategory
-    @State private var isPerishable = true
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
     
@@ -87,24 +86,7 @@ struct EditProductView: View {
                     .background(Color.white.opacity(0.3))
                     .cornerRadius(12)
                     
-                    
-                    Text("Type of Product")
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    HStack(spacing: 0) {
-                        Text("Perishable")
-                            .frame(maxWidth: .infinity).padding()
-                            .background(isPerishable ? Color.white : .clear)
-                            .onTapGesture { isPerishable = true }
-                        Text("Non Perishable")
-                            .frame(maxWidth: .infinity).padding()
-                            .background(!isPerishable ? Color.white : .clear)
-                            .onTapGesture { isPerishable = false }
-                    }
-                    .background(Color.white.opacity(0.3))
-                    .clipShape(Capsule())
-                    
-                    
+                                        
                     Text("Category of Product")
                         .fontWeight(.bold)
                         .foregroundStyle(.white)

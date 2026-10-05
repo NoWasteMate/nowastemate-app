@@ -21,7 +21,6 @@ struct AddProductView: View {
     @State private var name = ""
     @State private var quantity = 1
     @State private var category: ProductCategory = .other
-    @State private var isPerishable = true
     @State private var expiryDate = Date()
     @State private var showDatePicker = false
     
@@ -75,24 +74,7 @@ struct AddProductView: View {
                     .background(Color.white.opacity(0.3))
                     .cornerRadius(12)
                     
-                    
-                    Text("Type of Product")
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    HStack(spacing: 0) {
-                        Text("Perishable")
-                            .frame(maxWidth: .infinity).padding()
-                            .background(isPerishable ? Color.white : .clear)
-                            .onTapGesture { isPerishable = true }
-                        Text("Non Perishable")
-                            .frame(maxWidth: .infinity).padding()
-                            .background(!isPerishable ? Color.white : .clear)
-                            .onTapGesture { isPerishable = false }
-                    }
-                    .background(Color.white.opacity(0.3))
-                    .clipShape(Capsule())
-                    
-                    
+            
                     Text("Category of Product")
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
@@ -153,8 +135,6 @@ struct AddProductView: View {
                     .padding(.horizontal)
                     
                     
-                    
-                    //perishable not added in yet
                     Button("Save Product") {
                         guard let user = authVM.user else { return }
                         let userInputtedProduct = Product(

@@ -47,6 +47,7 @@ struct LogInView: View {
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
+                        .foregroundStyle(.buttonBrown)
 
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
@@ -63,6 +64,7 @@ struct LogInView: View {
                     SecureField("", text: $password)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
+                        .foregroundStyle(.buttonBrown)
 
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)

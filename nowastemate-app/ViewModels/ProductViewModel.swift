@@ -30,6 +30,10 @@ class ProductViewModel: ObservableObject {
     @Published var hasLoadedProducts = false
     
     @Published var scannedProduct: Product?
+    
+    @Published var produce: Product?
+
+    
     @Published var isLookingUpBarcode = false
     @Published var barcodeErrorMessage: String?
     // allows the user can still continue to a blank form.

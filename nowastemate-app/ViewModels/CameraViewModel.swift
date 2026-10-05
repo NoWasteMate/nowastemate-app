@@ -39,6 +39,8 @@ final class CameraViewModel: ObservableObject {
     // false for now (only want this to scan one barcode)
     @Published var recognizesMultipleItems = false
     
+    private let classificationService = ClassificationService.shared
+    
 //    var recognizedDataType: DataScannerViewController.RecognizedDataType {
 //        scanType == .barcode ? .barcode() : .text(textContentType: textContentType)
 //    }
@@ -96,4 +98,17 @@ final class CameraViewModel: ObservableObject {
             
         }
     }
+    
+    func getClassification(img: UIImage) -> String? {
+        
+        do {
+            let classification = try classificationService.classifyProduce(img)
+            return classification
+            
+        } catch {
+            print("Error: \(error)")
+            return nil
+        }
+    }
+    
 }

@@ -117,10 +117,24 @@ struct EditProductView: View {
                         .clipShape(Capsule())
                     }
                     .sheet(isPresented: $showDatePicker) {
-                        DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
-                            .datePickerStyle(.graphical)
-                            .padding()
+                        NavigationStack {
+                            DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
+                                .datePickerStyle(.graphical)
+                                .padding()
+                                .navigationTitle("Expiry Date")
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar {
+                                    ToolbarItem(placement: .confirmationAction) {
+                                        Button("Done") {
+                                            showDatePicker = false
+                                        }
+                                    }
+                                }
+                        }
                     }
+                    Text("Expires: \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
                     
                     //Button to send the user inputted product to ProductViewModel
                     //                    Button("Save Product") {

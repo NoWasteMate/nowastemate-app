@@ -340,9 +340,14 @@ private struct ProductRowView: View {
                     .environmentObject(authVM)
             } label: {
                 HStack {
-                    Text(product.name)
-                        .font(.body.weight(.medium))
-                        .foregroundColor(.primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(product.name)
+                            .font(.body.weight(.medium))
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        ExpiryLabel(product: product)
+                    }
                     
                     Spacer()
                     
@@ -400,6 +405,39 @@ private struct ProductRowView: View {
     private func mark(_ outcome: ProductOutcome, reason: WasteReason? = nil) {
         guard let user = authVM.user else { return }
         productVM.markOutcome(for: user, product: product, outcome: outcome, wasteReason: reason)
+    }
+    
+}
+
+// reference: https://developer.apple.com/documentation/swiftui/viewbuilder
+// coloured line under the product name; fresh products show nothing
+private struct ExpiryLabel: View {
+    var product: Product
+    
+    var body: some View {
+        switch product.expiryStatus() {
+        case .expired:
+            label("Expired", color: Color(red: 0.72, green: 0.11, blue: 0.11), weight: .bold)
+                .accessibilityLabel("Expired")
+        case .today:
+            label("Expires Today", color: Color(red: 0.90, green: 0.22, blue: 0.21))
+                .accessibilityLabel("Expires today")
+        case .tomorrow:
+            label("Expires Tomorrow", color: Color(red: 0.91, green: 0.51, blue: 0.23))
+                .accessibilityLabel("Expires tomorrow")
+        case .soon:
+            label("Expires Soon", color: Color(red: 0.79, green: 0.60, blue: 0.02))
+            // "Soon" hides the real count, so VoiceOver reads it out
+                .accessibilityLabel("Expires in \(product.daysUntilExpiry() ?? 0) days")
+        case .fresh:
+            EmptyView()
+        }
+    }
+    
+    private func label(_ text: String, color: Color, weight: Font.Weight = .medium) -> some View {
+        Text(text)
+            .font(.caption2.weight(weight))
+            .foregroundColor(color)
     }
 }
         

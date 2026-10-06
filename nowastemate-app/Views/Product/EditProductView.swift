@@ -121,6 +121,9 @@ struct EditProductView: View {
                             .datePickerStyle(.graphical)
                             .padding()
                     }
+                    Text("Expires: \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
                     
                     //Button to send the user inputted product to ProductViewModel
                     //                    Button("Save Product") {

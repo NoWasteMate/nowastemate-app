@@ -352,12 +352,11 @@ private struct ProductRowView: View {
                     Spacer()
                     
                     Text("Qty \(product.quantity)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(Color(red: 0.25, green: 0.45, blue: 0.30))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color(red: 0.90, green: 0.96, blue: 0.90))
-                        .clipShape(Capsule())
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(red: 0.54, green: 0.54, blue: 0.54))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .overlay(Capsule().stroke(Color(red: 0.79, green: 0.79, blue: 0.79), lineWidth: 1))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -390,9 +389,9 @@ private struct ProductRowView: View {
                 if isMarking {
                     ProgressView()
                 } else {
-                    Image(systemName: "circle")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color(red: 0.44, green: 0.56, blue: 0.77))
                 }
             }
             .frame(width: 36, height: 36)

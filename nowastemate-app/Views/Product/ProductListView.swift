@@ -33,7 +33,8 @@ struct ProductListView: View {
     @State private var img = UIImage()
     @State private var showCamera = false
     @State private var prepPicture = false
-
+    @State private var classifications: [String]? = nil
+    @State private var showProduceAlert = false
     
 //     let groceryItems: [Product] = [
 //        Product(
@@ -194,15 +195,16 @@ struct ProductListView: View {
             }
             //https://www.hackingwithswift.com/quick-start/swiftui/how-to-present-a-full-screen-modal-view-using-fullscreencover
             .fullScreenCover(isPresented: $prepPicture, onDismiss: {
-                let classifiedProduce = dataScannerVM.getClassification(img: img)
                 
-                guard let classifiedProduce: String? = dataScannerVM.getClassification(img: img)
+                //get the classification
+                guard let classifiedProduce: [String]? = dataScannerVM.getClassification(img: img)
                 else {
                     return
                 }
-                productVM.produce = Product(name: classifiedProduce!.capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
                 
-                showProduceClassification = true
+                classifications = classifiedProduce!
+                
+                showProduceAlert = true
 
                 
             }) {
@@ -212,6 +214,45 @@ struct ProductListView: View {
             .sheet(isPresented: $showProduceClassification) {
                 AddProductView(prefill: productVM.produce)
             }
+            
+            //trigger an alert once the classification is done, to allow user to confirm it is correct
+            .alert("Produce Detected!", isPresented: $showProduceAlert, actions: {
+                
+                //present user with the top3 classifications, then have user select the correct one.
+                //this can later be used to track when we do not get it right
+                
+                //placeholder for the classification, as alert loads before we populate the data.
+                Button("\(classifications?[0].capitalized ?? "Placeholder")") {
+                    productVM.produce = Product(name: classifications![0].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    showProduceClassification = true
+                    
+                }
+                .keyboardShortcut(.defaultAction)
+                
+                Button("Alternative - \(classifications?[1].capitalized ?? "Placerholder")") {
+                    productVM.produce = Product(name: classifications![1].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    showProduceClassification = true
+
+                }
+                
+                Button("Alternative - \(classifications?[2].capitalized ?? "Placerholder")") {
+                    productVM.produce = Product(name: classifications![2].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    showProduceClassification = true
+
+                }
+                //https://stackoverflow.com/questions/73616346/swiftui-how-to-hide-cancel-button-in-alert-window
+                //hiding the cancel button by not using the roles
+                Button("None of the above", role: .destructive) {
+                    productVM.produce = nil
+                    showProduceClassification = true
+                    
+                }
+                
+                //destructive above auto adds the cancel button below
+                
+            }, message: {
+                Text("Below is the produce detected, as well as alternatives")
+            })
             
         }
     }

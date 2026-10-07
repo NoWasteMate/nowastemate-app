@@ -99,7 +99,7 @@ final class CameraViewModel: ObservableObject {
         }
     }
     
-    func getClassification(img: UIImage) -> String? {
+    func getClassification(img: UIImage) -> [String]? {
         
         do {
             let classification = try classificationService.classifyProduce(img)

@@ -47,7 +47,7 @@ struct ClassificationService {
     // Still images
     //https://developer.apple.com/documentation/vision/vnclassificationobservation?changes=_2&language=objc
     //classify picutre and return a string
-    func classifyProduce(_ image: UIImage) throws -> String? {
+    func classifyProduce(_ image: UIImage) throws -> [String]? {
         //reads images cgImage - low level version of image for processing
         guard let cg = image.cgImage else { return nil }
         //create request
@@ -65,14 +65,17 @@ struct ClassificationService {
         let results = (request.results as? [VNClassificationObservation]) ?? []
         //sorts them by percentage value
         let sorted  = results.sorted { $0.confidence > $1.confidence }
-        let top5    = sorted.prefix(5).map { "\($0.identifier)=\(Int($0.confidence * 100))%" }
-        print("Top5 (photo):", top5.joined(separator: ", "))
+        let top3    = sorted.prefix(3).map {"\($0.identifier)"}
+        
+        print(top3)
 
         //top 5 most probably classifications
         //let top5    = sorted.prefix(5).map { "\($0.identifier)=\(Int($0.confidence * 100))%" }
         
+        
+        
         //returning the name of the classification label
-        return sorted.first?.identifier
+        return top3
     }
 }
 

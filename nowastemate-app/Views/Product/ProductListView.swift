@@ -215,6 +215,7 @@ struct ProductListView: View {
                 AddProductView(prefill: productVM.produce)
             }
             
+            //https://www.avanderlee.com/swiftui/swiftui-alert-presenting/
             //trigger an alert once the classification is done, to allow user to confirm it is correct
             .alert("Produce Detected!", isPresented: $showProduceAlert, actions: {
                 

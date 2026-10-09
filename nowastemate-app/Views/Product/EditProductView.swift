@@ -181,16 +181,16 @@ struct EditProductView: View {
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
                         
-                        Button("Delete Product") {
-                            guard let user = authVM.user else { return }
-                            productVM.deleteProduct(for: user, product: product)
-                            dismiss()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red)
-                        .foregroundStyle(.white)
-                        .clipShape(Capsule())
+//                        Button("Delete Product") {
+//                            guard let user = authVM.user else { return }
+//                            productVM.deleteProduct(for: user, product: product)
+//                            dismiss()
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                        .background(Color.red)
+//                        .foregroundStyle(.white)
+//                        .clipShape(Capsule())
                     }
                     .padding(.horizontal)
                 }

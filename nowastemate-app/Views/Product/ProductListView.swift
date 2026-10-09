@@ -125,25 +125,30 @@ struct ProductListView: View {
                         }
                     }
     
-                    ScrollView() {
-                        
-                        VStack(spacing: 16) {
-                            ForEach(sortedCategories, id: \.self) { category in
-                                if let items = groupedProducts[category] {
-                                    ProductCardView(
-                                        title: category.rawValue,
-                                        items: items
-                                    )
+                    // reference: https://developer.apple.com/documentation/swiftui/list
+                    List {
+                        ForEach(sortedCategories, id: \.self) { category in
+                            if let items = groupedProducts[category] {
+                                Section {
+                                    ForEach(items) { product in
+                                        ProductRowView(product: product)
+                                    }
+                                } header: {
+                                    Text(category.rawValue.capitalized)
+                                        .foregroundStyle(.white.opacity(0.9))
                                 }
                             }
                         }
-                        .environmentObject(productVM) 
-                        .onAppear() {
-                            print("Loading product data...")
-                            guard let user = authVM.user else { return }
-                            productVM.loadProducts(for: user)
-                        }
-                        .padding(.top, 8)
+                    }
+                    .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, -20)
+                    .contentMargins(.bottom, 100, for: .scrollContent)
+                    .environmentObject(productVM)
+                    .onAppear() {
+                        print("Loading product data...")
+                        guard let user = authVM.user else { return }
+                        productVM.loadProducts(for: user)
                     }
                 }.padding(20)
             }
@@ -332,35 +337,6 @@ struct ProductListView: View {
 }
 #endif
 
-private struct ProductCardView: View {
-    
-    var title: String
-    var items: [Product]
-  
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title.capitalized)
-                .font(.subheadline.weight(.bold))
-                .foregroundColor(.secondary)
-            Rectangle().frame(height: 1).foregroundColor(.secondary)
-            
-            VStack(spacing: 10) {
-                ForEach(items) { product in
-                    ProductRowView(product: product)
-                }
-            }
-        }
-        //.frame(width: 380,alignment: .center)
-        .padding(10)
-        .background(
-            Color.white
-                .shadow(radius: 5)
-                .opacity(0.45)
-        )
-        
-        .clipShape(RoundedRectangle(cornerRadius: 25))
-    }
-}
 
 private struct ProductRowView: View {
     var product: Product
@@ -375,42 +351,38 @@ private struct ProductRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 0){
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(product.name)
+                    .font(.body.weight(.medium))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                ExpiryLabel(product: product)
+            }
+            
+            Spacer()
+            
+            Text("Qty \(product.quantity)")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(Color(red: 0.54, green: 0.54, blue: 0.54))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 1)
+                .overlay(Capsule().stroke(Color(red: 0.79, green: 0.79, blue: 0.79), lineWidth: 1))
+            
+            outcomeButton
+        }
+        // hidden link: tapping the row opens EditProductView without List's automatic chevron
+        .background {
             NavigationLink {
                 EditProductView(product: product)
                     .environmentObject(productVM)
                     .environmentObject(authVM)
             } label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(product.name)
-                            .font(.body.weight(.medium))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                        
-                        ExpiryLabel(product: product)
-                    }
-                    
-                    Spacer()
-                    
-                    Text("Qty \(product.quantity)")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(Color(red: 0.54, green: 0.54, blue: 0.54))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 1)
-                        .overlay(Capsule().stroke(Color(red: 0.79, green: 0.79, blue: 0.79), lineWidth: 1))
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                EmptyView()
             }
-            .buttonStyle(.plain)
-            
-            outcomeButton.padding(.trailing, 12)
+            .opacity(0)
         }
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
         .confirmationDialog("Why was it wasted?", isPresented: $showWasteReasons, titleVisibility: .visible) {
             ForEach(WasteReason.allCases) { reason in
                 Button(reason.displayName) { mark(.wasted, reason: reason) }
@@ -441,6 +413,7 @@ private struct ProductRowView: View {
         }
         .disabled(isMarking)
         .accessibilityLabel("Mark \(product.name) as consumed or wasted")
+        .buttonStyle(.borderless)
     }
     
     private func mark(_ outcome: ProductOutcome, reason: WasteReason? = nil) {

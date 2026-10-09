@@ -10,6 +10,7 @@ import SwiftUI
 // Sheet opened from the generate button on the recipe list.
 // Medium size: quick product picker, Large size: grouped by category & generation options
 struct GenerateRecipeSheet: View {
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
     @Environment(\.dismiss) private var dismiss
@@ -325,7 +326,9 @@ struct GenerateRecipeSheet: View {
     // TODO: send selected products + options once POST /generateRecipe takes a body (uses whole inventory at the moment)
     private var generateButton: some View {
         Button {
-            recipeVM.generateRecipe()
+            if let user = authVM.user {
+                recipeVM.generateRecipe(for: user)
+            }
             dismiss()
         } label: {
             Label("Generate", systemImage: "sparkles")

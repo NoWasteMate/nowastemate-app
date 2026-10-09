@@ -16,31 +16,25 @@ import FirebaseAuth
 
 protocol FamilyServiceProtocol {
     
-    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
-    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void)
-    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void)
-    func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void)
-    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void)
-    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
-    func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
-    func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
-    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func postFamily(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func joinFamily(user: User, code: String, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func getFamilyId(user: User, completionHandler: @escaping (Result<[String], Error>) -> Void)
+    func getFamilyMembers(user: User, completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void)
+    func getFamily(user: User, completionHandler: @escaping (Result<Family, Error>) -> Void)
+    func updateFamilyName(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func updateOwner(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func deleteFamilyMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
 
 }
 
 struct FamilyService: FamilyServiceProtocol {
     static let shared = FamilyService()
     
-    var currentUser: User? {
-        Auth.auth().currentUser
-    }
-    
-    
-    
-    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func postFamily(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         print("service called")
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -84,11 +78,11 @@ struct FamilyService: FamilyServiceProtocol {
     }
     
     
-    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func joinFamily(user: User, code: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         //retrieve familyid and logic for API call
         print("service called")
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -131,8 +125,8 @@ struct FamilyService: FamilyServiceProtocol {
     
     
     //https://lukerobertsapps.medium.com/how-to-fetch-data-from-an-api-in-swift-d2ed6d9481a
-    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void){
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+    func getFamilyId(user: User, completionHandler: @escaping (Result<[String], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -162,8 +156,8 @@ struct FamilyService: FamilyServiceProtocol {
         }
     }
     
-    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void){
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+    func getFamily(user: User, completionHandler: @escaping (Result<Family, Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -196,8 +190,8 @@ struct FamilyService: FamilyServiceProtocol {
     
     
     
-    func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void){
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+    func getFamilyMembers(user: User, completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -227,9 +221,9 @@ struct FamilyService: FamilyServiceProtocol {
         
     }
     
-    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func updateFamilyName(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -273,9 +267,9 @@ struct FamilyService: FamilyServiceProtocol {
         }
     }
     
-    func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func updateOwner(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -317,9 +311,9 @@ struct FamilyService: FamilyServiceProtocol {
         }
     }
     
-    func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func deleteFamilyMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;
@@ -361,9 +355,9 @@ struct FamilyService: FamilyServiceProtocol {
         }
     }
     
-    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
+    func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void){
         //logic for API call
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
             return;

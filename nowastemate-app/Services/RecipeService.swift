@@ -12,21 +12,17 @@ import FirebaseAuth
 //Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
 protocol RecipeServiceProtocol {
-    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
-    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
+    func generateRecipe(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct RecipeService: RecipeServiceProtocol {
     static let shared = RecipeService()
     
-    var currentUser: User? {
-        Auth.auth().currentUser
-    }
-    
     //Getting the list of recipes depending on user
-    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
+    func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
         
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
                 return;
@@ -65,9 +61,9 @@ struct RecipeService: RecipeServiceProtocol {
         }
     }
     
-    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         
-        currentUser!.getIDTokenForcingRefresh(true) { idToken, error in
+        user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
                 return;

@@ -46,10 +46,12 @@ struct RootView: View {
              
             }
             .onAppear{
-                recipeVM.loadRecipes()
-                familyVM.findExistingFamily()
-                familyVM.findFamilyMembers()
-                familyVM.findFamilyId()
+                if let user = authVM.user {
+                    recipeVM.loadRecipes(for: user)
+                    familyVM.findExistingFamily(for: user)
+                    familyVM.findFamilyMembers(for: user)
+                    familyVM.findFamilyId(for: user)
+                }
             }
         } else {
             NavigationStack {

@@ -11,6 +11,7 @@ struct JoinFamilyView: View {
     //state variables for user input
     @State private var code: String = ""
     
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
     
     var isFormValid: Bool {
@@ -57,7 +58,9 @@ struct JoinFamilyView: View {
                             
                             if (isFormValid){
                                 
-                                familyVM.findNewFamily(code: code)
+                                if let user = authVM.user {
+                                    familyVM.findNewFamily(for: user, code: code)
+                                }
                                 
                                 dismiss()
                                 

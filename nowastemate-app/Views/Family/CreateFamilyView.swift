@@ -12,6 +12,7 @@ struct CreateFamilyView: View {
     //state variables for user input
     @State private var title: String = ""
     
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
     
     @Environment(\.dismiss) private var dismiss
@@ -71,7 +72,9 @@ struct CreateFamilyView: View {
                         
                         if (isFormValid){
                             
-                            familyVM.createFamily(title: title)
+                            if let user = authVM.user {
+                                familyVM.createFamily(for: user, title: title)
+                            }
                             
                             dismiss()
                             

@@ -27,6 +27,9 @@ struct AppPreviewEnvironment: PreviewModifier {
         productVM.products = Product.previewSamples
         productVM.hasLoadedProducts = true
 
+        let recipeVM = RecipeViewModel(service: PreviewRecipeService())
+        recipeVM.recipes = Recipe.previewSamples
+
         
         //Marks the preview as signed in so RootView renders the tabs instead of LogInView.
         let authVM = AuthViewModel()
@@ -35,7 +38,7 @@ struct AppPreviewEnvironment: PreviewModifier {
         return content
             .environmentObject(authVM)
             .environmentObject(FamilyViewModel(service: PreviewFamilyService()))
-            .environmentObject(RecipeViewModel(service: PreviewRecipeService()))
+            .environmentObject(recipeVM)
             .environmentObject(productVM)
             .environmentObject(CameraViewModel())
     }

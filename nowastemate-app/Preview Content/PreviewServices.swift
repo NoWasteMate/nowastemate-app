@@ -12,40 +12,40 @@ import FirebaseAuth
 
 struct PreviewRecipeService: RecipeServiceProtocol {
 
-    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
+    func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
         completionHandler(.success(Recipe.previewSamples))
     }
 
-    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {
     
-    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func postFamily(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func joinFamily(user: User, code: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void) {
+    func getFamilyId(user: User, completionHandler: @escaping (Result<[String], Error>) -> Void) {
         completionHandler(.success(["preview-family"]))
     }
 
-    func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void) {
+    func getFamilyMembers(user: User, completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void) {
         completionHandler(.success([FamilyMember(member: "id", email: "email")]))
     }
     
-    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void) {
+    func getFamily(user: User, completionHandler: @escaping (Result<Family, Error>) -> Void) {
         completionHandler(.success(Family(title: "Family Preview", ownerId: "Placeholder")))
     }
     
-    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func updateFamilyName(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func updateOwner(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func deleteFamilyMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
     
 }

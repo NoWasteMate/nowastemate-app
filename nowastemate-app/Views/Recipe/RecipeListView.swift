@@ -56,11 +56,11 @@ struct RecipeListView: View {
             GenerateRecipeSheet()
         }
         .onAppear(){
-            recipeVM.loadRecipes()
             // Recipes store the productIds they were generated from, so the inventory has to be current
 
             if let user = authVM.user {
                 productVM.loadProducts(for: user)
+                recipeVM.loadRecipes(for: user)
             }
         }
     }

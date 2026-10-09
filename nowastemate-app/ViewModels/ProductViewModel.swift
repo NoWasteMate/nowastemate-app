@@ -32,6 +32,8 @@ class ProductViewModel: ObservableObject {
     @Published var scannedProduct: Product?
     
     @Published var produce: Product?
+    
+    @Published var diagnostic: WasteReason?
 
     
     @Published var isLookingUpBarcode = false
@@ -247,5 +249,10 @@ class ProductViewModel: ObservableObject {
     func ownedIngredientCount(in ingredients: [Ingredient]) -> Int? {
         guard hasLoadedProducts else { return nil }
         return ingredients.filter { availability(for: $0) == .owned }.count
+    }
+    
+    func findWasteDiagnostic(product: Product) -> WasteReason? {
+        
+        return WasteReason.expired
     }
 }

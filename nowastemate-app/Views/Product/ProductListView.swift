@@ -260,6 +260,8 @@ struct ProductListView: View {
                 Text("Below is the produce detected, as well as alternatives")
             })
             
+            
+            
         }
     }
 //    private func addItem() {
@@ -344,6 +346,8 @@ private struct ProductRowView: View {
     @EnvironmentObject var productVM: ProductViewModel
     
     @State private var showWasteReasons = false
+    @State private var triggerDiagnosticWaste = false
+
     
     private var isMarking: Bool {
         guard let id = product.id else { return false }
@@ -391,13 +395,42 @@ private struct ProductRowView: View {
         } message: {
             Text("\(product.name) will be removed from your list.")
         }
+        
+        .alert("Waste Reason", isPresented: $triggerDiagnosticWaste, actions: {
+            Button("Confirm") {
+               
+                mark(.wasted, reason: productVM.diagnostic)
+                
+            }
+            .keyboardShortcut(.defaultAction)
+            
+            //https://stackoverflow.com/questions/73616346/swiftui-how-to-hide-cancel-button-in-alert-window
+            //hiding the cancel button by not using the roles
+            Button("Something else", role: .destructive) {
+               
+                showWasteReasons = true
+                triggerDiagnosticWaste = false
+            }
+        }, message: {
+            Text("Predicted Reason: \(productVM.diagnostic?.displayName ?? "Placeholder")")
+        })
     }
     
     private var outcomeButton: some View {
         // reference: https://developer.apple.com/documentation/swiftui/menu
         Menu {
             Button("Consumed", systemImage: "fork.knife") { mark(.consumed) }
-            Button("Wasted", systemImage: "trash", role: .destructive) { showWasteReasons = true }
+            Button("Wasted", systemImage: "trash", role: .destructive) {
+                
+                productVM.diagnostic = productVM.findWasteDiagnostic(product: product)
+                
+                if (productVM.diagnostic == nil){
+                    showWasteReasons = true
+                } else {
+                    triggerDiagnosticWaste = true
+                }
+                
+                 }
         } label: {
             ZStack {
                 if isMarking {
@@ -420,6 +453,8 @@ private struct ProductRowView: View {
         guard let user = authVM.user else { return }
         productVM.markOutcome(for: user, product: product, outcome: outcome, wasteReason: reason)
     }
+    
+    
     
 }
 

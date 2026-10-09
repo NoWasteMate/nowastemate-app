@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45A666D5307947F2009004C4 /* FuzzyMatch in Frameworks */ = {isa = PBXBuildFile; productRef = 45A666D4307947F2009004C4 /* FuzzyMatch */; };
 		45C6A9682ED5766D00BB7694 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 45C6A9672ED5766D00BB7694 /* FirebaseAuth */; };
 		45E04DE22EC4EE2E0020FB53 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 45E04DE12EC4EE2E0020FB53 /* FirebaseAI */; };
 		45E04DE42EC4EE2E0020FB53 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45E04DE32EC4EE2E0020FB53 /* FirebaseAnalytics */; };
@@ -41,6 +42,7 @@
 				45E04DEE2EC4EE2E0020FB53 /* FirebaseStorage in Frameworks */,
 				45E04DE22EC4EE2E0020FB53 /* FirebaseAI in Frameworks */,
 				45E04DEC2EC4EE2E0020FB53 /* FirebaseFirestore in Frameworks */,
+				45A666D5307947F2009004C4 /* FuzzyMatch in Frameworks */,
 				45C6A9682ED5766D00BB7694 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,6 +94,7 @@
 				45E04DEB2EC4EE2E0020FB53 /* FirebaseFirestore */,
 				45E04DED2EC4EE2E0020FB53 /* FirebaseStorage */,
 				45C6A9672ED5766D00BB7694 /* FirebaseAuth */,
+				45A666D4307947F2009004C4 /* FuzzyMatch */,
 			);
 			productName = "nowastemate-app";
 			productReference = 45B1849E2E9551C200EE15E8 /* nowastemate-app.app */;
@@ -123,6 +126,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				45E04DE02EC4EE2E0020FB53 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				45A666D3307947F2009004C4 /* XCRemoteSwiftPackageReference "FuzzyMatch" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 45B1849F2E9551C200EE15E8 /* Products */;
@@ -370,6 +374,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		45A666D3307947F2009004C4 /* XCRemoteSwiftPackageReference "FuzzyMatch" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ordo-one/FuzzyMatch";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
 		45E04DE02EC4EE2E0020FB53 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -381,6 +393,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		45A666D4307947F2009004C4 /* FuzzyMatch */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45A666D3307947F2009004C4 /* XCRemoteSwiftPackageReference "FuzzyMatch" */;
+			productName = FuzzyMatch;
+		};
 		45C6A9672ED5766D00BB7694 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 45E04DE02EC4EE2E0020FB53 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

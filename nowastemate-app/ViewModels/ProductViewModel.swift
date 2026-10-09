@@ -46,9 +46,13 @@ class ProductViewModel: ObservableObject {
     // this stops multiple requests being processed
     @Published var markingProductIds: Set<String> = []
 
+    @Published var productTypes: [ProductType] = []
+    private var productTypesVersion: Int?
+
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
     private let service: ProductServiceProtocol
+    private let productTypeService = ProductTypeService.shared
 
     init(service: ProductServiceProtocol = ProductService.shared) {
         self.service = service
@@ -80,6 +84,28 @@ class ProductViewModel: ObservableObject {
         }
     }
     
+    // Shows the saved list straight away, then asks the backend if there's a newer version
+    // Article example is in javascript but i've applied the same thought process.
+    // https://web.dev/articles/offline-cookbook#cache-then-network
+    func loadProductTypes(for user: User) {
+        if productTypes.isEmpty, let saved = productTypeService.loadSavedList() {
+            productTypes = saved.types ?? []
+            productTypesVersion = saved.version
+        }
+        productTypeService.fetchProductTypes(user: user, version: productTypesVersion) { result in
+            switch result {
+            case .success(let list):
+                // upToDate comes back with no types, so keep what we have
+                guard let types = list.types else { return }
+                self.productTypes = types
+                self.productTypesVersion = list.version
+            case .failure(let error):
+                // Not shown to the user, the saved list still works
+                print(error)
+            }
+        }
+    }
+
     // The view model is app-scoped instead of account levll, so it outlives sign out. Clear it to fix this carryover
     func resetProducts() {
         products = []

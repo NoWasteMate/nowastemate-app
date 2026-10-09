@@ -50,6 +50,10 @@ struct RootView: View {
                 familyVM.findExistingFamily()
                 familyVM.findFamilyMembers()
                 familyVM.findFamilyId()
+                // Needs to check if user exists because .loadProductTypes has user as non optional
+                if let user = authVM.user {
+                    productVM.loadProductTypes(for: user)
+                }
             }
         } else {
             NavigationStack {

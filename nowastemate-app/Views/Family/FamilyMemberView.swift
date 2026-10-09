@@ -10,6 +10,7 @@ import FirebaseAuth
 
 struct FamilyMemberView: View {
     
+    @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
     
     @State private var editNameAlert: Bool = false
@@ -75,7 +76,9 @@ struct FamilyMemberView: View {
                                         
                                         Button("Confirm", role: .confirm) {
                                             
-                                            familyVM.editFamilyName(title: newName)
+                                            if let user = authVM.user {
+                                                familyVM.editFamilyName(for: user, title: newName)
+                                            }
                                             
                                         }
                                         
@@ -136,7 +139,9 @@ struct FamilyMemberView: View {
                             })
                             .alert("Transfer Family Ownership", isPresented: $confirmTransfer, actions: {
                                 Button("Transfer Ownership", role: .confirm) {
-                                    familyVM.transferOwner(member: clickedMember)
+                                    if let user = authVM.user {
+                                        familyVM.transferOwner(for: user, member: clickedMember)
+                                    }
                                 }
                                 Button("Cancel", role: .cancel) {
                                     //do nothing
@@ -147,7 +152,9 @@ struct FamilyMemberView: View {
                             })
                             .alert("Delete member", isPresented: $confirmDelete, actions: {
                                 Button("Confirm", role: .confirm) {
-                                    familyVM.removeFamilyMembership(member: clickedMember)
+                                    if let user = authVM.user {
+                                        familyVM.removeFamilyMembership(for: user, member: clickedMember)
+                                    }
                                 }
                                 Button("Cancel", role: .cancel) {
                                     //do nothing
@@ -248,7 +255,9 @@ struct FamilyMemberView: View {
                 if !familyVM.isOwner {
                     VStack {
                         Button("Leave Family"){
-                            familyVM.leaveFamily(member: FamilyMember(member: familyVM.currentUser!.uid, email: familyVM.currentUser?.email))
+                            if let user = authVM.user {
+                                familyVM.leaveFamily(for: user, member: FamilyMember(member: user.uid, email: user.email))
+                            }
                         }
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)

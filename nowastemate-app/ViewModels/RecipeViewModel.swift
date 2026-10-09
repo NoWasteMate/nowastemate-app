@@ -26,10 +26,10 @@ final class RecipeViewModel: ObservableObject {
         self.service = service
     }
 
-    func loadRecipes(){
+    func loadRecipes(for user: User){
         self.isLoading = true
 
-        service.getAllRecipes() {result in
+        service.getAllRecipes(user: user) {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let recipes):
@@ -44,14 +44,14 @@ final class RecipeViewModel: ObservableObject {
         }
     }
     
-    func generateRecipe(){
+    func generateRecipe(for user: User){
         self.isLoading = true
 
-        service.generateRecipe() {result in
+        service.generateRecipe(user: user) {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success():
-                    self.loadRecipes()
+                    self.loadRecipes(for: user)
                     // loadRecipes() will call isLoading = false
                 case .failure:
                     self.isLoading = false

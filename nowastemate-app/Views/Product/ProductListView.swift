@@ -347,6 +347,7 @@ private struct ProductRowView: View {
     
     @State private var showWasteReasons = false
     @State private var triggerDiagnosticWaste = false
+    @State private var wasteDiagnostic = WasteReason.other
 
     
     private var isMarking: Bool {
@@ -399,7 +400,7 @@ private struct ProductRowView: View {
         .alert("Waste Reason", isPresented: $triggerDiagnosticWaste, actions: {
             Button("Confirm") {
                
-                mark(.wasted, reason: productVM.diagnostic)
+                mark(.wasted, reason: wasteDiagnostic)
                 
             }
             .keyboardShortcut(.defaultAction)
@@ -412,7 +413,7 @@ private struct ProductRowView: View {
                 triggerDiagnosticWaste = false
             }
         }, message: {
-            Text("Predicted Reason: \(productVM.diagnostic?.displayName ?? "Placeholder")")
+            Text("Predicted Reason: \(wasteDiagnostic.displayName)")
         })
     }
     
@@ -421,14 +422,27 @@ private struct ProductRowView: View {
         Menu {
             Button("Consumed", systemImage: "fork.knife") { mark(.consumed) }
             Button("Wasted", systemImage: "trash", role: .destructive) {
-                
-                productVM.diagnostic = productVM.findWasteDiagnostic(product: product)
-                
-                if (productVM.diagnostic == nil){
-                    showWasteReasons = true
-                } else {
-                    triggerDiagnosticWaste = true
+                //https://www.swiftbysundell.com/articles/building-an-async-swiftui-button/
+                //making the call and waiting for the result
+                Task {
+                    if let user = authVM.user {
+                        wasteDiagnostic = await productVM.findWasteDiagnostic(for: user, product: product)
+                    }
+                    
+                    if (wasteDiagnostic == WasteReason.other) {
+                        showWasteReasons = true
+                    } else {
+                        triggerDiagnosticWaste = true
+                    }
                 }
+                
+                
+                
+                
+                
+                
+                //show regular overview of reasons if other is returned from api
+                
                 
                  }
         } label: {

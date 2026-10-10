@@ -33,9 +33,6 @@ class ProductViewModel: ObservableObject {
     
     @Published var produce: Product?
     
-    @Published var diagnostic: WasteReason?
-
-    
     @Published var isLookingUpBarcode = false
     @Published var barcodeErrorMessage: String?
     // allows the user can still continue to a blank form.
@@ -251,8 +248,28 @@ class ProductViewModel: ObservableObject {
         return ingredients.filter { availability(for: $0) == .owned }.count
     }
     
-    func findWasteDiagnostic(product: Product) -> WasteReason? {
+    //ref https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-continuations-to-convert-completion-handlers-into-async-functions
+    //have to ensure call is finished before we proceed with showing the options
+    func findWasteDiagnostic(for user: User,product: Product) async -> WasteReason {
         
-        return WasteReason.expired
+        //ensure we wait for the diagnostic
+        let diagnostic: WasteReason = await withCheckedContinuation { continuation in
+            self.service.getWasteDiagnostic(user: user, product: product) { result in
+                    switch result {
+                    //diagnostic is gathered and passes to resume
+                    case .success(let wasteReason):
+                        continuation.resume(returning: wasteReason)
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                        print(self.errorMessage)
+                        //to ensure errors are not jarring, we will simply return other here, which in turn will display the full list instead
+                        continuation.resume(returning: WasteReason.other)
+                    }
+                
+            }
+        }
+        
+        return diagnostic
+        
     }
 }

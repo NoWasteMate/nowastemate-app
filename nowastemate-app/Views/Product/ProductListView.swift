@@ -206,8 +206,11 @@ struct ProductListView: View {
                 else {
                     return
                 }
-                
-                classifications = classifiedProduce!
+                if (classifications) == nil {
+                    return
+                } else {
+                    classifications = classifiedProduce!
+                }
                 
                 showProduceAlert = true
 
@@ -259,6 +262,8 @@ struct ProductListView: View {
             }, message: {
                 Text("Below is the produce detected, as well as alternatives")
             })
+            
+            
             
         }
     }
@@ -344,6 +349,9 @@ private struct ProductRowView: View {
     @EnvironmentObject var productVM: ProductViewModel
     
     @State private var showWasteReasons = false
+    @State private var triggerDiagnosticWaste = false
+    @State private var wasteDiagnostic = WasteReason.other
+
     
     private var isMarking: Bool {
         guard let id = product.id else { return false }
@@ -391,13 +399,55 @@ private struct ProductRowView: View {
         } message: {
             Text("\(product.name) will be removed from your list.")
         }
+        
+        .alert("Waste Reason", isPresented: $triggerDiagnosticWaste, actions: {
+            Button("Confirm") {
+               
+                mark(.wasted, reason: wasteDiagnostic)
+                
+            }
+            .keyboardShortcut(.defaultAction)
+            
+            //https://stackoverflow.com/questions/73616346/swiftui-how-to-hide-cancel-button-in-alert-window
+            //hiding the cancel button by not using the roles
+            Button("Something else", role: .destructive) {
+               
+                showWasteReasons = true
+                triggerDiagnosticWaste = false
+            }
+        }, message: {
+            Text("Predicted Reason: \(wasteDiagnostic.displayName)")
+        })
     }
     
     private var outcomeButton: some View {
         // reference: https://developer.apple.com/documentation/swiftui/menu
         Menu {
             Button("Consumed", systemImage: "fork.knife") { mark(.consumed) }
-            Button("Wasted", systemImage: "trash", role: .destructive) { showWasteReasons = true }
+            Button("Wasted", systemImage: "trash", role: .destructive) {
+                //https://www.swiftbysundell.com/articles/building-an-async-swiftui-button/
+                //making the call and waiting for the result
+                Task {
+                    if let user = authVM.user {
+                        wasteDiagnostic = await productVM.findWasteDiagnostic(for: user, product: product)
+                    }
+                    
+                    if (wasteDiagnostic == WasteReason.other) {
+                        showWasteReasons = true
+                    } else {
+                        triggerDiagnosticWaste = true
+                    }
+                }
+                
+                
+                
+                
+                
+                
+                //show regular overview of reasons if other is returned from api
+                
+                
+                 }
         } label: {
             ZStack {
                 if isMarking {
@@ -420,6 +470,8 @@ private struct ProductRowView: View {
         guard let user = authVM.user else { return }
         productVM.markOutcome(for: user, product: product, outcome: outcome, wasteReason: reason)
     }
+    
+    
     
 }
 

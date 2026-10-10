@@ -64,6 +64,7 @@ protocol ProductServiceProtocol {
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -351,6 +352,42 @@ struct ProductService: ProductServiceProtocol {
                 DispatchQueue.main.async { completionHandler(.success(())) }
             }
             task.resume()
+        }
+    }
+    
+    func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            guard let productId = product.id,
+                  let url = URL(string: "\(AppConfig.baseUrl)/get_waste_diagnostic/\(productId)") else {
+                completionHandler(.failure(ProductOutcomeError.notFound)) 
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    
+                    let reason = try JSONDecoder().decode(WasteReason.self, from: data)
+                              completionHandler(.success(reason))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+                    
+                }
+            }
+            task.resume()
+            
         }
     }
 

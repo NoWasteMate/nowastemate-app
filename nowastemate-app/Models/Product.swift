@@ -51,6 +51,7 @@ enum WasteReason: String, Codable, CaseIterable, Identifiable {
     case badQuality
     case storedWrong
     case other
+    case addedByMistake
 
 
     var id: String { rawValue }
@@ -59,13 +60,13 @@ enum WasteReason: String, Codable, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .expired: return "Product Expired"
-        case .spoiledEarly: return "Product spoiled early"
-        case .boughtTooMuch: return "I Bought too much"
-        case .forgot: return "I forgot about this Product"
-        case .badQuality: return "Product arrived bad"
-        case .storedWrong: return "Product stored incorrectly"
+        case .spoiledEarly: return "Product Spoiled Early"
+        case .boughtTooMuch: return "I Bought Too Much"
+        case .forgot: return "Forgot about Product"
+        case .badQuality: return "Product Arrived Bad"
+        case .storedWrong: return "Product Stored Incorrectly"
         case .other: return "Other"
-
+        case .addedByMistake: return "Added by Mistake"
         }
     }
 

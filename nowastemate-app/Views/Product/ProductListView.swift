@@ -206,8 +206,11 @@ struct ProductListView: View {
                 else {
                     return
                 }
-                
-                classifications = classifiedProduce!
+                if (classifications) == nil {
+                    return
+                } else {
+                    classifications = classifiedProduce!
+                }
                 
                 showProduceAlert = true
 

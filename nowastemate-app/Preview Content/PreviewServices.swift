@@ -77,6 +77,8 @@ struct PreviewProductService: ProductServiceProtocol {
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
+    func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void) {}
+
 }
 
 extension Recipe {

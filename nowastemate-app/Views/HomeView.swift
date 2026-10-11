@@ -22,9 +22,16 @@ struct HomeView: View {
                 ScrollView{
                     VStack{
                         
+                        Button("(ADMIN) Log Active Token"){
+                            Task{
+                                await authVM.logToken()
+                            }
+                        }.background(.red)
+                        
                         HStack{
                             
-                            Text("Hello, \(authVM.user?.email ?? "None")!" )
+                            
+                            Text("Hello, \(authVM.userInfo?.firstName ?? "None")!" )
                                 .font(.title)
                                 .foregroundStyle(Color.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,15 +79,16 @@ struct HomeView: View {
                     
                 }
                 
-                Button("(ADMIN) Log Active Token"){
-                    Task{
-                        await authVM.logToken()
-                    }
-                }
+                
             }
             .padding()
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear{
+            if authVM.userInfo == nil {
+                authVM.findUser()
+            }
+        }
     }
 }
 

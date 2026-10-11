@@ -12,6 +12,7 @@ struct RootView: View {
     @EnvironmentObject var familyVM: FamilyViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
 
     var body: some View {
         
@@ -43,6 +44,7 @@ struct RootView: View {
                 .environmentObject(familyVM)
                 .environmentObject(recipeVM)
                 .environmentObject(productVM)
+                .environmentObject(analyticsVM)
              
             }
             .onAppear{
@@ -60,6 +62,7 @@ struct RootView: View {
             }
             .onAppear {
                 productVM.resetProducts()
+                analyticsVM.resetAnalytics()
             }
         }
     }

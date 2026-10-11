@@ -94,16 +94,17 @@ struct AddProductView: View {
                     .cornerRadius(12)
                     
             
-                    Text("Category of Product")
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    Picker("Category", selection: $category) {
-                        ForEach(ProductCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue.capitalized)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.white)
+                    // Hidden for now because the backend sets the category from the Product Type on add, it can still be changed on edit
+//                    Text("Category of Product")
+//                        .fontWeight(.bold)
+//                        .foregroundStyle(.white)
+//                    Picker("Category", selection: $category) {
+//                        ForEach(ProductCategory.allCases, id: \.self) { category in
+//                            Text(category.rawValue.capitalized)
+//                        }
+//                    }
+//                    .pickerStyle(.menu)
+//                    .tint(.white)
                     
                     Text("Expiry Date").fontWeight(.bold)
                         .foregroundStyle(.white)

@@ -49,6 +49,7 @@ class ProductViewModel: ObservableObject {
     @Published var productTypes: [ProductType] = []
     private var productTypesVersion: Int?
     private var productTypeMatcher = ProductTypeMatcher(types: [])
+    private var productTypeParents: [String: [String]] = [:]
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -68,6 +69,22 @@ class ProductViewModel: ObservableObject {
 
     private var ownedProductNames: Set<String> {
         Set(products.map { normalizedName($0.name) })
+    }
+
+    // Each owned type plus every type above it, so owning "chicken-breast" also covers "chicken-meat" and "chicken"
+    // Parents only list one level up, so this walks the chain with a stack like a depth first search
+    // https://www.kodeco.com/661-swift-algorithm-club-swift-depth-first-search
+    private var ownedProductTypes: Set<String> {
+        var owned: Set<String> = []
+        var toVisit = products.compactMap { $0.productType }
+
+        while !toVisit.isEmpty {
+            let key = toVisit.removeLast()
+            if owned.contains(key) { continue }
+            owned.insert(key)
+            toVisit.append(contentsOf: productTypeParents[key] ?? [])
+        }
+        return owned
     }
 
     func loadProducts(for user: User){
@@ -111,6 +128,12 @@ class ProductViewModel: ObservableObject {
     func setProductTypes(_ types: [ProductType]) {
         productTypes = types
         productTypeMatcher = ProductTypeMatcher(types: types)
+
+        // Looked up by key for every recipe ingredient so build it once here instead of searching the whole list each time
+        productTypeParents = [:]
+        for type in types {
+            productTypeParents[type.key] = type.parents
+        }
     }
 
     func suggestProductTypes(text: String) -> [ProductType] {
@@ -256,6 +279,11 @@ class ProductViewModel: ObservableObject {
     // A recipe stores the productId it was generated from, but that is just a snapshot and not updating based on live product availability
     func availability(for ingredient: Ingredient) -> IngredientAvailability {
         guard hasLoadedProducts else { return .unknown }
+
+        // Type first so "PC Free-Run Large Eggs" counts for an "egg" ingredient, then the old id/name check
+        if let productType = ingredient.productType, ownedProductTypes.contains(productType) {
+            return .owned
+        }
 
         let productId = ingredient.productId ?? ""
         let hasMatchingId = !productId.isEmpty && ownedProductIds.contains(productId)

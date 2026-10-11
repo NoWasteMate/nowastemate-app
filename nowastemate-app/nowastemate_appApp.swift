@@ -13,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
+    // SwiftUI's TextField has no clear button option and the following turns on UIKit's one for every text field in the app
+    // https://developer.apple.com/forums/thread/121162
+    UITextField.appearance().clearButtonMode = .whileEditing
     return true
   }
 }

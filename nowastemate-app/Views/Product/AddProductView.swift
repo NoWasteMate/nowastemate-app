@@ -26,6 +26,10 @@ struct AddProductView: View {
     
     // onAppear fires again when navigating back this stops it wiping the user's edits
     @State private var hasAppliedPrefill = false
+
+    // Suggestions only show while typing and dissapear once they are picked
+    // https://www.hackingwithswift.com/quick-start/swiftui/how-to-dismiss-the-keyboard-for-a-textfield
+    @FocusState private var nameIsFocused: Bool
     
     @Environment(\.dismiss) private var dismiss
     
@@ -53,9 +57,24 @@ struct AddProductView: View {
                         .foregroundStyle(.white)
                     VStack(alignment: .leading, spacing: 8) {
                         TextField("example: Apples", text: $name)
+                            .focused($nameIsFocused)
                             .padding()
                             .background(Color.white.opacity(0.2))
                             .cornerRadius(12)
+
+                        ZStack {
+                            // Invisible pill that keeps one row of space, so the fields below don't jump
+                            // A real pill instead of a fixed height, so it still matches with larger text sizes
+                            // https://developer.apple.com/documentation/swiftui/view/hidden()
+                            Button("Suggestion") {}
+                                .buttonStyle(.glass)
+                                .hidden()
+
+                            if nameIsFocused {
+                                nameSuggestions
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
                     }.padding(8)
                     
                     
@@ -179,6 +198,41 @@ struct AddProductView: View {
             name = prefill.name
             quantity = max(prefill.quantity, 1)
             category = prefill.category ?? .other
+        }
+    }
+
+    // starts with 3 pills, then 2, then 1, so a long name drops a suggestion instead of being cut off with "..." or text wrapping
+    // https://www.hackingwithswift.com/quick-start/swiftui/how-to-create-an-adaptive-layout-with-viewthatfits
+    private var nameSuggestions: some View {
+        let suggestions = productVM.suggestProductTypes(text: name)
+
+        return ViewThatFits {
+            SuggestionRow(types: Array(suggestions.prefix(3)), onPick: pick)
+            SuggestionRow(types: Array(suggestions.prefix(2)), onPick: pick)
+            SuggestionRow(types: Array(suggestions.prefix(1)), onPick: pick)
+        }
+    }
+
+    private func pick(_ type: ProductType) {
+        name = type.name.capitalized
+        nameIsFocused = false
+    }
+}
+
+private struct SuggestionRow: View {
+    var types: [ProductType]
+    // https://swiftwithmajid.com/2019/11/06/the-power-of-closures-in-swiftui/
+    var onPick: (ProductType) -> Void
+
+    var body: some View {
+        HStack {
+            ForEach(types) { type in
+                Button(type.name.capitalized) {
+                    onPick(type)
+                }
+                .buttonStyle(.glass)
+                .buttonBorderShape(.capsule)
+            }
         }
     }
 }

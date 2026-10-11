@@ -26,6 +26,7 @@ struct AppPreviewEnvironment: PreviewModifier {
         let productVM = ProductViewModel(service: PreviewProductService())
         productVM.products = Product.previewSamples
         productVM.hasLoadedProducts = true
+        productVM.setProductTypes(ProductType.previewSamples)
 
         
         //Marks the preview as signed in so RootView renders the tabs instead of LogInView.

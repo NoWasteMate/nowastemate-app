@@ -48,6 +48,7 @@ class ProductViewModel: ObservableObject {
 
     @Published var productTypes: [ProductType] = []
     private var productTypesVersion: Int?
+    private var productTypeMatcher = ProductTypeMatcher(types: [])
 
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -89,7 +90,7 @@ class ProductViewModel: ObservableObject {
     // https://web.dev/articles/offline-cookbook#cache-then-network
     func loadProductTypes(for user: User) {
         if productTypes.isEmpty, let saved = productTypeService.loadSavedList() {
-            productTypes = saved.types ?? []
+            setProductTypes(saved.types ?? [])
             productTypesVersion = saved.version
         }
         productTypeService.fetchProductTypes(user: user, version: productTypesVersion) { result in
@@ -97,13 +98,23 @@ class ProductViewModel: ObservableObject {
             case .success(let list):
                 // upToDate comes back with no types, so keep what we have
                 guard let types = list.types else { return }
-                self.productTypes = types
+                self.setProductTypes(types)
                 self.productTypesVersion = list.version
             case .failure(let error):
                 // Not shown to the user, the saved list still works
                 print(error)
             }
         }
+    }
+
+    // Builds the matcher once per list instead of on every keystroke
+    func setProductTypes(_ types: [ProductType]) {
+        productTypes = types
+        productTypeMatcher = ProductTypeMatcher(types: types)
+    }
+
+    func suggestProductTypes(text: String) -> [ProductType] {
+        productTypeMatcher.suggestions(for: text)
     }
 
     // The view model is app-scoped instead of account levll, so it outlives sign out. Clear it to fix this carryover

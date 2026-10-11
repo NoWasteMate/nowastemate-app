@@ -61,8 +61,8 @@ struct WasteTrendInformation: Codable, Identifiable {
 
 struct WasteTrend: Codable {
     let period: TrendPeriod
-    let information: [WasteTrendInformation]
+    let buckets: [WasteTrendInformation]
     
-    var totalWasted: Int { information.reduce(0) { $0 + $1.wastedCount } }
+    var totalWasted: Int { buckets.reduce(0) { $0 + $1.wastedCount } }
     var hasData: Bool { totalWasted > 0 }
 }

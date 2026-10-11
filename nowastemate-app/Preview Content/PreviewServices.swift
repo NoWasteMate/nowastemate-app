@@ -104,7 +104,7 @@ extension WasteTrend {
                 byReason: count == 0 ? [:] : ["expired": count - 1, "boughtTooMuch": 1]
             )
         }
-        return WasteTrend(period: period, information: buckets)
+        return WasteTrend(period: period, buckets: buckets)
     }
 }
 

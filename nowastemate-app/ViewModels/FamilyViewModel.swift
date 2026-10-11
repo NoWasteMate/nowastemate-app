@@ -189,5 +189,21 @@ class FamilyViewModel: ObservableObject {
                     }
                 }
             }
+    
+    func removeFamily(for user: User){
+                self.service.deleteFamily(user: user) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let success):
+                            self.errorMessage = nil
+                            //ensure UI is updated with new name
+                            self.family = nil
+                            self.familyMembers = nil
+                        case .failure(let error):
+                            self.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
             
 }

@@ -18,6 +18,8 @@ struct FamilyMemberView: View {
     @State private var confirmTransfer: Bool = false
     @State private var confirmDelete: Bool = false
     @State private var isClicked: Bool = false
+    @State private var confirmLeave: Bool = false
+    @State private var confirmFamilyDeletion: Bool = false
 
     
     @State private var clickedMember: FamilyMember = FamilyMember(member: "", email: "")
@@ -45,7 +47,7 @@ struct FamilyMemberView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.bottom)
                 //https://www.hackingwithswift.com/quick-start/swiftui/how-to-adjust-the-position-of-a-view-using-its-offset
-                    .offset(y: -40)
+                    .offset(y: -30)
                 
                 VStack{
                     //title
@@ -165,6 +167,40 @@ struct FamilyMemberView: View {
                                 }, message: {
                                     Text("Confirm you intend to delete this member - This cannot be undone")
                                 })
+                                
+                                .alert("Remove Family", isPresented: $confirmFamilyDeletion, actions: {
+                                    
+                                    Button("Yes, I want to delete the Family", role: .destructive) {
+                                        if let user = authVM.user {
+                                            familyVM.removeFamily(for: user)
+                                        }
+                                    }
+                                    
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                    
+                                }, message: {
+                                    Text("Please confirm you want to delete the ")
+                                })
+                                
+                                .alert("Leave Family", isPresented: $confirmLeave, actions: {
+                                    
+                                    Button("Yes, I want to leave the Family", role: .destructive) {
+                                        if let user = authVM.user {
+                                            familyVM.leaveFamily(for: user, member: FamilyMember(member: user.uid, email: user.email))
+                                        }
+                                    }
+                                    
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                    
+                                }, message: {
+                                    Text("Please confirm you want to delete the ")
+                                })
                             }
                         }
                         
@@ -260,9 +296,7 @@ struct FamilyMemberView: View {
                 if !familyVM.isOwner {
                     VStack {
                         Button("Leave Family"){
-                            if let user = authVM.user {
-                                familyVM.leaveFamily(for: user, member: FamilyMember(member: user.uid, email: user.email))
-                            }
+                            confirmLeave = true
                         }
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
@@ -273,6 +307,27 @@ struct FamilyMemberView: View {
                         .padding()
                     }
                 }
+                
+                if familyVM.isOwner && familyVM.familyMembers?.count == 1 {
+                    VStack {
+                        
+                        Text("Wish to join someone else's Family instead?")
+                            .foregroundStyle(Color.white)
+
+                        
+                        Button("Remove Family"){
+                            confirmFamilyDeletion = true
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 24)
+                        .background(.white)
+                        .cornerRadius(30)
+                        .padding()
+                    }
+                }
+                
             }
             
         }

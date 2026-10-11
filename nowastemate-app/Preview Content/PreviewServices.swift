@@ -47,7 +47,8 @@ struct PreviewFamilyService: FamilyServiceProtocol {
     
     func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    
+    func deleteFamily(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {}
+
 }
 
 struct PreviewProductService: ProductServiceProtocol {

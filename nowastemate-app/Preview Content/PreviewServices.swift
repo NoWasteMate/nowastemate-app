@@ -81,6 +81,33 @@ struct PreviewProductService: ProductServiceProtocol {
 
 }
 
+struct PreviewAnalyticsService: AnalyticsServiceProtocol {
+    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
+        completionHandler(.success(.previewSample(period: period, periods: periods)))
+    }
+}
+
+extension WasteTrend {
+    // Fixed counts with one empty group, so previews show gaps and stacked reasons
+    static func previewSample(period: TrendPeriod, periods: Int = 6) -> WasteTrend {
+        let calendar = Calendar.current
+        let unit: Calendar.Component = period == .week ? .weekOfYear : .month
+        let current = calendar.dateInterval(of: unit, for: .now)?.start ?? .now
+        let wasted = [3, 1, 4, 0, 2, 5]
+        
+        let buckets = (0..<periods).reversed().map { n -> WasteTrendInformation in
+            let count = wasted[n % wasted.count]
+            return WasteTrendInformation(
+                periodStart: calendar.date(byAdding: unit, value: -n, to: current) ?? current,
+                wastedCount: count,
+                consumedCount: count + 2,
+                byReason: count == 0 ? [:] : ["expired": count - 1, "boughtTooMuch": 1]
+            )
+        }
+        return WasteTrend(period: period, buckets: buckets)
+    }
+}
+
 extension Recipe {
 
     static var previewSamples: [Recipe] {

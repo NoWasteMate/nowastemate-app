@@ -54,6 +54,17 @@ struct HomeView: View {
                             .frame(maxWidth: .infinity, minHeight: 264)
                             .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
                             
+                            NavigationLink {
+                                WasteTrendView()
+                            } label: {
+                                VStack{
+                                    Text("Waste Trends")
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 164)
+                                .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                            }
+                            
                             VStack{
                                 Text("Expiring Soon")
                             }

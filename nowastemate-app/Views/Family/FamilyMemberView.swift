@@ -182,7 +182,7 @@ struct FamilyMemberView: View {
                                     
                                     
                                 }, message: {
-                                    Text("Please confirm you want to delete the ")
+                                    Text("Please confirm you want to delete the family - This cannot be undone.")
                                 })
                                 
                                 .alert("Leave Family", isPresented: $confirmLeave, actions: {
@@ -199,7 +199,7 @@ struct FamilyMemberView: View {
                                     
                                     
                                 }, message: {
-                                    Text("Please confirm you want to delete the ")
+                                    Text("Please confirm you want to leave the family - This cannot be undone.")
                                 })
                             }
                         }

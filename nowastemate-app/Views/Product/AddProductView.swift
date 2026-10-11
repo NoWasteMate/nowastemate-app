@@ -15,7 +15,7 @@ struct AddProductView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     
-    // nil for the manual Add button, set when it comes from a barcode scan.
+    // nil for the manual Add button, set by a barcode scan OR photo classification to fill in the form
     var prefill: Product? = nil
     
     @State private var name = ""
@@ -170,12 +170,20 @@ struct AddProductView: View {
                     
                     Button("Save Product") {
                         guard let user = authVM.user else { return }
+
+                        // Barcode tags only describe the scanned name so a renamed product should be matched by its new name instead
+                        var categoryTags: [String]? = nil
+                        if name == prefill?.name {
+                            categoryTags = prefill?.categoryTags
+                        }
+
                         let userInputtedProduct = Product(
                             name: name,
                             quantity: quantity,
                             createdAt: "",
                             dateExpiration: ISO8601DateFormatter().string(from: expiryDate),
-                            category: category
+                            category: category,
+                            categoryTags: categoryTags
                         )
                         
                         productVM.addProducts(for: user, product: userInputtedProduct) {

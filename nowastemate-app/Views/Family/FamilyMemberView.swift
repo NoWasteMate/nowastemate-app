@@ -271,6 +271,9 @@ struct FamilyMemberView: View {
             }
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            isClicked = false
+        }
 
     }
 }

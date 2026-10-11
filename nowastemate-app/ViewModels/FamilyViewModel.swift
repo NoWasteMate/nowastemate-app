@@ -51,6 +51,7 @@ class FamilyViewModel: ObservableObject {
                     //ensure UI is updated with new name
                     self.findFamilyMembers(for: user)
                     self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -68,6 +69,7 @@ class FamilyViewModel: ObservableObject {
                     //ensure UI is updated with new name
                     self.findFamilyMembers(for: user)
                     self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }

@@ -132,7 +132,7 @@ struct EditUserView: View {
                             }
                         }
                     }
-                    .disabled(!isFormValid)
+                    .disabled(!isFormValid || notNewInput)
 
                     //https://developer.apple.com/documentation/swiftui/alert
                     .alert(isPresented: $showAlert) {

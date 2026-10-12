@@ -64,7 +64,7 @@ struct ProductListView: View {
     @State private var selectedIndex: Int = 0
     
     @State private var searchText = ""
-    @State private var selectedFilter = "All"
+    @State private var selectedFilter = "Personal"
     
     // create dictionary - key = category, value = Product
     // switch between groceryItems if you want to modify the UI
@@ -116,7 +116,7 @@ struct ProductListView: View {
                     .clipShape(Capsule())
 
                     HStack {
-                        ForEach(["All", "Quick", "Healthy", "Protein"], id: \.self) { filter in
+                        ForEach(["Personal", "Family"], id: \.self) { filter in
                             Text(filter)
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 14).padding(.vertical, 6)

@@ -81,18 +81,33 @@ struct AddProductView: View {
                     Text("Quantity of Product")
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                    HStack {
-                        VStack(spacing: 2) {
-                            Button { quantity += 1 } label: { Image(systemName: "chevron.up") }
-                            Button { if quantity > 1 { quantity -= 1 } } label: { Image(systemName: "chevron.down") }
+                    HStack(spacing: 20) {
+                        Button { quantity -= 1 } label: {
+                            Image(systemName: "minus")
+                                .frame(width: 44, height: 44)
                         }
+                        .disabled(quantity <= 1)
+                        .opacity(quantity <= 1 ? 0.3 : 1)
+                        .accessibilityLabel("Decrease quantity")
+
                         Text("\(quantity)")
+                            .font(.title2.bold())
+                            .monospacedDigit()
+                            .frame(minWidth: 40)
+                            .contentTransition(.numericText())
+
+                        Button { quantity += 1 } label: {
+                            Image(systemName: "plus")
+                                .frame(width: 44, height: 44)
+                        }
+                        .accessibilityLabel("Increase quantity")
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.3))
-                    .cornerRadius(12)
-                    
+                    .font(.title3.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .background(.regularMaterial)
+                    .foregroundStyle(.primary)
+                    .clipShape(Capsule())
+                    .animation(.snappy, value: quantity)
             
                     // Hidden for now because the backend sets the category from the Product Type on add, it can still be changed on edit
 //                    Text("Category of Product")
@@ -108,23 +123,14 @@ struct AddProductView: View {
                     
                     Text("Expiry Date").fontWeight(.bold)
                         .foregroundStyle(.white)
-                    HStack {
                         Button("Pick Date", systemImage: "calendar") {
                             showDatePicker = true
                         }
                             .padding()
-                            .background(Color.white)
-                            .foregroundStyle(.black)
+                            .background(.regularMaterial)
+                            .foregroundStyle(.primary)
                             .clipShape(Capsule())
-                        Button("Estimate with AI", systemImage: "apple.intelligence") {
-                            // no AI implementation yet, just making UI similar to the Figma
-                        }
-                            .padding()
-                            .background(Color.white)
-                            .foregroundStyle(.black)
-                            .clipShape(Capsule())
-                    }
-                    .sheet(isPresented: $showDatePicker) {
+                            .sheet(isPresented: $showDatePicker) {
                         NavigationStack {
                             DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
                                 .datePickerStyle(.graphical)
@@ -153,21 +159,21 @@ struct AddProductView: View {
 //                        productVM.addProducts(for: user, product: userInputtedProduct)
 //                    }
                     
-                    Text("Image").fontWeight(.bold)
-                        .foregroundStyle(.white)
-
-                    Button {
-                        // no photo coded in yet. Just UI preparation
-                    } label: {
-                        Label("Add Photo of Product", systemImage: "camera")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .padding()
-                    .background(Color.white)
-                    .foregroundStyle(.black)
-                    .clipShape(Capsule())
-                    .padding(.horizontal)
-                    
+//                    Text("Image").fontWeight(.bold)
+//                        .foregroundStyle(.white)
+//
+//                    Button {
+//                        // no photo coded in yet. Just UI preparation
+//                    } label: {
+//                        Label("Add Photo of Product", systemImage: "camera")
+//                            .frame(maxWidth: .infinity)
+//                    }
+//                    .padding()
+//                    .background(Color.white)
+//                    .foregroundStyle(.black)
+//                    .clipShape(Capsule())
+//                    .padding(.horizontal)
+//                    
                     
                     Button("Save Product") {
                         guard let user = authVM.user else { return }

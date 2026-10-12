@@ -21,7 +21,7 @@ struct AddProductView: View {
     @State private var name = ""
     @State private var quantity = 1
     @State private var category: ProductCategory = .other
-    @State private var expiryDate = Date()
+    @State private var expiryDate = Calendar.current.date(byAdding: .day, value: 7, to:Date()) ?? Date()
     @State private var showDatePicker = false
     
     // onAppear fires again when navigating back this stops it wiping the user's edits

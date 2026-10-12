@@ -323,11 +323,11 @@ struct GenerateRecipeSheet: View {
         }
     }
 
-    // TODO: send selected products + options once POST /generateRecipe takes a body (uses whole inventory at the moment)
+    // TODO: send the options too once POST /generateRecipe takes them (only products are sent at the moment)
     private var generateButton: some View {
         Button {
             if let user = authVM.user {
-                recipeVM.generateRecipe(for: user)
+                recipeVM.generateRecipe(for: user, productIds: Array(selected))
             }
             dismiss()
         } label: {

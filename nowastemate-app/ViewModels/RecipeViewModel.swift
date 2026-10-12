@@ -44,10 +44,10 @@ final class RecipeViewModel: ObservableObject {
         }
     }
     
-    func generateRecipe(for user: User){
+    func generateRecipe(for user: User, productIds: [String]){
         self.isLoading = true
 
-        service.generateRecipe(user: user) {result in
+        service.generateRecipe(user: user, productIds: productIds) {result in
             DispatchQueue.main.async {
                 switch result {
                 case .success():

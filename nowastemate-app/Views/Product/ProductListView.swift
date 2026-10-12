@@ -202,14 +202,14 @@ struct ProductListView: View {
             .fullScreenCover(isPresented: $prepPicture, onDismiss: {
                 
                 //get the classification
-                guard let classifiedProduce: [String]? = dataScannerVM.getClassification(img: img)
+                guard let classifiedProduce: [String] = dataScannerVM.getClassification(img: img)
                 else {
                     return
                 }
-                if (classifications) == nil {
+                if (classifiedProduce) == nil {
                     return
                 } else {
-                    classifications = classifiedProduce!
+                    classifications = classifiedProduce
                 }
                 
                 showProduceAlert = true

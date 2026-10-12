@@ -137,6 +137,26 @@ extension Recipe {
     }
 }
 
+// Copied from the backend's Product Type list, with names that are close to each other (pea/pear, tomato/cherry tomato)
+extension ProductType {
+
+    static var previewSamples: [ProductType] {
+        [
+            ProductType(key: "tomato", name: "tomato", synonyms: ["tomatoes"], parents: ["fruit-vegetable"], category: .produce),
+            ProductType(key: "cherry-tomato", name: "cherry tomato", synonyms: ["cherry tomatoes"], parents: ["tomato"], category: .produce),
+            ProductType(key: "spring-onion", name: "spring onion", synonyms: ["green onion", "scallions", "spring onions", "green onions"], parents: ["onion"], category: .produce),
+            ProductType(key: "onion", name: "onion", synonyms: ["onions"], parents: ["onion-family-vegetable", "root-vegetable"], category: .produce),
+            ProductType(key: "egg", name: "egg", synonyms: ["eggs"], parents: [], category: .other),
+            ProductType(key: "chicken", name: "chicken", synonyms: ["chickens"], parents: ["poultry"], category: .meat),
+            ProductType(key: "chicken-breast", name: "chicken breast", synonyms: ["chicken breast meat"], parents: ["chicken-meat"], category: .meat),
+            ProductType(key: "milk", name: "milk", synonyms: ["milk ingredients"], parents: ["dairy"], category: .dairy),
+            ProductType(key: "rice", name: "rice", synonyms: [], parents: [], category: .grains),
+            ProductType(key: "pea", name: "pea", synonyms: ["peas"], parents: ["legume", "pod-and-seed-vegetable"], category: .produce),
+            ProductType(key: "pear", name: "pear", synonyms: ["pears"], parents: ["fruit"], category: .produce),
+        ]
+    }
+}
+
 extension Product {
 
     static var previewSamples: [Product] {

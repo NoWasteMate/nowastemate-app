@@ -53,6 +53,7 @@ struct RootView: View {
                     familyVM.findExistingFamily(for: user)
                     familyVM.findFamilyMembers(for: user)
                     familyVM.findFamilyId(for: user)
+                    productVM.loadProductTypes(for: user)
                 }
             }
         } else {

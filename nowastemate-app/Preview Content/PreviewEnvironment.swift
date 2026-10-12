@@ -26,6 +26,7 @@ struct AppPreviewEnvironment: PreviewModifier {
         let productVM = ProductViewModel(service: PreviewProductService())
         productVM.products = Product.previewSamples
         productVM.hasLoadedProducts = true
+        productVM.setProductTypes(ProductType.previewSamples)
 
         let recipeVM = RecipeViewModel(service: PreviewRecipeService())
         recipeVM.recipes = Recipe.previewSamples

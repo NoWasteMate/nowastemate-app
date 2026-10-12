@@ -13,4 +13,5 @@ struct Ingredient: Codable {
     var productId: String?
     let quantity: Double
     let unit: String
+    var productType: String?
 }

@@ -45,9 +45,15 @@ class ProductViewModel: ObservableObject {
     // this stops multiple requests being processed
     @Published var markingProductIds: Set<String> = []
 
+    @Published var productTypes: [ProductType] = []
+    private var productTypesVersion: Int?
+    private var productTypeMatcher = ProductTypeMatcher(types: [])
+    private var productTypeParents: [String: [String]] = [:]
+
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
     private let service: ProductServiceProtocol
+    private let productTypeService = ProductTypeService.shared
 
     init(service: ProductServiceProtocol = ProductService.shared) {
         self.service = service
@@ -62,6 +68,22 @@ class ProductViewModel: ObservableObject {
 
     private var ownedProductNames: Set<String> {
         Set(products.map { normalizedName($0.name) })
+    }
+
+    // Each owned type plus every type above it, so owning "chicken-breast" also covers "chicken-meat" and "chicken"
+    // Parents only list one level up, so this walks the chain with a stack like a depth first search
+    // https://www.kodeco.com/661-swift-algorithm-club-swift-depth-first-search
+    private var ownedProductTypes: Set<String> {
+        var owned: Set<String> = []
+        var toVisit = products.compactMap { $0.productType }
+
+        while !toVisit.isEmpty {
+            let key = toVisit.removeLast()
+            if owned.contains(key) { continue }
+            owned.insert(key)
+            toVisit.append(contentsOf: productTypeParents[key] ?? [])
+        }
+        return owned
     }
 
     func loadProducts(for user: User){
@@ -79,6 +101,44 @@ class ProductViewModel: ObservableObject {
         }
     }
     
+    // Shows the saved list straight away, then asks the backend if there's a newer version
+    // Article example is in javascript but i've applied the same thought process.
+    // https://web.dev/articles/offline-cookbook#cache-then-network
+    func loadProductTypes(for user: User) {
+        if productTypes.isEmpty, let saved = productTypeService.loadSavedList() {
+            setProductTypes(saved.types ?? [])
+            productTypesVersion = saved.version
+        }
+        productTypeService.fetchProductTypes(user: user, version: productTypesVersion) { result in
+            switch result {
+            case .success(let list):
+                // upToDate comes back with no types, so keep what we have
+                guard let types = list.types else { return }
+                self.setProductTypes(types)
+                self.productTypesVersion = list.version
+            case .failure(let error):
+                // Not shown to the user, the saved list still works
+                print(error)
+            }
+        }
+    }
+
+    // Builds the matcher once per list instead of on every keystroke
+    func setProductTypes(_ types: [ProductType]) {
+        productTypes = types
+        productTypeMatcher = ProductTypeMatcher(types: types)
+
+        // Looked up by key for every recipe ingredient so build it once here instead of searching the whole list each time
+        productTypeParents = [:]
+        for type in types {
+            productTypeParents[type.key] = type.parents
+        }
+    }
+
+    func suggestProductTypes(text: String) -> [ProductType] {
+        productTypeMatcher.suggestions(for: text)
+    }
+
     // The view model is app-scoped instead of account levll, so it outlives sign out. Clear it to fix this carryover
     func resetProducts() {
         products = []
@@ -218,6 +278,11 @@ class ProductViewModel: ObservableObject {
     // A recipe stores the productId it was generated from, but that is just a snapshot and not updating based on live product availability
     func availability(for ingredient: Ingredient) -> IngredientAvailability {
         guard hasLoadedProducts else { return .unknown }
+
+        // Type first so "PC Free-Run Large Eggs" counts for an "egg" ingredient, then the old id/name check
+        if let productType = ingredient.productType, ownedProductTypes.contains(productType) {
+            return .owned
+        }
 
         let productId = ingredient.productId ?? ""
         let hasMatchingId = !productId.isEmpty && ownedProductIds.contains(productId)

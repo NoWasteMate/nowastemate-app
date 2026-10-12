@@ -97,6 +97,9 @@ struct Product: Identifiable, Codable {
     //var dateRemoved: String?
     //var usedInRecipe: String?
     var category: ProductCategory?
+    var productType: String?
+    var productTypeSource: String?
+    var categoryTags: [String]?
     var outcome: ProductOutcome?
     var outcomeAt: String?
     var wasteReason: WasteReason?

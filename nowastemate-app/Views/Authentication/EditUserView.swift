@@ -19,6 +19,10 @@ struct EditUserView: View {
         !email.isEmpty && !firstName.isEmpty && !lastName.isEmpty
     }
     
+    var notNewInput: Bool {
+        email == authVM.userInfo?.email && firstName == authVM.userInfo?.firstName && lastName == authVM.userInfo?.lastName && dietaryRestrictions == authVM.userInfo?.dietaryRestrictions
+    }
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
 
@@ -110,7 +114,7 @@ struct EditUserView: View {
                                 .stroke(Color.white, lineWidth: 1)
                         )
                     
-                    Button(!isFormValid ? "Please enter new details" : isFormValid ? "Save and Sign out" : "Please enter new details"){
+                    Button(!isFormValid || notNewInput ? "Please enter new details" : isFormValid ? "Save and Sign out" : "Please enter new details"){
                       
                           guard isFormValid else {
                               alertMessage = "Please enter your details."
@@ -142,7 +146,7 @@ struct EditUserView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 24)
-                    .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
+                    .background(!isFormValid || notNewInput ? .gray : isFormValid ? .black : .gray)
                     .cornerRadius(30)
                     .padding(.top)
                     .padding(.bottom, 40)
@@ -163,6 +167,12 @@ struct EditUserView: View {
             .padding(.horizontal, 30)
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            email = authVM.userInfo?.email ?? ""
+            firstName = authVM.userInfo?.firstName ?? ""
+            lastName = authVM.userInfo?.lastName ?? ""
+            dietaryRestrictions = authVM.userInfo?.dietaryRestrictions ?? ""
+        }
     }
 }
 

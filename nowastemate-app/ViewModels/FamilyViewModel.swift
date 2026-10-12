@@ -199,6 +199,7 @@ class FamilyViewModel: ObservableObject {
                             //ensure UI is updated with new name
                             self.family = nil
                             self.familyMembers = nil
+                            self.familyId = nil
                         case .failure(let error):
                             self.errorMessage = error.localizedDescription
                         }

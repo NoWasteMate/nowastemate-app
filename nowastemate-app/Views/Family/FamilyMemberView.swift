@@ -65,6 +65,7 @@ struct FamilyMemberView: View {
                                 if (familyVM.isOwner){
                                     Button {
                                         editNameAlert = true
+                                        newName = familyVM.family?.title ?? ""
                                     }
                                     label: {
                                         Image(systemName: "pencil")
@@ -72,7 +73,8 @@ struct FamilyMemberView: View {
                                             .imageScale(.small).bold()
                                     }
                                     .alert("Change Family Name", isPresented: $editNameAlert, actions: {
-                                        TextField("", text: $newName)
+                                        TextField("Enter new Family name", text: $newName)
+                                        
                                         
                                         Button("Cancel", role: .cancel) {
                                             //simply dismiss here
@@ -84,7 +86,7 @@ struct FamilyMemberView: View {
                                                 familyVM.editFamilyName(for: user, title: newName)
                                             }
                                             
-                                        }
+                                        }.disabled(!validName || familyVM.family?.title == newName)
                                         
                                         
                                     }, message: {

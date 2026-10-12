@@ -12,6 +12,7 @@ struct RootView: View {
     @EnvironmentObject var familyVM: FamilyViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
 
     var body: some View {
         
@@ -43,15 +44,15 @@ struct RootView: View {
                 .environmentObject(familyVM)
                 .environmentObject(recipeVM)
                 .environmentObject(productVM)
+                .environmentObject(analyticsVM)
              
             }
             .onAppear{
-                recipeVM.loadRecipes()
-                familyVM.findExistingFamily()
-                familyVM.findFamilyMembers()
-                familyVM.findFamilyId()
-                // Needs to check if user exists because .loadProductTypes has user as non optional
                 if let user = authVM.user {
+                    recipeVM.loadRecipes(for: user)
+                    familyVM.findExistingFamily(for: user)
+                    familyVM.findFamilyMembers(for: user)
+                    familyVM.findFamilyId(for: user)
                     productVM.loadProductTypes(for: user)
                 }
             }
@@ -62,6 +63,7 @@ struct RootView: View {
             }
             .onAppear {
                 productVM.resetProducts()
+                analyticsVM.resetAnalytics()
             }
         }
     }

@@ -12,42 +12,43 @@ import FirebaseAuth
 
 struct PreviewRecipeService: RecipeServiceProtocol {
 
-    func getAllRecipes(completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
+    func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
         completionHandler(.success(Recipe.previewSamples))
     }
 
-    func generateRecipe(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {
     
-    func postFamily(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func postFamily(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    func joinFamily(code: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func joinFamily(user: User, code: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    func getFamilyId(completionHandler: @escaping (Result<[String], Error>) -> Void) {
+    func getFamilyId(user: User, completionHandler: @escaping (Result<[String], Error>) -> Void) {
         completionHandler(.success(["preview-family"]))
     }
 
-    func getFamilyMembers(completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void) {
+    func getFamilyMembers(user: User, completionHandler: @escaping (Result<[FamilyMember], Error>) -> Void) {
         completionHandler(.success([FamilyMember(member: "id", email: "email")]))
     }
     
-    func getFamily(completionHandler: @escaping (Result<Family, Error>) -> Void) {
+    func getFamily(user: User, completionHandler: @escaping (Result<Family, Error>) -> Void) {
         completionHandler(.success(Family(title: "Family Preview", ownerId: "Placeholder")))
     }
     
-    func updateFamilyName(title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func updateFamilyName(user: User, title: String, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func updateOwner(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func updateOwner(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func deleteFamilyMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func deleteFamilyMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
     
-    func deleteOwnMembership(member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
+    func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void) {}
 
-    
+    func deleteFamily(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {}
+
 }
 
 struct PreviewProductService: ProductServiceProtocol {
@@ -76,6 +77,35 @@ struct PreviewProductService: ProductServiceProtocol {
     }
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
+    }
+    func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void) {}
+
+}
+
+struct PreviewAnalyticsService: AnalyticsServiceProtocol {
+    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
+        completionHandler(.success(.previewSample(period: period, periods: periods)))
+    }
+}
+
+extension WasteTrend {
+    // Fixed counts with one empty group, so previews show gaps and stacked reasons
+    static func previewSample(period: TrendPeriod, periods: Int = 6) -> WasteTrend {
+        let calendar = Calendar.current
+        let unit: Calendar.Component = period == .week ? .weekOfYear : .month
+        let current = calendar.dateInterval(of: unit, for: .now)?.start ?? .now
+        let wasted = [3, 1, 4, 0, 2, 5]
+        
+        let buckets = (0..<periods).reversed().map { n -> WasteTrendInformation in
+            let count = wasted[n % wasted.count]
+            return WasteTrendInformation(
+                periodStart: calendar.date(byAdding: unit, value: -n, to: current) ?? current,
+                wastedCount: count,
+                consumedCount: count + 2,
+                byReason: count == 0 ? [:] : ["expired": count - 1, "boughtTooMuch": 1]
+            )
+        }
+        return WasteTrend(period: period, buckets: buckets)
     }
 }
 

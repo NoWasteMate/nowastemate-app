@@ -27,6 +27,7 @@ struct nowastemate_appApp: App {
     @StateObject var familyVM = FamilyViewModel()
     @StateObject var recipeVM = RecipeViewModel()
     @StateObject var productVM = ProductViewModel()
+    @StateObject var analyticsVM = AnalyticsViewModel()
     @StateObject private var barcodeScanVM = CameraViewModel()
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -38,6 +39,7 @@ struct nowastemate_appApp: App {
                 .environmentObject(familyVM)
                 .environmentObject(recipeVM)
                 .environmentObject(productVM)
+                .environmentObject(analyticsVM)
                 .environmentObject(barcodeScanVM)
                 .task {
                     await barcodeScanVM.requestDataScanerAccessStatus()

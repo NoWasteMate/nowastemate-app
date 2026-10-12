@@ -18,6 +18,9 @@ class AuthViewModel: ObservableObject {
     @Published var user: User? = nil
     @Published var isSignedIn: Bool = false
     @Published var loginError: Bool = false
+    @Published var errorMessage: String?
+    @Published var userInfo: UserInfo? = nil
+
     
     private let authService = AuthService.shared
     
@@ -64,6 +67,8 @@ class AuthViewModel: ObservableObject {
                     print("Error Signing out:", error.localizedDescription)
                     return
                 }
+                //ensure previous data is not still in system
+                self.userInfo = nil
                 self.user = self.authService.currentUser
                 self.isSignedIn = false
             }
@@ -76,7 +81,18 @@ class AuthViewModel: ObservableObject {
     }
     
     func createUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String) {
-        authService.syncUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+        
+        
+        authService.syncUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { result in
+                switch result {
+                case .success(let success):
+                    self.errorMessage = nil
+                    self.findUser()
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        
     }
     
     func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void = { _ in }){
@@ -94,6 +110,20 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    func findUser()  {
+            self.authService.getUserInfo(){ result in
+                    switch result {
+                    //user is gotten and passed
+                    case .success(let user):
+                        self.userInfo = user
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                        print(self.errorMessage)
+                    }
+                
+            }
+        }
 }
     
 

@@ -41,16 +41,17 @@ class FamilyViewModel: ObservableObject {
         Auth.auth().currentUser
     }
     
-    func createFamily(title: String){
+    func createFamily(for user: User, title: String){
         
-        service.postFamily(title: title) { result in
+        service.postFamily(user: user, title: title) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let success):
                     self.errorMessage = nil
                     //ensure UI is updated with new name
-                    self.findFamilyMembers()
-                    self.findExistingFamily()
+                    self.findFamilyMembers(for: user)
+                    self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -58,16 +59,17 @@ class FamilyViewModel: ObservableObject {
         }
     }
     
-    func findNewFamily(code: String){
+    func findNewFamily(for user: User, code: String){
         
-        service.joinFamily(code: code){ result in
+        service.joinFamily(user: user, code: code){ result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let success):
                     self.errorMessage = nil
                     //ensure UI is updated with new name
-                    self.findFamilyMembers()
-                    self.findExistingFamily()
+                    self.findFamilyMembers(for: user)
+                    self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -75,10 +77,10 @@ class FamilyViewModel: ObservableObject {
         }
     }
     
-    func findFamilyId(){
+    func findFamilyId(for user: User){
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
-            self.service.getFamilyId() { result in
+            self.service.getFamilyId(user: user) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let familyId):
@@ -92,10 +94,10 @@ class FamilyViewModel: ObservableObject {
             }
     }
     
-    func findFamilyMembers(){
+    func findFamilyMembers(for user: User){
             // Update UI
             //https://medium.com/@ankuriosdev/mastering-advanced-json-decoding-in-swift-part-2-74d5a956dd0a - Based on this
-            self.service.getFamilyMembers() { result in
+            self.service.getFamilyMembers(user: user) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let familyMembers):
@@ -110,8 +112,8 @@ class FamilyViewModel: ObservableObject {
             }
     }
     
-    func findExistingFamily(){
-            self.service.getFamily() { result in
+    func findExistingFamily(for user: User){
+            self.service.getFamily(user: user) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let family):
@@ -126,14 +128,14 @@ class FamilyViewModel: ObservableObject {
             }
     }
     
-    func editFamilyName(title: String){
-            self.service.updateFamilyName(title: title) { result in
+    func editFamilyName(for user: User, title: String){
+            self.service.updateFamilyName(user: user, title: title) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let success):
                         self.errorMessage = nil
                         //ensure UI is updated with new name
-                        self.findExistingFamily()
+                        self.findExistingFamily(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
                     }
@@ -142,14 +144,14 @@ class FamilyViewModel: ObservableObject {
         
     }
     
-    func transferOwner(member: FamilyMember){
-            self.service.updateOwner(member: member) { result in
+    func transferOwner(for user: User, member: FamilyMember){
+            self.service.updateOwner(user: user, member: member) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let success):
                         self.errorMessage = nil
                         //ensure UI is updated with new name
-                        self.findExistingFamily()
+                        self.findExistingFamily(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
                     }
@@ -157,14 +159,14 @@ class FamilyViewModel: ObservableObject {
             }
         }
     
-    func removeFamilyMembership(member: FamilyMember){
-            self.service.deleteFamilyMembership(member: member) { result in
+    func removeFamilyMembership(for user: User, member: FamilyMember){
+            self.service.deleteFamilyMembership(user: user, member: member) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let success):
                         self.errorMessage = nil
                         //ensure UI is updated with new name
-                        self.findFamilyMembers()
+                        self.findFamilyMembers(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
                     }
@@ -172,8 +174,8 @@ class FamilyViewModel: ObservableObject {
             }
         }
     
-    func leaveFamily(member: FamilyMember){
-                self.service.deleteOwnMembership(member: member) { result in
+    func leaveFamily(for user: User, member: FamilyMember){
+                self.service.deleteOwnMembership(user: user, member: member) { result in
                     DispatchQueue.main.async {
                         switch result {
                         case .success(let success):
@@ -181,6 +183,23 @@ class FamilyViewModel: ObservableObject {
                             //ensure UI is updated with new name
                             self.family = nil
                             self.familyMembers = nil
+                        case .failure(let error):
+                            self.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
+    
+    func removeFamily(for user: User){
+                self.service.deleteFamily(user: user) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let success):
+                            self.errorMessage = nil
+                            //ensure UI is updated with new name
+                            self.family = nil
+                            self.familyMembers = nil
+                            self.familyId = nil
                         case .failure(let error):
                             self.errorMessage = error.localizedDescription
                         }

@@ -25,6 +25,8 @@ protocol FamilyServiceProtocol {
     func updateOwner(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
     func deleteFamilyMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
     func deleteOwnMembership(user: User, member: FamilyMember, completionHandler: @escaping (Result<String, Error>) -> Void)
+    func deleteFamily(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void)
+
 
 }
 
@@ -392,6 +394,42 @@ struct FamilyService: FamilyServiceProtocol {
                 //TODO: Network error handling and displaying to client
 
                 completionHandler(.success(member.member))
+                
+                
+            }
+            task.resume()
+        }
+    }
+    
+    func deleteFamily(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void){
+        //logic for API call
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(AppConfig.baseUrl)/delete_family")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
+            
+            
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                guard let data = data, error == nil else {
+                    completionHandler(.failure(error!))
+                    return
+                }
+                
+                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
+                guard let httpResponse = response as? HTTPURLResponse,
+                            (200...299).contains(httpResponse.statusCode) else {
+                        print("Error occured")
+                        return
+                }
+                //TODO: Network error handling and displaying to client
+
+                completionHandler(.success(()))
                 
                 
             }

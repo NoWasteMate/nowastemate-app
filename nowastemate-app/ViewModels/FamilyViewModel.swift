@@ -51,6 +51,7 @@ class FamilyViewModel: ObservableObject {
                     //ensure UI is updated with new name
                     self.findFamilyMembers(for: user)
                     self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -68,6 +69,7 @@ class FamilyViewModel: ObservableObject {
                     //ensure UI is updated with new name
                     self.findFamilyMembers(for: user)
                     self.findExistingFamily(for: user)
+                    self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -181,6 +183,23 @@ class FamilyViewModel: ObservableObject {
                             //ensure UI is updated with new name
                             self.family = nil
                             self.familyMembers = nil
+                        case .failure(let error):
+                            self.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
+    
+    func removeFamily(for user: User){
+                self.service.deleteFamily(user: user) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let success):
+                            self.errorMessage = nil
+                            //ensure UI is updated with new name
+                            self.family = nil
+                            self.familyMembers = nil
+                            self.familyId = nil
                         case .failure(let error):
                             self.errorMessage = error.localizedDescription
                         }

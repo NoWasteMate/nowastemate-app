@@ -18,6 +18,8 @@ struct FamilyMemberView: View {
     @State private var confirmTransfer: Bool = false
     @State private var confirmDelete: Bool = false
     @State private var isClicked: Bool = false
+    @State private var confirmLeave: Bool = false
+    @State private var confirmFamilyDeletion: Bool = false
 
     
     @State private var clickedMember: FamilyMember = FamilyMember(member: "", email: "")
@@ -39,11 +41,13 @@ struct FamilyMemberView: View {
             
             VStack(alignment: .leading, spacing: 24) {
                 
-                Text("Your Family")
+                Text("Your Family Members")
                     .font(.largeTitle)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.bottom)
+                //https://www.hackingwithswift.com/quick-start/swiftui/how-to-adjust-the-position-of-a-view-using-its-offset
+                    .offset(y: -30)
                 
                 VStack{
                     //title
@@ -61,6 +65,7 @@ struct FamilyMemberView: View {
                                 if (familyVM.isOwner){
                                     Button {
                                         editNameAlert = true
+                                        newName = familyVM.family?.title ?? ""
                                     }
                                     label: {
                                         Image(systemName: "pencil")
@@ -68,7 +73,8 @@ struct FamilyMemberView: View {
                                             .imageScale(.small).bold()
                                     }
                                     .alert("Change Family Name", isPresented: $editNameAlert, actions: {
-                                        TextField("", text: $newName)
+                                        TextField("Enter new Family name", text: $newName)
+                                        
                                         
                                         Button("Cancel", role: .cancel) {
                                             //simply dismiss here
@@ -80,7 +86,7 @@ struct FamilyMemberView: View {
                                                 familyVM.editFamilyName(for: user, title: newName)
                                             }
                                             
-                                        }
+                                        }.disabled(!validName || familyVM.family?.title == newName)
                                         
                                         
                                     }, message: {
@@ -90,79 +96,114 @@ struct FamilyMemberView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.bottom)
-                            
-                            //https://medium.com/@jpmtech/swiftui-list-from-beginner-to-merlin-5308261b78b6
-                            //https://sarunw.com/posts/swiftui-list-with-foreach/
-                            //https://www.hackingwithswift.com/books/ios-swiftui/why-does-self-work-for-foreach
-                            ForEach(familyVM.familyMembers!, id: \.self) { item in
-                                HStack {
-                                    Button(item.email!){
-                                        clickedMember = item
-                                        manageFamilyAlert = true
+                            ScrollView {
+                                //https://medium.com/@jpmtech/swiftui-list-from-beginner-to-merlin-5308261b78b6
+                                //https://sarunw.com/posts/swiftui-list-with-foreach/
+                                //https://www.hackingwithswift.com/books/ios-swiftui/why-does-self-work-for-foreach
+                                ForEach(familyVM.familyMembers!, id: \.self) { item in
+                                    HStack {
+                                        Button(item.email!){
+                                            clickedMember = item
+                                            manageFamilyAlert = true
+                                        }
+                                        if familyVM.isOwner {
+                                            Image(systemName: "star.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 12, height: 12)
+                                                .foregroundStyle(.black)
+                                        }
                                     }
-                                    if familyVM.isOwner {
-                                        Image(systemName: "star.fill")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 12, height: 12)
-                                            .foregroundStyle(.black)
-                                    }
+                                    .foregroundColor(.black)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding()
+                                    .background(Color.white)
+                                    .cornerRadius(30)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 30)
+                                            .stroke(.black, lineWidth: 1)
+                                    )
+                                    .padding(.horizontal, 12)
+                                    .disabled(!familyVM.isOwner || familyVM.currentUser?.uid == item.member )
                                 }
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(30)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 30)
-                                        .stroke(.black, lineWidth: 1)
-                                )
-                                .padding(.horizontal, 12)
-                                .disabled(!familyVM.isOwner || familyVM.currentUser?.uid == item.member )
+                                .alert("Manage Family", isPresented: $manageFamilyAlert, actions: {
+                                    Button("Transfer Ownership", role: .confirm) {
+                                        confirmTransfer = true
+                                    }
+                                    
+                                    Button("Remove Member", role: .destructive) {
+                                        confirmDelete = true
+                                    }
+                                    
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                    
+                                }, message: {
+                                    Text("Do you wish to update this member?")
+                                })
+                                .alert("Transfer Family Ownership", isPresented: $confirmTransfer, actions: {
+                                    Button("Transfer Ownership", role: .confirm) {
+                                        if let user = authVM.user {
+                                            familyVM.transferOwner(for: user, member: clickedMember)
+                                        }
+                                    }
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                }, message: {
+                                    Text("Confirm you intend to transfer ownership to this user - This cannot be undone")
+                                })
+                                .alert("Delete member", isPresented: $confirmDelete, actions: {
+                                    Button("Confirm", role: .confirm) {
+                                        if let user = authVM.user {
+                                            familyVM.removeFamilyMembership(for: user, member: clickedMember)
+                                        }
+                                    }
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                }, message: {
+                                    Text("Confirm you intend to delete this member - This cannot be undone")
+                                })
+                                
+                                .alert("Remove Family", isPresented: $confirmFamilyDeletion, actions: {
+                                    
+                                    Button("Yes, I want to delete the Family", role: .destructive) {
+                                        if let user = authVM.user {
+                                            familyVM.removeFamily(for: user)
+                                        }
+                                    }
+                                    
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                    
+                                }, message: {
+                                    Text("Please confirm you want to delete the family - This cannot be undone.")
+                                })
+                                
+                                .alert("Leave Family", isPresented: $confirmLeave, actions: {
+                                    
+                                    Button("Yes, I want to leave the Family", role: .destructive) {
+                                        if let user = authVM.user {
+                                            familyVM.leaveFamily(for: user, member: FamilyMember(member: user.uid, email: user.email))
+                                        }
+                                    }
+                                    
+                                    Button("Cancel", role: .cancel) {
+                                        //do nothing
+                                    }
+                                    
+                                    
+                                }, message: {
+                                    Text("Please confirm you want to leave the family - This cannot be undone.")
+                                })
                             }
-                            .alert("Manage Family", isPresented: $manageFamilyAlert, actions: {
-                                Button("Transfer Ownership", role: .confirm) {
-                                    confirmTransfer = true
-                                }
-                                
-                                Button("Remove Member", role: .destructive) {
-                                    confirmDelete = true
-                                }
-                                
-                                Button("Cancel", role: .cancel) {
-                                    //do nothing
-                                }
-                                
-                                
-                            }, message: {
-                                Text("Do you wish to update this member?")
-                            })
-                            .alert("Transfer Family Ownership", isPresented: $confirmTransfer, actions: {
-                                Button("Transfer Ownership", role: .confirm) {
-                                    if let user = authVM.user {
-                                        familyVM.transferOwner(for: user, member: clickedMember)
-                                    }
-                                }
-                                Button("Cancel", role: .cancel) {
-                                    //do nothing
-                                }
-                                
-                            }, message: {
-                                Text("Confirm you intend to transfer ownership to this user - This cannot be undone")
-                            })
-                            .alert("Delete member", isPresented: $confirmDelete, actions: {
-                                Button("Confirm", role: .confirm) {
-                                    if let user = authVM.user {
-                                        familyVM.removeFamilyMembership(for: user, member: clickedMember)
-                                    }
-                                }
-                                Button("Cancel", role: .cancel) {
-                                    //do nothing
-                                }
-                                
-                            }, message: {
-                                Text("Confirm you intend to delete this member - This cannot be undone")
-                            })
                         }
                         
                     }
@@ -185,6 +226,8 @@ struct FamilyMemberView: View {
                         .fill(Color.white.opacity(0.2))
                         .padding(.horizontal, 12)
                 )
+                .frame(height: UIScreen.main.bounds.height * 0.4)                             //https://stackoverflow.com/questions/61160039/swiftui-trying-to-keep-the-fullscreen-size-of-a-view-in-a-scrollview
+
                 
                 VStack {
                     
@@ -255,9 +298,7 @@ struct FamilyMemberView: View {
                 if !familyVM.isOwner {
                     VStack {
                         Button("Leave Family"){
-                            if let user = authVM.user {
-                                familyVM.leaveFamily(for: user, member: FamilyMember(member: user.uid, email: user.email))
-                            }
+                            confirmLeave = true
                         }
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
@@ -268,9 +309,34 @@ struct FamilyMemberView: View {
                         .padding()
                     }
                 }
+                
+                if familyVM.isOwner && familyVM.familyMembers?.count == 1 {
+                    VStack {
+                        
+                        Text("Wish to join someone else's Family instead?")
+                            .foregroundStyle(Color.white)
+
+                        
+                        Button("Remove Family"){
+                            confirmFamilyDeletion = true
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 24)
+                        .background(.white)
+                        .cornerRadius(30)
+                        .padding()
+                    }
+                }
+                
             }
+            
         }
         .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            isClicked = false
+        }
 
     }
 }

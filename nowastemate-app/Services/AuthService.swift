@@ -120,7 +120,7 @@ struct AuthService {
         }
     }
     
-    func syncUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String){
+    func syncUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Result<Void, Error>) -> Void){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -151,10 +151,12 @@ struct AuthService {
                 do {
                     let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                     print(response)
+                    completion(.success(()))
                 }
                 
                 catch {
                     print(error)
+                    completion(.failure(error))
                 }
             }
             task.resume()
@@ -207,6 +209,38 @@ struct AuthService {
             task.resume()
         }
     }
-}
+    
+    func getUserInfo(completionHandler: @escaping (Result<UserInfo, Error>) -> Void){
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                return;
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/get_user_info")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let user = try JSONDecoder().decode(UserInfo.self, from: data)
+                    print(user)
+                    completionHandler(.success(user))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+
+                }
+            }
+            task.resume()
+            
+        }
+        
+    }}
 
 

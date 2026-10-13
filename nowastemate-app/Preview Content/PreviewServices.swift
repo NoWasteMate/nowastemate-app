@@ -162,12 +162,25 @@ extension Product {
     static var previewSamples: [Product] {
         [
             Product(id: "preview-1", name: "Tomatoes", quantity: 4,
-                    createdAt: "2026-09-15T00:00:00Z", category: .produce),
+                    createdAt: "2026-09-15T00:00:00Z", dateExpiration: previewExpiry(inDays: 1), category: .produce),
             Product(id: "preview-2", name: "Pasta", quantity: 1,
                     createdAt: "2026-09-15T00:00:00Z", category: .grains),
             Product(id: "preview-3", name: "Parmesan", quantity: 1,
-                    createdAt: "2026-09-15T00:00:00Z", category: .dairy)
+                    createdAt: "2026-09-15T00:00:00Z", dateExpiration: previewExpiry(inDays: 3), category: .dairy),
+            Product(id: "preview-4", name: "Milk", quantity: 1,
+                    createdAt: "2026-09-15T00:00:00Z", dateExpiration: previewExpiry(inDays: -1), category: .dairy),
+            Product(id: "preview-4", name: "Milk", quantity: 1,
+                    createdAt: "2026-09-15T00:00:00Z", dateExpiration: previewExpiry(inDays: -1), category: .dairy),
+            Product(id: "preview-4", name: "Milk", quantity: 1,
+                    createdAt: "2026-09-15T00:00:00Z", dateExpiration: previewExpiry(inDays: -1), category: .dairy),
+            
         ]
+    }
+
+    // Relative to today so the expiry labels and Home's Expiring Soon card always have something to show
+    private static func previewExpiry(inDays days: Int) -> String {
+        let date = Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
+        return ISO8601DateFormatter().string(from: date)
     }
 }
 #endif

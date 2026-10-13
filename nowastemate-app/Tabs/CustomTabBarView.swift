@@ -16,7 +16,7 @@ struct CustomTabBarView: View {
         
         ZStack(alignment: .bottom){
             TabView(selection: $selectedTab) {
-                HomeView()
+                HomeView(selectedTab: .constant(.home))
                     .tag(0)
 
             }.tabViewStyle(.page(indexDisplayMode: .never))

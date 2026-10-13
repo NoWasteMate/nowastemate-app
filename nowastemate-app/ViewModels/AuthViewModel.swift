@@ -113,17 +113,21 @@ class AuthViewModel: ObservableObject {
     
     func findUser()  {
             self.authService.getUserInfo(){ result in
-                    switch result {
+                switch result {
                     //user is gotten and passed
-                    case .success(let user):
+                case .success(let user):
+                    DispatchQueue.main.async {
                         self.userInfo = user
-                    case .failure(let error):
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
                         self.errorMessage = error.localizedDescription
                         print(self.errorMessage)
                     }
+                }
                 
             }
-        }
+    }
 }
     
 

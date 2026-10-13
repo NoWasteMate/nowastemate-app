@@ -18,6 +18,11 @@ struct AddProductView: View {
     // nil for the manual Add button, set by a barcode scan OR photo classification to fill in the form
     var prefill: Product? = nil
     
+    // https://www.hackingwithswift.com/books/ios-swiftui/validating-and-disabling-forms
+    var isFormValid: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     @State private var name = ""
     @State private var quantity = 1
     @State private var category: ProductCategory = .other
@@ -176,7 +181,7 @@ struct AddProductView: View {
 //                    
                     
                     Button("Save Product") {
-                        guard let user = authVM.user else { return }
+                        guard let user = authVM.user, isFormValid else { return }
 
                         // Barcode tags only describe the scanned name so a renamed product should be matched by its new name instead
                         var categoryTags: [String]? = nil
@@ -185,7 +190,7 @@ struct AddProductView: View {
                         }
 
                         let userInputtedProduct = Product(
-                            name: name,
+                            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                             quantity: quantity,
                             createdAt: "",
                             dateExpiration: ISO8601DateFormatter().string(from: expiryDate),
@@ -203,6 +208,8 @@ struct AddProductView: View {
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
                     .padding(.horizontal)
+                    .disabled(!isFormValid)
+                    .opacity(isFormValid ? 1 : 0.3)
                 }
             }
             

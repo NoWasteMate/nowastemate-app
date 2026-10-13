@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+// One case per tab so the TabView selection can be set via code
+// https://www.hackingwithswift.com/quick-start/swiftui/how-to-embed-views-in-a-tab-bar-using-tabview
+enum RootTab {
+    case home
+    case inventory
+    case recipes
+    case families
+}
+
 struct RootView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
@@ -14,6 +23,9 @@ struct RootView: View {
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var analyticsVM: AnalyticsViewModel
 
+    @State private var selectedTab: RootTab = .home
+    
+    
     var body: some View {
         
         
@@ -21,21 +33,21 @@ struct RootView: View {
         if authVM.isSignedIn {
            
             NavigationStack {
-                TabView {
-                    Tab("Home", systemImage: "house") {
-                        HomeView()
+                TabView(selection: $selectedTab) {
+                    Tab("Home", systemImage: "house", value: .home) {
+                        HomeView(selectedTab: $selectedTab)
                     }
 
-                    Tab("Inventory", systemImage: "checklist") {
+                    Tab("Inventory", systemImage: "checklist", value: .inventory) {
                         ProductListView()
                     }
 
-                    Tab("Recipes", systemImage: "book.pages.fill") {
+                    Tab("Recipes", systemImage: "book.pages.fill", value: .recipes) {
                         RecipeListView()
                     }
         
                     
-                    Tab("Families", systemImage: "person.3.fill") {
+                    Tab("Families", systemImage: "person.3.fill", value: .families) {
                         FamilyView()
                         
                     }

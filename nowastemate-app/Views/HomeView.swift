@@ -14,6 +14,8 @@ struct HomeView: View {
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
     
+    @Binding var selectedTab: RootTab
+    
     private let expiringSoonLimit = 5
     
     // Closest to expiring first, fresh and undated products left out
@@ -26,128 +28,129 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
             
-            VStack{
-                ScrollView{
-                    VStack{
-                        
-                        HStack{
-                            
-                            if (authVM.userInfo?.firstName != nil){
-                                Text("Hello, \(authVM.userInfo?.firstName ?? "")!" )
-                                    .font(.title)
-                                    .foregroundStyle(Color.white)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            } else {
-                                Text("Hello!" )
-                                    .font(.title)
-                                    .foregroundStyle(Color.white)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            
-                            
-                            NavigationLink {
-                                EditUserView()
-                            }
-                            label: {
-                                Image(systemName: "person")
-                                    .foregroundColor(.white)
-                                    .imageScale(.small)
-                                    .padding()
-                                    .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
-                                    
-                            }
+            VStack {
+                HStack {
+                    if (authVM.userInfo?.firstName != nil){
+                        Text("Hello, \(authVM.userInfo?.firstName ?? "")!" )
+                            .font(.title)
+                            .foregroundStyle(Color.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Text("Hello!" )
+                            .font(.title)
+                            .foregroundStyle(Color.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    NavigationLink {
+                        EditUserView()
+                    }
+                    label: {
+                        Image(systemName: "person")
+                            .foregroundColor(.white)
+                            .imageScale(.small)
+                            .padding()
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .topTrailing)
+                
+                List {
+                    Section {
+                        VStack {
+                            Text("Total Products Stats")
                         }
-                        .frame(maxWidth: .infinity, alignment: .topTrailing)
-                        .padding(.top, 40)
-                        
-                        
-                        
-                        VStack (spacing: 16){
-                            VStack{
-                                Text("Total Products Stats")
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 264)
-                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                            
+                        .frame(maxWidth: .infinity, minHeight: 264)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    }
+                
+                    Section {
+                        VStack {
+                            Text("Waste Trends")
+                                .foregroundStyle(.white)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 164)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        // hidden link like ProductRowView so the card doesn't get List's chevron
+                        .background {
                             NavigationLink {
                                 WasteTrendView()
                             } label: {
-                                VStack{
-                                    Text("Waste Trends")
-                                        .foregroundStyle(.white)
-                                }
-                                .frame(maxWidth: .infinity, minHeight: 164)
-                                .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                                EmptyView()
                             }
-                            
-                            expiringSoonCard
-                            VStack{
-                                Text("Suggested Recipe")
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 164)
-                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                            
+                            .opacity(0)
                         }
-                        .padding(16)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
                     }
-                    .padding(16)
-                    
+                
+                    expiringSoonSection
+                
+                    Section {
+                        VStack {
+                            Text("Suggested Recipe")
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 164)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    }
                 }
-                
-                
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+               
+                .listRowSpacing(12)
+                .padding(.horizontal, -20)
             }
-            .padding()
+            .padding(20)
         }
-        .edgesIgnoringSafeArea(.all)
         .onAppear{
             if authVM.userInfo == nil {
                 authVM.findUser()
             }
-            // Products only loaded from the Inventory tab before, so Home had nothing to show
+            // Only Inventory and Recipes loaded products before, so load here since neither have been opened yet
             if !productVM.hasLoadedProducts, let user = authVM.user {
                 productVM.loadProducts(for: user)
             }
         }
     }
     
-    private var expiringSoonCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Expiring Soon")
-                    .font(.headline)
-                Spacer()
-                if !expiringProducts.isEmpty {
-                    Text("\(expiringProducts.count)")
-                        .font(.subheadline.weight(.semibold))
-                }
-            }
-            
+    private var expiringSoonSection: some View {
+        Section {
             if !productVM.hasLoadedProducts {
                 ProgressView()
                     .frame(maxWidth: .infinity)
             } else if expiringProducts.isEmpty {
                 Text("Nothing expiring in the next few days")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.secondary)
             } else {
-                // Same rows as the Inventory list, on the list's cell background so the colours still read
-                VStack {
-                    ForEach(expiringProducts.prefix(expiringSoonLimit)) { product in
-                        ProductRowView(product: product)
+                ForEach(expiringProducts.prefix(expiringSoonLimit)) { product in
+                    ProductRowView(product: product)
+                }
+            }
+        } header: {
+            HStack {
+                Text("Expiring Soon")
+                Spacer()
+                if !expiringProducts.isEmpty {
+                    // TODO: open Inventory filtered to expiring products once it has an expiry filter
+                    Button("See All (\(expiringProducts.count))") {
+                        selectedTab = .inventory
                     }
                 }
-                .padding(12)
-                .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 10))
             }
+            .foregroundStyle(.white.opacity(0.9))
         }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #if DEBUG
 #Preview(traits: .appEnvironment) {
-    HomeView()
+    HomeView(selectedTab: .constant(.home))
 }
 #endif

@@ -16,9 +16,22 @@ struct LogInView: View {
     @EnvironmentObject var authVM: AuthViewModel
     
     var isFormValid: Bool {
-            !email.isEmpty && !password.isEmpty
+        !email.isEmpty && !password.isEmpty && isEmailValid && password.count >= 6
     }
-
+    //ref: https://medium.com/@kalidoss.shanmugam/swift-ios-email-validation-best-practices-and-solutions-05456e265d2f
+    //using regex to check for valid emails
+    func isValidEmailComplex(_ email: String) -> Bool {
+        //the required format
+        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+        //checking if it fits format and returning true/false
+        return emailPredicate.evaluate(with: email)
+    }
+    //this will update whenever the email changes, meaning it will live update as user is typing
+    var isEmailValid: Bool {
+        isValidEmailComplex(email)
+    }
+    
     var body: some View {
         
         ZStack {
@@ -53,6 +66,11 @@ struct LogInView: View {
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(Color.gray, lineWidth: 1)
                         )
+                    if (!isEmailValid && !email.isEmpty){
+                        Text("Please ensure you enter a valid email")
+                            .font(.footnote)
+                            .foregroundColor(Color.red)
+                    }
                         
 
                     Text("Password")

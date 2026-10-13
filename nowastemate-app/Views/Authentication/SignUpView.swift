@@ -23,6 +23,18 @@ struct SignUpView: View {
         !email.isEmpty && !password.isEmpty && !confirmPassword.isEmpty && !firstName.isEmpty && !lastName.isEmpty
     }
     
+    //ref: https://medium.com/@kalidoss.shanmugam/swift-ios-email-validation-best-practices-and-solutions-05456e265d2f
+    //using regex to check for valid emails
+    func isValidEmailComplex(_ email: String) -> Bool {
+        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+        return emailPredicate.evaluate(with: email)
+    }
+    
+    var isEmailValid: Bool {
+        isValidEmailComplex(email)
+    }
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
 
@@ -102,6 +114,12 @@ struct SignUpView: View {
                                 .stroke(Color.gray, lineWidth: 1)
                         )
                     
+                    if (!isEmailValid && !email.isEmpty){
+                        Text("Please ensure you enter a valid email")
+                            .font(.footnote)
+                            .foregroundColor(Color.red)
+                    }
+                    
                     Text("Password")
                         .font(.headline)
                         .foregroundColor(Color.foreGroundBrown)
@@ -150,6 +168,15 @@ struct SignUpView: View {
                               showAlert = true
                               return
                           }
+                            
+                          guard isEmailValid else {
+                              alertMessage = "Please enter a valid email address"
+                              showAlert = true
+                              return
+                          }
+                        
+                        
+                        
                       
                         // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
                         authVM.signUp(email: email, password: password, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
@@ -162,7 +189,6 @@ struct SignUpView: View {
                             }
                         }
                     }
-                    .disabled(!isFormValid)
 
                     //https://developer.apple.com/documentation/swiftui/alert
                     .alert(isPresented: $showAlert) {

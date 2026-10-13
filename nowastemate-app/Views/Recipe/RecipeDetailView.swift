@@ -20,20 +20,28 @@ struct RecipeDetailView: View {
                 endPoint: .bottom
             ).ignoresSafeArea()
             ScrollView(){
-                VStack(alignment:.leading){
-                    Text(recipe.recipeName)
-                        .font(.largeTitle)
-                    
-                    Text(recipe.description)
-                        .font(.title3)
-                        .padding(.vertical)
-                    
-                    VStack (alignment: .leading){
+                // One spacing value for every section so the gaps match
+                VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(recipe.recipeName)
+                            .font(.largeTitle)
+                        Text(recipe.description)
+                            .font(.title3)
+                    }
+
+                    HStack {
+                        StatView(systemImage: "timer", value: "\(recipe.prepTime) min", label: "Prep")
+                        StatView(systemImage: "flame", value: "\(recipe.cookTime) min", label: "Cook")
+                        StatView(systemImage: "person.2", value: "\(recipe.servings)", label: "Serves")
+                        StatView(systemImage: "chart.bar", value: recipe.difficulty.capitalized, label: "Level")
+                    }
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
+                    .glassEffect(.clear.interactive(false), in: .rect(cornerRadius: 16))
+
+                    VStack(alignment: .leading, spacing: 10) {
                         // https://www.hackingwithswift.com/forums/swiftui/accessing-the-index-in-foreach/1334
                         // Accessing indicies in for each (there is no id for ingredients)
-                        Text("Ingredients:")
-                            .font(.title2)
-                            .padding(.vertical)
                         ForEach(recipe.ingredients.indices, id: \.self) { index in
                             let ingredient = recipe.ingredients[index]
                             let availability = productVM.availability(for: ingredient)
@@ -41,41 +49,34 @@ struct RecipeDetailView: View {
                                 Image(systemName: icon(for: availability))
                                     .foregroundStyle(iconColour(for: availability))
                                     .accessibilityLabel(accessibilityLabel(for: availability))
-                                Text(ingredient.name)
+                                // Gemini sends plain lowercase names like "chicken breast"
+                                Text(ingredient.name.capitalized)
+                                Spacer()
+                                // formatted() drops the trailing .0 so 200.0 shows as 200
+                                // Skips the space when there's no unit, otherwise "4 " sits out of line with the rest
+                                Text(ingredient.unit.isEmpty ? ingredient.quantity.formatted() : "\(ingredient.quantity.formatted()) \(ingredient.unit)")
+                                    .opacity(0.8)
                             }
                         
                             
                         }
-                        
+
                     }
-                   
-                    
-                    VStack{
-                        Text("Cook Time: \(recipe.cookTime) Minutes")
-                        Text("Prep Time: \(recipe.prepTime) Minutes")
-                        Text("\(recipe.servings) Servings")
-                        Text("\(recipe.difficulty) Difficulty")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .glassEffect(.clear.interactive(false), in: .rect(cornerRadius: 6))
-                    .padding(.vertical)
-                    
-                    VStack (alignment: .leading){
-                        
-                        Text("Instructions:")
-                            .font(.title2)
-                            .padding(.vertical)
+                    // Same inset as the step cards' padding so the icons line up with the step numbers
+                    .padding(.horizontal)
+                    // Extra room before the steps so the plain list doesn't run into the first card
+                    .padding(.bottom, 12)
+
+                    VStack(alignment: .leading, spacing: 12) {
                         ForEach(recipe.instructions.indices, id: \.self) { index in
-                            HStack(alignment: .top, spacing: 12){
-                                Text("\(index + 1).")
-                                Text("\(recipe.instructions[index].description)")
-                            }
-                            .padding(.vertical, 4)   
+                            StepCardView(number: index + 1, text: recipe.instructions[index])
                         }
                     }
                 }.foregroundStyle(.white)
+                // Padding inside the scroll view so cards scroll to the screen edge instead of cutting off early
+                .padding()
             }
-            .padding()
+            .scrollIndicators(.hidden)
                 
         }
     }
@@ -106,3 +107,51 @@ struct RecipeDetailView: View {
         }
     }
 }
+
+private struct StatView: View {
+    var systemImage: String
+    var value: String
+    var label: String
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: systemImage)
+                .font(.title3)
+            Text(value)
+                .font(.subheadline.bold())
+            Text(label)
+                .font(.caption)
+                .opacity(0.7)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+private struct StepCardView: View {
+    var number: Int
+    var text: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "\(number).circle")
+                .font(.title2)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Step \(number)")
+                    .font(.caption.bold())
+                    .textCase(.uppercase)
+                    .opacity(0.7)
+                Text(text)
+                    .lineSpacing(4)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .glassEffect(.clear, in: .rect(cornerRadius: 16))
+    }
+}
+
+#if DEBUG
+#Preview(traits: .appEnvironment) {
+    RecipeDetailView(recipe: .detailPreviewSample)
+}
+#endif

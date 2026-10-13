@@ -135,6 +135,38 @@ extension Recipe {
             category: category
         )
     }
+
+    // The samples above have no ingredients or steps, so RecipeDetailView gets a full one
+    static var detailPreviewSample: Recipe {
+        Recipe(
+            id: "detail-preview",
+            recipeName: "Tomato Parmesan Pasta",
+            description: "A quick weeknight pasta that uses up ripe tomatoes before they turn.",
+            prepTime: 10,
+            cookTime: 20,
+            servings: 2,
+            difficulty: "easy",
+            ingredientsUsed: 3,
+            ingredients: [
+                Ingredient(name: "Pasta", quantity: 200, unit: "g"),
+                Ingredient(name: "Tomatoes", quantity: 4, unit: ""),
+                Ingredient(name: "Parmesan", quantity: 30, unit: "g"),
+                Ingredient(name: "Garlic", quantity: 2, unit: "cloves"),
+                Ingredient(name: "Olive oil", quantity: 2, unit: "tbsp"),
+                Ingredient(name: "Fresh basil", quantity: 0.5, unit: "cup"),
+            ],
+            instructions: [
+                "Bring a large pot of salted water to a boil and cook the pasta until al dente. Save half a cup of the pasta water before draining.",
+                "While the pasta cooks, dice the tomatoes and thinly slice the garlic.",
+                "Heat the olive oil in a large pan over medium heat. Add the garlic and cook for 1 minute until fragrant.",
+                "Add the tomatoes and a pinch of salt. Cook for 5 to 7 minutes until they break down into a sauce.",
+                "Toss the drained pasta into the pan with a splash of pasta water. Stir in the parmesan until glossy.",
+                "Tear the basil over the top and serve right away.",
+            ],
+            createdAt: "2026-10-12T00:00:00Z",
+            category: .pasta
+        )
+    }
 }
 
 // Copied from the backend's Product Type list, with names that are close to each other (pea/pear, tomato/cherry tomato)

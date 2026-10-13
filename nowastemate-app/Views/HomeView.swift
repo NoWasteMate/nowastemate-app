@@ -17,6 +17,7 @@ struct HomeView: View {
     @Binding var selectedTab: RootTab
     
     private let expiringSoonLimit = 5
+    private let totalCircleSize: CGFloat = 224
     
     // Closest to expiring first, fresh and undated products left out
     private var expiringProducts: [Product] {
@@ -59,13 +60,15 @@ struct HomeView: View {
                 
                 List {
                     Section {
-                        VStack {
-                            Text("Total Products Stats")
-                        }
+                        // onTapGesture instead of Button so only the circle is tappable, not the whole List row
+                        // https://stackoverflow.com/questions/56561064/swiftui-multiple-buttons-in-a-list-row/
+                        totalProductsCircle
+                            .onTapGesture {
+                                selectedTab = .inventory
+                            }
                         .frame(maxWidth: .infinity, minHeight: 264)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
                     }
                 
                     Section {
@@ -119,6 +122,22 @@ struct HomeView: View {
         }
     }
     
+    private var totalProductsCircle: some View {
+        VStack {
+            Text("\(productVM.products.count)")
+                .font(.system(size: 64, weight: .bold))
+            Text("Products at Home")
+                .font(.subheadline)
+        }
+        .foregroundStyle(.white)
+        .frame(width: totalCircleSize, height: totalCircleSize)
+        .background(
+            LinearGradient(colors: [Color("HomeViewGradientPrimary").opacity(0.6), Color("HomeViewGradientSecondary").opacity(0)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: .circle
+        )
+        .glassEffect(.clear.interactive(), in: .circle)
+    }
+
     private var expiringSoonSection: some View {
         Section {
             if !productVM.hasLoadedProducts {

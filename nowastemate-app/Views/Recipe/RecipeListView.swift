@@ -24,31 +24,48 @@ struct RecipeListView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 ).ignoresSafeArea()
-                ScrollView(){
-                    VStack(alignment: .leading){
-                        TitleHeader(titleText: "My Cookbook")
-                            .padding()
-                        
-                        RecipeSearch(text: $searchText)
-                            .padding()
-                        SubtitleHeader(subtitleText: "Favourite Recipes")
-                            .padding(.horizontal, 16)
-                        GlassCardCarousel()
-                        
-                        SubtitleHeader(subtitleText: "Suggested Recipes")
-                            .padding(.horizontal, 16)
-                        
-                        GeneratedRecipeList()
-                        Spacer()
+                VStack {
+
+                    VStack {
+                        HStack {
+                            Text("My Cookbook")
+                                .font(.largeTitle).bold()
+                                .foregroundColor(.white)
+
+                            Spacer()
+                        }
+
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                            TextField("Search Recipes", text: $searchText)
+                        }
+                        .padding(12)
+                        .background(Color.white.opacity(0.3))
+                        .clipShape(Capsule())
                     }
-                }
-                // Keeps the button above the tab bar while the list scrolls
-                // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
-                .safeAreaInset(edge: .bottom) {
-                    GenerateRecipeButton(isLoading: recipeVM.isGenerating) { showGenerateSheet = true }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
+                    .padding(20)
+
+                    ScrollView(){
+                        VStack(alignment: .leading){
+                            SubtitleHeader(subtitleText: "Suggested Recipes")
+                                .padding(.horizontal, 16)
+                            GlassCardCarousel()
+
+                            SubtitleHeader(subtitleText: "Saved Recipes")
+                                .padding(.horizontal, 16)
+
+                            GeneratedRecipeList()
+                            Spacer()
+                        }
+                    }
+                    // Keeps the button above the tab bar while the list scrolls
+                    // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
+                    .safeAreaInset(edge: .bottom) {
+                        GenerateRecipeButton(isLoading: recipeVM.isGenerating) { showGenerateSheet = true }
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
         }
@@ -66,24 +83,6 @@ struct RecipeListView: View {
     }
 }
 
-
-struct RecipeSearch: View{
-    @Binding var text: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.white.opacity(0.9))
-                .font(.system(size: 20, weight: .semibold))
-
-            TextField("Search Recipes", text: $text)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-        }
-        .padding(10)
-        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-    }
-}
 
 // Plain glass to match the tab bar below it
 // https://developer.apple.com/documentation/swiftui/primitivebuttonstyle/glass
@@ -117,15 +116,15 @@ struct GlassCardCarousel: View{
         ScrollView(.horizontal, showsIndicators: false) {
            HStack(spacing: 16) {
           
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 1")
+               FavouriteGlassCard(cardTitle: "Suggested Recipe 1")
                    .frame(width: 250,
                           height: 175)
                    .padding(.leading)
                
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 2")
+               FavouriteGlassCard(cardTitle: "Suggested Recipe 2")
                    .frame(width: 175,
                           height: 175)
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 3")
+               FavouriteGlassCard(cardTitle: "Suggested Recipe 3")
                    .frame(width: 175,
                           height: 175)
            }

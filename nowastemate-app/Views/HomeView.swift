@@ -22,19 +22,19 @@ struct HomeView: View {
                 ScrollView{
                     VStack{
                         
-                        Button("(ADMIN) Log Active Token"){
-                            Task{
-                                await authVM.logToken()
-                            }
-                        }.background(.red)
-                        
                         HStack{
                             
-                            
-                            Text("Hello, \(authVM.userInfo?.firstName ?? "None")!" )
-                                .font(.title)
-                                .foregroundStyle(Color.white)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if (authVM.userInfo?.firstName != nil){
+                                Text("Hello, \(authVM.userInfo?.firstName ?? "")!" )
+                                    .font(.title)
+                                    .foregroundStyle(Color.white)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                Text("Hello!" )
+                                    .font(.title)
+                                    .foregroundStyle(Color.white)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                             
                             
                             NavigationLink {

@@ -42,12 +42,12 @@ struct FamilyMemberView: View {
             VStack(alignment: .leading, spacing: 24) {
                 
                 Text("Your Family Members")
-                    .font(.largeTitle)
+                    .font(.largeTitle).bold()
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.bottom)
                 //https://www.hackingwithswift.com/quick-start/swiftui/how-to-adjust-the-position-of-a-view-using-its-offset
-                    .offset(y: -30)
+                    .offset(y: -25)
                 
                 VStack{
                     //title
@@ -59,7 +59,7 @@ struct FamilyMemberView: View {
                             HStack (spacing: 4) {
                                 
                                 Text(familyVM.family?.title ?? "")
-                                    .font(.title).bold()
+                                    .font(.title)
                                     .foregroundColor(.white)
                                 
                                 if (familyVM.isOwner){
@@ -106,7 +106,7 @@ struct FamilyMemberView: View {
                                             clickedMember = item
                                             manageFamilyAlert = true
                                         }
-                                        if familyVM.isOwner {
+                                        if item.member == familyVM.family?.ownerId {
                                             Image(systemName: "star.fill")
                                                 .resizable()
                                                 .scaledToFit()

@@ -343,7 +343,7 @@ struct ProductListView: View {
 #endif
 
 
-private struct ProductRowView: View {
+struct ProductRowView: View {
     var product: Product
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel

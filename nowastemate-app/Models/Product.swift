@@ -59,12 +59,12 @@ enum WasteReason: String, Codable, CaseIterable, Identifiable {
     // rawValue.capitalized would show "Spoiledearly", so each case gets its own label
     var displayName: String {
         switch self {
-        case .expired: return "Product Expired"
-        case .spoiledEarly: return "Product Spoiled Early"
+        case .expired: return "Expired"
+        case .spoiledEarly: return "Spoiled Early"
         case .boughtTooMuch: return "I Bought Too Much"
-        case .forgot: return "Forgot about Product"
-        case .badQuality: return "Product Arrived Bad"
-        case .storedWrong: return "Product Stored Incorrectly"
+        case .forgot: return "Forgot about it"
+        case .badQuality: return "Arrived expired/damaged"
+        case .storedWrong: return "Stored Incorrectly"
         case .other: return "Other"
         case .addedByMistake: return "Added by Mistake"
         }

@@ -106,7 +106,7 @@ struct FamilyMemberView: View {
                                             clickedMember = item
                                             manageFamilyAlert = true
                                         }
-                                        if familyVM.isOwner {
+                                        if item.member == familyVM.family?.ownerId {
                                             Image(systemName: "star.fill")
                                                 .resizable()
                                                 .scaledToFit()

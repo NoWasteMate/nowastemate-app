@@ -24,31 +24,46 @@ struct RecipeListView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 ).ignoresSafeArea()
-                ScrollView(){
-                    VStack(alignment: .leading){
-                        TitleHeader(titleText: "My Cookbook")
-                            .padding()
-                        
-                        RecipeSearch(text: $searchText)
-                            .padding()
-                        SubtitleHeader(subtitleText: "Favourite Recipes")
-                            .padding(.horizontal, 16)
-                        GlassCardCarousel()
-                        
-                        SubtitleHeader(subtitleText: "Suggested Recipes")
-                            .padding(.horizontal, 16)
-                        
-                        GeneratedRecipeList()
-                        Spacer()
+                VStack {
+
+                    VStack {
+                        HStack {
+                            Text("My Cookbook")
+                                .font(.largeTitle).bold()
+                                .foregroundColor(.white)
+
+                            Spacer()
+                        }
+
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                            TextField("Search Recipes", text: $searchText)
+                        }
+                        .padding(12)
+                        .background(Color.white.opacity(0.3))
+                        .clipShape(Capsule())
                     }
-                }
-                // Keeps the button above the tab bar while the list scrolls
-                // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
-                .safeAreaInset(edge: .bottom) {
-                    GenerateRecipeButton(isLoading: recipeVM.isLoading) { showGenerateSheet = true }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
+                    .padding(20)
+
+                    ScrollView(){
+                        VStack(alignment: .leading){
+                            GlassCardCarousel()
+
+                            SubtitleHeader(subtitleText: "Saved Recipes")
+                                .padding(.horizontal, 16)
+
+                            GeneratedRecipeList()
+                            Spacer()
+                        }
+                    }
+                    // Keeps the button above the tab bar while the list scrolls
+                    // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
+                    .safeAreaInset(edge: .bottom) {
+                        GenerateRecipeButton(isLoading: recipeVM.isGenerating) { showGenerateSheet = true }
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
         }
@@ -66,24 +81,6 @@ struct RecipeListView: View {
     }
 }
 
-
-struct RecipeSearch: View{
-    @Binding var text: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.white.opacity(0.9))
-                .font(.system(size: 20, weight: .semibold))
-
-            TextField("Search Recipes", text: $text)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-        }
-        .padding(10)
-        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-    }
-}
 
 // Plain glass to match the tab bar below it
 // https://developer.apple.com/documentation/swiftui/primitivebuttonstyle/glass
@@ -113,24 +110,29 @@ struct GenerateRecipeButton: View {
 }
 
 struct GlassCardCarousel: View{
+    private let cardHeight: CGFloat = 280
+
     var body: some View {
+        // Each card fills the width and the scroll snaps to one card at a time
+        // https://www.hackingwithswift.com/quick-start/swiftui/how-to-make-a-scrollview-snap-with-paging-or-between-child-views
         ScrollView(.horizontal, showsIndicators: false) {
-           HStack(spacing: 16) {
-          
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 1")
-                   .frame(width: 250,
-                          height: 175)
-                   .padding(.leading)
-               
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 2")
-                   .frame(width: 175,
-                          height: 175)
-               FavouriteGlassCard(cardTitle: "Favourite Recipe 3")
-                   .frame(width: 175,
-                          height: 175)
-           }
-           .padding(.vertical) // gives a bit of allowence  on each vertical side of the element to still scroll
-       }
+            LazyHStack(spacing: 12) {
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 1")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 2")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 3")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+            }
+            .scrollTargetLayout()
+            .padding(.vertical) // gives a bit of allowence  on each vertical side of the element to still scroll
+        }
+        .scrollTargetBehavior(.viewAligned)
+        .safeAreaPadding(.horizontal, 20)
     }
 }
 
@@ -139,7 +141,7 @@ struct GeneratedRecipeList: View {
     var body: some View {
         // Using Lazy Stack for better performance. Glass views should be created as they come because the visual is quite taxing on the system
         LazyVStack{
-            if(recipeVM.isLoading){
+            if(!recipeVM.hasLoadedRecipes){
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .padding(48)

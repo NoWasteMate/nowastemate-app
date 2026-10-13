@@ -16,7 +16,10 @@ import Combine
 @Observable
 final class RecipeViewModel: ObservableObject {
     var recipes: [Recipe] = []
-    var isLoading = false
+    // only false until the first load so reloads don't blank the list. Aligned with hasLoadedProducts now
+    var hasLoadedRecipes = false
+    // Spins just the Generate button
+    var isGenerating = false
     var errorMessage: String?
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -27,38 +30,33 @@ final class RecipeViewModel: ObservableObject {
     }
 
     func loadRecipes(for user: User){
-        self.isLoading = true
-
         service.getAllRecipes(user: user) {result in
             DispatchQueue.main.async {
-                switch result {
-                case .success(let recipes):
+                if case .success(let recipes) = result {
                     self.recipes = recipes
-                    self.isLoading = false
-                case .failure:
-                    self.isLoading = false
-                    return
+                    self.hasLoadedRecipes = true
                 }
-                self.isLoading = false
             }
         }
     }
     
     func generateRecipe(for user: User, productIds: [String]){
-        self.isLoading = true
+        self.isGenerating = true
 
         service.generateRecipe(user: user, productIds: productIds) {result in
             DispatchQueue.main.async {
-                switch result {
-                case .success():
+                self.isGenerating = false
+                if case .success = result {
                     self.loadRecipes(for: user)
-                    // loadRecipes() will call isLoading = false
-                case .failure:
-                    self.isLoading = false
-                    return
                 }
-                
             }
         }
+    }
+
+    func resetRecipes() {
+        recipes = []
+        hasLoadedRecipes = false
+        isGenerating = false
+        errorMessage = nil
     }
 }

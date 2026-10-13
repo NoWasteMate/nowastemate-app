@@ -47,8 +47,6 @@ struct RecipeListView: View {
 
                     ScrollView(){
                         VStack(alignment: .leading){
-                            SubtitleHeader(subtitleText: "Suggested Recipes")
-                                .padding(.horizontal, 16)
                             GlassCardCarousel()
 
                             SubtitleHeader(subtitleText: "Saved Recipes")
@@ -112,24 +110,29 @@ struct GenerateRecipeButton: View {
 }
 
 struct GlassCardCarousel: View{
+    private let cardHeight: CGFloat = 280
+
     var body: some View {
+        // Each card fills the width and the scroll snaps to one card at a time
+        // https://www.hackingwithswift.com/quick-start/swiftui/how-to-make-a-scrollview-snap-with-paging-or-between-child-views
         ScrollView(.horizontal, showsIndicators: false) {
-           HStack(spacing: 16) {
-          
-               FavouriteGlassCard(cardTitle: "Suggested Recipe 1")
-                   .frame(width: 250,
-                          height: 175)
-                   .padding(.leading)
-               
-               FavouriteGlassCard(cardTitle: "Suggested Recipe 2")
-                   .frame(width: 175,
-                          height: 175)
-               FavouriteGlassCard(cardTitle: "Suggested Recipe 3")
-                   .frame(width: 175,
-                          height: 175)
-           }
-           .padding(.vertical) // gives a bit of allowence  on each vertical side of the element to still scroll
-       }
+            LazyHStack(spacing: 12) {
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 1")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 2")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+                FavouriteGlassCard(cardTitle: "Suggested Recipe 3")
+                    .containerRelativeFrame(.horizontal)
+                    .frame(height: cardHeight)
+            }
+            .scrollTargetLayout()
+            .padding(.vertical) // gives a bit of allowence  on each vertical side of the element to still scroll
+        }
+        .scrollTargetBehavior(.viewAligned)
+        .safeAreaPadding(.horizontal, 20)
     }
 }
 

@@ -16,7 +16,7 @@ struct PreviewRecipeService: RecipeServiceProtocol {
         completionHandler(.success(Recipe.previewSamples))
     }
 
-    func generateRecipe(user: User, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
 }

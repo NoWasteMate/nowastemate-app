@@ -75,6 +75,7 @@ struct RootView: View {
             }
             .onAppear {
                 productVM.resetProducts()
+                recipeVM.resetRecipes()
                 analyticsVM.resetAnalytics()
             }
         }

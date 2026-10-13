@@ -45,7 +45,7 @@ struct RecipeListView: View {
                 // Keeps the button above the tab bar while the list scrolls
                 // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
                 .safeAreaInset(edge: .bottom) {
-                    GenerateRecipeButton(isLoading: recipeVM.isLoading) { showGenerateSheet = true }
+                    GenerateRecipeButton(isLoading: recipeVM.isGenerating) { showGenerateSheet = true }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -139,7 +139,7 @@ struct GeneratedRecipeList: View {
     var body: some View {
         // Using Lazy Stack for better performance. Glass views should be created as they come because the visual is quite taxing on the system
         LazyVStack{
-            if(recipeVM.isLoading){
+            if(!recipeVM.hasLoadedRecipes){
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .padding(48)

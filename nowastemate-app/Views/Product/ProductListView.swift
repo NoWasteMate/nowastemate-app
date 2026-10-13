@@ -351,6 +351,7 @@ private struct ProductRowView: View {
     @State private var showWasteReasons = false
     @State private var triggerDiagnosticWaste = false
     @State private var wasteDiagnostic = WasteReason.other
+    @State private var setManually = false
 
     
     private var isMarking: Bool {
@@ -411,13 +412,20 @@ private struct ProductRowView: View {
             //https://stackoverflow.com/questions/73616346/swiftui-how-to-hide-cancel-button-in-alert-window
             //hiding the cancel button by not using the roles
             Button("Something else", role: .destructive) {
-               
-                showWasteReasons = true
-                triggerDiagnosticWaste = false
+               setManually = true
             }
         }, message: {
             Text("Predicted Reason: \(wasteDiagnostic.displayName)")
         })
+        //https://www.hackingwithswift.com/quick-start/swiftui/how-to-run-some-code-when-state-changes-using-onchange
+        //previous version seemed to have issue because we dismiss alert and present dialog at same time, this lets it finish first
+        .onChange(of: triggerDiagnosticWaste) {
+            if !triggerDiagnosticWaste && setManually {
+                setManually = false
+                showWasteReasons = true
+                
+            }
+        }
     }
     
     private var outcomeButton: some View {

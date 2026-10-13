@@ -20,6 +20,11 @@ struct EditProductView: View {
     @Environment(\.dismiss) var dismiss
 
     var product: Product
+    
+    // https://www.hackingwithswift.com/books/ios-swiftui/validating-and-disabling-forms
+    var isFormValid: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     @State private var name: String
     @State private var quantity: Int
@@ -172,10 +177,10 @@ struct EditProductView: View {
                     
                     HStack(spacing: 12) {
                         Button("Edit Product") {
-                            guard let user = authVM.user else { return }
+                            guard let user = authVM.user, isFormValid else { return }
 
                             var updatedProduct = product
-                            updatedProduct.name = name
+                            updatedProduct.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
                             updatedProduct.quantity = quantity
                             updatedProduct.category = category
                             updatedProduct.dateExpiration = ISO8601DateFormatter().string(from: expiryDate)
@@ -188,6 +193,8 @@ struct EditProductView: View {
                         .background(Color.black)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
+                        .disabled(!isFormValid)
+                        .opacity(isFormValid ? 1 : 0.3)
                         
 //                        Button("Delete Product") {
 //                            guard let user = authVM.user else { return }

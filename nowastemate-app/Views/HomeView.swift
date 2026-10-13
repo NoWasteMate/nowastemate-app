@@ -109,7 +109,7 @@ struct HomeView: View {
                 .listRowSpacing(12)
                 .padding(.horizontal, -20)
             }
-            .padding(20)
+            .padding([.horizontal, .top], 26)
         }
         .onAppear{
             if authVM.userInfo == nil {

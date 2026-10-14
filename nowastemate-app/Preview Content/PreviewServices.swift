@@ -19,6 +19,10 @@ struct PreviewRecipeService: RecipeServiceProtocol {
     func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
+
+    func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        completionHandler(.success(()))
+    }
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {

@@ -10,6 +10,11 @@ import SwiftUI
 struct RecipeDetailView: View {
     let recipe: Recipe
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var recipeVM: RecipeViewModel
+    @EnvironmentObject var authVM: AuthViewModel
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var showDeleteConfirm = false
 
     var body: some View {
     
@@ -77,7 +82,24 @@ struct RecipeDetailView: View {
                 .padding()
             }
             .scrollIndicators(.hidden)
-                
+
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Delete Recipe", systemImage: "trash", role: .destructive) {
+                    showDeleteConfirm = true
+                }
+                // Attached to the button so iOS 26 shows it as a popover from the trash icon
+                // https://useyourloaf.com/blog/swiftui-confirmation-dialogs/
+                .confirmationDialog("Delete this recipe?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+                    Button("Delete", role: .destructive) {
+                        if let user = authVM.user {
+                            recipeVM.deleteRecipe(for: user, recipe: recipe)
+                        }
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 
@@ -152,6 +174,9 @@ private struct StepCardView: View {
 
 #if DEBUG
 #Preview(traits: .appEnvironment) {
-    RecipeDetailView(recipe: .detailPreviewSample)
+    // NavigationStack so the toolbar shows up
+    NavigationStack {
+        RecipeDetailView(recipe: .detailPreviewSample)
+    }
 }
 #endif

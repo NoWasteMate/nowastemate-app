@@ -119,6 +119,8 @@ struct HomeView: View {
             if !productVM.hasLoadedProducts, let user = authVM.user {
                 productVM.loadProducts(for: user)
             }
+            
+            NotificationService.shared.requestAuth()
         }
     }
     

@@ -27,6 +27,7 @@ struct ProductListView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var dataScannerVM: CameraViewModel
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var familyVM: FamilyViewModel
     
     @State private var showScannedProduct = false
     @State private var showProduceClassification = false
@@ -64,13 +65,20 @@ struct ProductListView: View {
     @State private var selectedIndex: Int = 0
     
     @State private var searchText = ""
-    @State private var selectedFilter = "Personal"
+    //@State private var selectedFilter = "Personal"
+    
+    @State private var showJoinFamilyPrompt = false
+    @State private var showFamilyScreen = false
     
     // create dictionary - key = category, value = Product
     // switch between groceryItems if you want to modify the UI
 //    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
     private var groupedProducts: [ProductCategory: [Product]] {
-        Dictionary(grouping: productVM.products, by: { $0.category ?? .other })
+        let query = searchText.trimmingCharacters(in: .whitespaces)
+        let items = query.isEmpty ? productVM.visibleProducts : productVM.visibleProducts.filter {
+            $0.name.localizedCaseInsensitiveContains(query)
+        }
+        return Dictionary(grouping: productVM.products, by: { $0.category ?? .other })
     }
     
     // array for storing total number of categories
@@ -116,13 +124,7 @@ struct ProductListView: View {
                     .clipShape(Capsule())
 
                     HStack {
-                        ForEach(["Personal", "Family"], id: \.self) { filter in
-                            Text(filter)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 14).padding(.vertical, 6)
-                                .background(filter == selectedFilter ? Color.white.opacity(0.4) : Color.white.opacity(0.15))
-                                .clipShape(Capsule())
-                        }
+                        // TODO make a new helper for the pills or chips
                     }
     
                     // reference: https://developer.apple.com/documentation/swiftui/list

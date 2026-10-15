@@ -55,13 +55,13 @@ class ProductViewModel: ObservableObject {
     
     // seeing family products
     @Published var scope: ProductScope = .personal
-    @Publisher var familyProducts: [Product] = []
-    @Published var hasLoadedFamilyProduct = false
+    @Published var familyProducts: [Product] = []
+    @Published var hasLoadedFamilyProducts = false
     // nil means everybody
     @Published var selectedMemberId: String? = nil
     
     // what the list will show (own products, or family's filtered by member)
-    @Published var visibleProducts: [Product] {
+    var visibleProducts: [Product] {
         switch scope {
         case .personal:
             return products
@@ -70,7 +70,7 @@ class ProductViewModel: ObservableObject {
                 return familyProducts
             }
             return familyProducts.filter {
-                $0 ownerId == selectedMemberId
+                $0.ownerId == selectedMemberId
             }
         }
     }
@@ -151,7 +151,7 @@ class ProductViewModel: ObservableObject {
             switch result {
             case .success(let products):
                 self.familyProducts = products
-                self.hasLoadedProducts = true
+                self.hasLoadedFamilyProducts = true
                 self.errorMessage = nil
                 
             case.failure(let error):
@@ -211,7 +211,7 @@ class ProductViewModel: ObservableObject {
         errorMessage = nil
         hasLoadedProducts = false
         familyProducts = []
-        hasLoadedFamilyProduct = false
+        hasLoadedFamilyProducts = false
         scope = .personal
         selectedMemberId = nil
         markingProductIds = []
@@ -226,7 +226,7 @@ class ProductViewModel: ObservableObject {
             case .success:
                 self.errorMessage = nil
                 self.loadProducts(for: user)
-                if self.hasLoadedFamilyProduct
+                if self.hasLoadedFamilyProducts
                 {
                     self.loadFamilyProducts(for: user)
                 }

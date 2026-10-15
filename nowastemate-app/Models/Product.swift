@@ -103,6 +103,10 @@ struct Product: Identifiable, Codable {
     var outcome: ProductOutcome?
     var outcomeAt: String?
     var wasteReason: WasteReason?
+    
+    // only filled in by the method of /getFamilyProducts
+    var ownerId: String?
+    var ownerName: String?
 }
 
 // reference: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/extensions/

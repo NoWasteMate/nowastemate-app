@@ -25,6 +25,11 @@ enum IngredientAvailability {
     case unknown
 }
 
+enum ProductScope {
+    case personal
+    case family
+}
+
 class ProductViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var errorMessage: String?
@@ -47,6 +52,29 @@ class ProductViewModel: ObservableObject {
     @Published var markingProductIds: Set<String> = []
 
     @Published var productTypes: [ProductType] = []
+    
+    // seeing family products
+    @Published var scope: ProductScope = .personal
+    @Published var familyProducts: [Product] = []
+    @Published var hasLoadedFamilyProducts = false
+    // nil means everybody
+    @Published var selectedMemberId: String? = nil
+    
+    // what the list will show (own products, or family's filtered by member)
+    var visibleProducts: [Product] {
+        switch scope {
+        case .personal:
+            return products
+        case .family:
+            guard let selectedMemberId else {
+                return familyProducts
+            }
+            return familyProducts.filter {
+                $0.ownerId == selectedMemberId
+            }
+        }
+    }
+    
     private var productTypesVersion: Int?
     private var productTypeMatcher = ProductTypeMatcher(types: [])
     private var productTypeParents: [String: [String]] = [:]
@@ -114,6 +142,31 @@ class ProductViewModel: ObservableObject {
         }
     }
     
+    // mirrors loadProducts, but leaves notifications alone so other members' products don't get scheduled
+    // https://developer.apple.com/documentation/swift/result
+    // https://gurjit-singh.medium.com/how-to-use-completion-handler-in-swift-d1c26b30c67
+    // https://developer.apple.com/documentation/combine/published
+    func loadFamilyProducts(for user: User) {
+        service.getFamilyProducts(user: user) {result in
+            switch result {
+            case .success(let products):
+                self.familyProducts = products
+                self.hasLoadedFamilyProducts = true
+                self.errorMessage = nil
+                
+            case.failure(let error):
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    func reloadCurrentScope(for user: User) {
+        switch scope {
+        case .personal: loadProducts(for: user)
+        case .family: loadFamilyProducts(for: user)
+        }
+    }
+ 
     // Shows the saved list straight away, then asks the backend if there's a newer version
     // Article example is in javascript but i've applied the same thought process.
     // https://web.dev/articles/offline-cookbook#cache-then-network
@@ -157,6 +210,10 @@ class ProductViewModel: ObservableObject {
         products = []
         errorMessage = nil
         hasLoadedProducts = false
+        familyProducts = []
+        hasLoadedFamilyProducts = false
+        scope = .personal
+        selectedMemberId = nil
         markingProductIds = []
         lastOutcomeMessage = nil
         resetBarcodeLookup()
@@ -169,6 +226,10 @@ class ProductViewModel: ObservableObject {
             case .success:
                 self.errorMessage = nil
                 self.loadProducts(for: user)
+                if self.hasLoadedFamilyProducts
+                {
+                    self.loadFamilyProducts(for: user)
+                }
                 onSuccess?()
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
@@ -258,9 +319,15 @@ class ProductViewModel: ObservableObject {
                     center.removePendingNotificationRequests(withIdentifiers: [product.id!])
                     NotificationService.shared.schedule(product: product)
                 }
+                if let index = self.familyProducts.firstIndex(where: {
+                    $0.id == product.id
+                }) {
+                    self.familyProducts[index] = product
+                }
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
+                
             }
         }
     }
@@ -274,7 +341,11 @@ class ProductViewModel: ObservableObject {
 
             switch result {
             case .success:
-                withAnimation { self.products.removeAll { $0.id == id } }
+                withAnimation
+                {
+                    self.products.removeAll { $0.id == id }
+                    self.familyProducts.removeAll { $0.id == id }
+                }
                 if let wasteReason {
                     self.lastOutcomeMessage = "Marked as wasted · \(wasteReason.displayName)"
                 } else {
@@ -290,10 +361,15 @@ class ProductViewModel: ObservableObject {
 
                 switch error as? ProductOutcomeError {
                 case .alreadyMarked:
-                    withAnimation { self.products.removeAll { $0.id == id } }
+                    withAnimation
+                    {
+                        self.products.removeAll { $0.id == id }
+                        self.familyProducts.removeAll { $0.id == id }
+                    }
                     NotificationService.shared.cancel(product: product)
                 case .notFound:
                     self.loadProducts(for: user)
+                    self.reloadCurrentScope(for: user)
                 default:
                     break
                 }

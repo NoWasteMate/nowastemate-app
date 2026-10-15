@@ -57,6 +57,10 @@ struct PreviewProductService: ProductServiceProtocol {
         completionHandler(.success(Product.previewSamples))
     }
 
+    func getFamilyProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
+        completionHandler(.success(Product.previewSamples))
+    }
+    
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }

@@ -19,14 +19,21 @@
 // references for loading data with FireStore database: https://swiftwithmajid.com/2022/06/28/the-power-of-task-view-modifier-in-swiftui/#:~:text=struct%20ContentView%3A%20View%20,private%20var%20store%20%3D%20Store
 // https://medium.com/@gitonly543/get-data-from-firestore-using-swiftui-38a8de4039d9
 
+
+// refreshable (SwiftUI modifier that a spinner appears and code running)
+// https://developer.apple.com/documentation/swiftui/view/refreshable(action:)
+// https://www.hackingwithswift.com/quick-start/swiftui/how-to-enable-pull-to-refresh
+
 import SwiftUI
 import Foundation
+import FirebaseAuth
 
 
 struct ProductListView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var dataScannerVM: CameraViewModel
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var familyVM: FamilyViewModel
     
     @State private var showScannedProduct = false
     @State private var showProduceClassification = false
@@ -64,13 +71,20 @@ struct ProductListView: View {
     @State private var selectedIndex: Int = 0
     
     @State private var searchText = ""
-    @State private var selectedFilter = "Personal"
+    //@State private var selectedFilter = "Personal"
+    
+    @State private var showJoinFamilyPrompt = false
+    @State private var showFamilyScreen = false
     
     // create dictionary - key = category, value = Product
     // switch between groceryItems if you want to modify the UI
 //    private var groupedProducts: [String: [Product]] { Dictionary(grouping: groceryItems, by: { $0.category })}
     private var groupedProducts: [ProductCategory: [Product]] {
-        Dictionary(grouping: productVM.products, by: { $0.category ?? .other })
+        let query = searchText.trimmingCharacters(in: .whitespaces)
+        let items = query.isEmpty ? productVM.visibleProducts : productVM.visibleProducts.filter {
+            $0.name.localizedCaseInsensitiveContains(query)
+        }
+        return Dictionary(grouping: items, by: { $0.category ?? .other })
     }
     
     // array for storing total number of categories
@@ -115,15 +129,7 @@ struct ProductListView: View {
                     .background(Color.white.opacity(0.3))
                     .clipShape(Capsule())
 
-                    HStack {
-                        ForEach(["Personal", "Family"], id: \.self) { filter in
-                            Text(filter)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 14).padding(.vertical, 6)
-                                .background(filter == selectedFilter ? Color.white.opacity(0.4) : Color.white.opacity(0.15))
-                                .clipShape(Capsule())
-                        }
-                    }
+                    memberChips
     
                     // reference: https://developer.apple.com/documentation/swiftui/list
                     List {
@@ -149,6 +155,10 @@ struct ProductListView: View {
                         print("Loading product data...")
                         guard let user = authVM.user else { return }
                         productVM.loadProducts(for: user)
+                    }
+                    .refreshable {
+                        guard let user = authVM.user else { return }
+                        productVM.reloadCurrentScope(for: user)
                     }
                 }.padding(20)
             }
@@ -263,7 +273,34 @@ struct ProductListView: View {
                 Text("Below is the produce detected, as well as alternatives")
             })
             
+            // when a user didn't join a family yet
+            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-show-an-alert
+            .alert("Join a family first", isPresented: $showJoinFamilyPrompt) {
+                Button("Go to Families") {
+                    showFamilyScreen = true
+                }
+                Button("Not now", role: .cancel) {
             
+                }
+            } message: {
+                Text("Create or join a family to see everyone's products together")
+            }
+            //https://developer.apple.com/documentation/swiftui/view/navigationdestination(ispresented:destination:)
+            
+            .navigationDestination(isPresented: $showFamilyScreen) {
+                FamilyView()
+            }
+            .onChange(of: familyVM.hasFamily) {
+                if !familyVM.hasFamily {
+                    productVM.scope = .personal
+                    
+                    productVM.familyProducts = []
+                    
+                    productVM.hasLoadedFamilyProducts = false
+                    
+                    productVM.selectedMemberId = nil
+                }
+            }
             
         }
     }
@@ -334,6 +371,84 @@ struct ProductListView: View {
         }
     }
     
+    // the scope of personal/family and functions for clickable pills
+    // https://docs.swift.org/swift-book/documentation/the-swift-programming-language/thebasics/#Optional-Binding
+    // https://docs.swift.org/swift-book/documentation/the-swift-programming-language/basicoperators/#Logical-Operators
+    private func scopeChip(_ title: String, scope: ProductScope) -> some View {
+        let isUnavailable = scope == .family && !familyVM.hasFamily
+        
+        return Button {
+            if isUnavailable {
+                showJoinFamilyPrompt = true
+                return
+            }
+            productVM.scope = scope
+            
+            // loading the family list the first time Family is picked
+            
+            if scope == .family, !productVM.hasLoadedFamilyProducts, let user = authVM.user {
+                productVM.loadFamilyProducts(for: user)
+            }
+        } label: {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 14).padding(.vertical, 6)
+                .background(productVM.scope == scope ? Color.white.opacity(0.4) : Color.white.opacity(0.15))
+                .clipShape(Capsule())
+                .opacity(isUnavailable ? 0.45 : 1)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    // "Everyone", "You", then the rest of the family user names
+    private var memberChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                scopeChip("Personal", scope: .personal)
+                scopeChip("Family", scope: .family)
+                
+                // members only when there's someone to filter between
+                if productVM.scope == .family && sortedMembers.count > 1 {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.5))
+                        .frame(width: 1, height: 20)
+                        .padding(.horizontal, 4)
+                    
+                    memberChip("Everyone", id: nil)
+                    ForEach(sortedMembers, id: \.member) { member in
+                        memberChip(memberLabel(member), id: member.member)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func memberChip(_ title: String, id: String?) -> some View {
+        Button {
+            productVM.selectedMemberId = id
+        } label: {
+            Text(title)
+                // reference for using a divider
+                .font(.caption.weight(.medium))
+                .padding(.horizontal, 12).padding(.vertical, 4)
+                .background(productVM.selectedMemberId == id ? Color.white.opacity(0.4) : Color.clear)
+                .overlay(Capsule().stroke(Color.white.opacity(0.5), lineWidth: 1))
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var sortedMembers: [FamilyMember] {
+        let me = authVM.user?.uid
+        let members = familyVM.familyMembers ?? []
+        return members.filter { $0.member == me } + members.filter { $0.member != me }
+    }
+    
+    private func memberLabel(_ member: FamilyMember) -> String {
+        if member.member == authVM.user?.uid { return "You" }
+        return member.firstName ?? member.email ?? "Member"
+    }
+    
 }
 
 #if DEBUG
@@ -359,6 +474,13 @@ struct ProductRowView: View {
         return productVM.markingProductIds.contains(id)
     }
     
+    // Only in the Family View
+    private var ownerLabel: String? {
+        guard productVM.scope == .family, let ownerId = product.ownerId else { return nil}
+        
+        return ownerId == authVM.user?.uid ? "You" : (product.ownerName ?? "Member")
+    }
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -367,7 +489,13 @@ struct ProductRowView: View {
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 
-                ExpiryLabel(product: product)
+                HStack(spacing: 8) {
+                    ExpiryLabel(product: product)
+                    
+                    if let ownerLabel {
+                        OwnerBadge(name: ownerLabel)
+                    }
+                }
             }
             
             Spacer()
@@ -481,6 +609,23 @@ struct ProductRowView: View {
     
     
     
+}
+
+struct OwnerBadge: View {
+    let name: String
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(String(name.prefix(1)).uppercased())
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 14, height: 14)
+                .background(Color(red: 0.30, green: 0.48, blue: 0.36), in: Circle())
+            Text(name)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color(red: 0.54, green: 0.54, blue: 0.54))
+        }
+    }
 }
 
 // reference: https://developer.apple.com/documentation/swiftui/viewbuilder

@@ -10,4 +10,5 @@ import Foundation
 struct FamilyMember: Codable, Hashable {
     var member: String
     var email: String? = nil
+    var firstName: String? = nil
 }

@@ -65,6 +65,7 @@ protocol ProductServiceProtocol {
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void)
+    func getFamilyProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -116,6 +117,34 @@ struct ProductService: ProductServiceProtocol {
 
         }
         
+    }
+    
+    // getting every family member's active products
+    func getFamilyProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
+                return
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/getFamilyProducts")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async { completionHandler(.failure(error ?? URLError(.badServerResponse))) }
+                    return
+                }
+                do {
+                    let products = try JSONDecoder().decode([Product].self, from: data)
+                    DispatchQueue.main.async { completionHandler(.success(products)) }
+                } catch {
+                    DispatchQueue.main.async { completionHandler(.failure(error)) }
+                }
+            }
+            task.resume()
+        }
     }
     
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {

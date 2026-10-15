@@ -336,6 +336,23 @@ struct ProductListView: View {
         }
     }
     
+    // the scope of personal/family and functions for clickable pills
+    private func scopeChip(_ title: String, scope: ProductScope) -> some View {
+        return
+    }
+    
+    private var memberChips(_ title: String, id: String?) -> some View {
+        return
+    }
+    
+    private var sortedMembers: [FamilyMember] {
+        return
+    }
+    
+    private func memberLabel(_ member: FamilyMember) -> String {
+        return 
+    }
+    
 }
 
 #if DEBUG

@@ -25,4 +25,17 @@ struct NotificationService {
         }
     }
     
+    func schedule(product: Product){
+        let content = UNMutableNotificationContent()
+        content.title = "Product Expiring"
+        content.subtitle = "\(product.name) will expire soon, head to the app to get it used!"
+        content.sound = UNNotificationSound.default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        
+        let request = UNNotificationRequest(identifier: product.id!, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
+    }
+    
 }

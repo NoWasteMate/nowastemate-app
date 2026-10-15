@@ -17,6 +17,7 @@ import Foundation
 import SwiftUI
 import FirebaseAuth
 import Combine
+import UserNotifications
 
 enum IngredientAvailability {
     case owned
@@ -94,6 +95,18 @@ class ProductViewModel: ObservableObject {
                 self.products = products
                 self.hasLoadedProducts = true
                 self.errorMessage = nil
+                
+                //https://www.hackingwithswift.com/read/21/2/scheduling-notifications-unusernotificationcenter-and-unnotificationrequest
+                //we have the products available here, to ensure we can schedule notifications easily and keep them current, it makes sense to do it in bulk whenever updates are made, this also ensures they are consistent. This also ensures they only fire once it is successful
+                let center = UNUserNotificationCenter.current()
+                //wipe the existing list of scheduled notification
+                center.removeAllPendingNotificationRequests()
+                //iterate through the products and schedule the notifications
+                //reload here will also ensure that edits from family members will remove/add the application notifications once the joint list is in place
+                for product in self.products {
+                    NotificationService.shared.schedule(product: product)
+                }
+                
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
             
@@ -235,6 +248,15 @@ class ProductViewModel: ObservableObject {
             case .success:
                 if let index = self.products.firstIndex(where: { $0.id == product.id }) {
                     self.products[index] = product
+                    //after update, we schedule the notification
+                    //https://stackoverflow.com/questions/46437880/unnotificationrequest-requires-unique-identifier-but-fires-on-duplicates-too
+                    //since we use the uuid of the product, it will override any previous notification that exists for the product and schedule a new one
+                    //using the product id will allow us to manage the notifications easily
+                    //clearing the notification in case of a scenario where they backdate or similar where schedule would terminate
+                    let center = UNUserNotificationCenter.current()
+                    //wipe the existing scheduled notification
+                    center.removePendingNotificationRequests(withIdentifiers: [product.id!])
+                    NotificationService.shared.schedule(product: product)
                 }
                 self.errorMessage = nil
             case .failure(let error):
@@ -258,6 +280,9 @@ class ProductViewModel: ObservableObject {
                 } else {
                     self.lastOutcomeMessage = "Marked as \(outcome.rawValue)"
                 }
+                
+                NotificationService.shared.cancel(product: product)
+                
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
@@ -266,6 +291,7 @@ class ProductViewModel: ObservableObject {
                 switch error as? ProductOutcomeError {
                 case .alreadyMarked:
                     withAnimation { self.products.removeAll { $0.id == id } }
+                    NotificationService.shared.cancel(product: product)
                 case .notFound:
                     self.loadProducts(for: user)
                 default:

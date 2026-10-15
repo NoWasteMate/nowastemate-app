@@ -109,7 +109,7 @@ struct Product: Identifiable, Codable {
 extension Product {
     
     // dateExpiration is an ISO 8601 string so the backend can send it with or without fractional seconds
-    private var expiryDate: Date? {
+    var expiryDate: Date? {
         guard let dateExpiration else { return nil }
         let formatter = ISO8601DateFormatter()
         if let date = formatter.date(from: dateExpiration) {

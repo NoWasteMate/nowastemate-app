@@ -252,6 +252,10 @@ class ProductViewModel: ObservableObject {
                     //https://stackoverflow.com/questions/46437880/unnotificationrequest-requires-unique-identifier-but-fires-on-duplicates-too
                     //since we use the uuid of the product, it will override any previous notification that exists for the product and schedule a new one
                     //using the product id will allow us to manage the notifications easily
+                    //clearing the notification in case of a scenario where they backdate or similar where schedule would terminate
+                    let center = UNUserNotificationCenter.current()
+                    //wipe the existing scheduled notification
+                    center.removePendingNotificationRequests(withIdentifiers: [product.id!])
                     NotificationService.shared.schedule(product: product)
                 }
                 self.errorMessage = nil
@@ -276,6 +280,9 @@ class ProductViewModel: ObservableObject {
                 } else {
                     self.lastOutcomeMessage = "Marked as \(outcome.rawValue)"
                 }
+                
+                NotificationService.shared.cancel(product: product)
+                
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
@@ -284,6 +291,7 @@ class ProductViewModel: ObservableObject {
                 switch error as? ProductOutcomeError {
                 case .alreadyMarked:
                     withAnimation { self.products.removeAll { $0.id == id } }
+                    NotificationService.shared.cancel(product: product)
                 case .notFound:
                     self.loadProducts(for: user)
                 default:

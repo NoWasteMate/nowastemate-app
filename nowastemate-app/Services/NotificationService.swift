@@ -38,4 +38,11 @@ struct NotificationService {
         UNUserNotificationCenter.current().add(request)
     }
     
+    func cancel(product: Product){
+        //https://developer.apple.com/documentation/usernotifications/unusernotificationcenter/removependingnotificationrequests%28withidentifiers:%29
+        //cancelling notifications for specific products. This will be applicable both when marking as consumed or wasted.
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [product.id!])
+    }
+    
 }

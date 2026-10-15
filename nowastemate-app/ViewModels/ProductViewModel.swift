@@ -248,6 +248,11 @@ class ProductViewModel: ObservableObject {
             case .success:
                 if let index = self.products.firstIndex(where: { $0.id == product.id }) {
                     self.products[index] = product
+                    //after update, we schedule the notification
+                    //https://stackoverflow.com/questions/46437880/unnotificationrequest-requires-unique-identifier-but-fires-on-duplicates-too
+                    //since we use the uuid of the product, it will override any previous notification that exists for the product and schedule a new one
+                    //using the product id will allow us to manage the notifications easily
+                    NotificationService.shared.schedule(product: product)
                 }
                 self.errorMessage = nil
             case .failure(let error):

@@ -14,6 +14,7 @@ struct LogInView: View {
     @State private var password = ""
     
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var cameraVM: CameraViewModel
     
     var isFormValid: Bool {
         !email.isEmpty && !password.isEmpty && isEmailValid && password.count >= 6
@@ -100,6 +101,7 @@ struct LogInView: View {
                     Button(!isFormValid ? "Please enter your details" : isFormValid ? "Sign In" : "Please enter your details"){
                         authVM.signIn(email: email, password: password)
                         //https://www.avanderlee.com/swiftui/swiftui-alert-presenting/
+                        cameraVM.showClassificationTips = true
                     }.alert("Error", isPresented: $authVM.loginError, actions: {
                         
                     }, message: {

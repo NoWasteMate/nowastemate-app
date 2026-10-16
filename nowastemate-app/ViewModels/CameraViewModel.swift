@@ -38,6 +38,7 @@ final class CameraViewModel: ObservableObject {
     // @Published var textContentType: DataScannerViewController.TextContentType?
     // false for now (only want this to scan one barcode)
     @Published var recognizesMultipleItems = false
+    @Published var showClassificationTips = false
     
     private let classificationService = ClassificationService.shared
     

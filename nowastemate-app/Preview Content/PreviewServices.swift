@@ -90,6 +90,9 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
         completionHandler(.success(.previewSample(period: period, periods: periods)))
     }
+    func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void) {
+        completionHandler(.success(ProductUsage(days: days, consumedCount: 14, usedInRecipeCount: 5, wastedCount: 6, byReason: ["expired": 3, "forgot": 2])))
+    }
 }
 
 extension WasteTrend {

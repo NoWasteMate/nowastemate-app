@@ -17,6 +17,14 @@ class AnalyticsViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    @Published var productUsage: ProductUsage?
+    @Published var selectedUsageWindow: Int? = 30
+    @Published var isLoadingUsage = false
+    @Published var usageErrorMessage: String?
+    
+    // tracking to see each request if it is older then that gets ignored
+    private var usageRequestId = 0
+    
     // 6 weeks / 6 months
     let periods = 6
     
@@ -43,12 +51,45 @@ class AnalyticsViewModel: ObservableObject {
         }
     }
     
+    func productUsageOverview(for user: User, days: Int?) {
+        loadProductUsage(days : days) { completion in
+            self.service.getProductUsageOverview(user: user, days: days, completionHandler: completion)
+        }
+    }
+    
+    func loadProductUsage(days : Int?, fetch: (@escaping (Result<ProductUsage, Error>) -> Void) -> Void) {
+        usageRequestId += 1
+        let requestId = usageRequestId
+        
+        // clearing the old chart so new window never labels previous window's data
+        productUsage = nil
+        usageErrorMessage = nil
+        isLoadingUsage = true
+        
+        fetch { result in
+            guard requestId == self.usageRequestId else { return }
+            self.isLoadingUsage = false
+            
+            switch result {
+            case .success(let usage):
+                self.productUsage = usage
+            case.failure(let error):
+                self.usageErrorMessage = error.localizedDescription
+            }
+        }
+    }
+    
     // clear it like ProductViewModel.resetProducts()
     func resetAnalytics() {
         wasteTrend = nil
         selectedPeriod = .week
         isLoading = false
         errorMessage = nil
+        usageRequestId += 1
+        productUsage = nil
+        selectedUsageWindow = 30
+        isLoadingUsage = false
+        usageErrorMessage = nil
     }
     
 }

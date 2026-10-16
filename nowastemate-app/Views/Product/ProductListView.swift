@@ -42,6 +42,7 @@ struct ProductListView: View {
     @State private var prepPicture = false
     @State private var classifications: [String]? = nil
     @State private var showProduceAlert = false
+    @State private var showTips = false
     
 //     let groceryItems: [Product] = [
 //        Product(
@@ -287,6 +288,20 @@ struct ProductListView: View {
             }
             //https://developer.apple.com/documentation/swiftui/view/navigationdestination(ispresented:destination:)
             
+            .alert("Friendly Reminder", isPresented: $showTips) {
+                Button("Got it") {
+                    prepPicture = true
+                    dataScannerVM.showClassificationTips = false
+                }
+            } message: {
+                //https://stackoverflow.com/questions/24091233/how-to-write-a-multiline-string-in-swift
+                Text("""
+                    1. Ensure you center the produce in the picture \n
+                    2. Avoid unnecessary background noise \n
+                    3. Ensure no other produce is in the picture
+                    """)
+                }
+            
             .navigationDestination(isPresented: $showFamilyScreen) {
                 FamilyView()
             }
@@ -336,7 +351,14 @@ struct ProductListView: View {
     
     private var produceButton: some View {
         Button {
-            prepPicture = true
+            
+            if (dataScannerVM.showClassificationTips){
+                showTips = true
+            } else {
+                prepPicture = true
+
+            }
+            
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: "carrot")

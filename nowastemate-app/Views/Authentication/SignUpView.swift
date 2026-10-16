@@ -40,6 +40,8 @@ struct SignUpView: View {
 
 
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var cameraVM: CameraViewModel
+
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -186,6 +188,7 @@ struct SignUpView: View {
                                 
                             } else {
                                 dismiss()
+                                cameraVM.showClassificationTips = true
                             }
                         }
                     }

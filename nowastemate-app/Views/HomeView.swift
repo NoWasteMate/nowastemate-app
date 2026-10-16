@@ -91,6 +91,25 @@ struct HomeView: View {
                         .listRowInsets(EdgeInsets())
                     }
                 
+                    Section {
+                        VStack {
+                            Text("Product Usage")
+                                .foregroundStyle(.white)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 164)
+                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
+                        .background {
+                            NavigationLink {
+                                ProductUsageView()
+                            } label: {
+                                EmptyView()
+                            }
+                            .opacity(0)
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    }
+                    
                     expiringSoonSection
                 
                     Section {

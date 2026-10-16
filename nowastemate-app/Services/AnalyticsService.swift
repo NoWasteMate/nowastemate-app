@@ -20,14 +20,14 @@
 import Foundation
 import FirebaseAuth
 
-enum WasteTrendError: LocalizedError {
+enum AnalyticsError: LocalizedError {
     case unauthorized
     case failed
     
     var errorDescription: String? {
         switch self {
         case .unauthorized: return "Please sign in again"
-        case .failed: return "Couldn't load your waste trend, try again"
+        case .failed: return "Couldn't load your analytics, try again"
         }
     }
 }
@@ -35,6 +35,8 @@ enum WasteTrendError: LocalizedError {
 // Protocol lets previews inject sample data instead of calling backend
 protocol AnalyticsServiceProtocol {
     func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
+    
+    func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
 }
 
 struct AnalyticsService: AnalyticsServiceProtocol {
@@ -75,7 +77,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 guard statusCode == 200 else {
                     print("getUserWasteOvertime failed: \(statusCode)")
-                    let failure: WasteTrendError = (statusCode == 401 || statusCode == 403) ? .unauthorized : .failed
+                    let failure: AnalyticsError = (statusCode == 401 || statusCode == 403) ? .unauthorized : .failed
                     DispatchQueue.main.async { completionHandler(.failure(failure)) }
                     return
                 }
@@ -95,4 +97,59 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             task.resume()
         }
     }
+    
+    func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, any Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async {
+                    completionHandler(.failure(error))
+                }
+                return
+            }
+            
+            var components = URLComponents(url: AppConfig.baseUrl.appendingPathComponent("analytics/productUsage"), resolvingAgainstBaseURL: false)
+            
+            if let days = days {
+                components?.queryItems = [URLQueryItem(name: "days", value: String(days))]
+            }
+            
+            guard let url = components?.url else {
+                DispatchQueue.main.async{
+                    completionHandler(.failure(URLError(.badURL)))
+                }
+                return
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+                    }
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard statusCode == 200 else {
+                    print("getProductUsageOverview failed: \(statusCode)")
+                    let failure: AnalyticsError = (statusCode == 401 || statusCode == 403) ? .unauthorized : .failed
+                    DispatchQueue.main.async { completionHandler(.failure(failure)) }
+                    return
+                }
+                
+                do {
+                    let usage = try JSONDecoder().decode(ProductUsage.self, from: data)
+                    DispatchQueue.main.async { completionHandler(.success(usage)) }
+                } catch {
+                    print(error)
+                    DispatchQueue.main.async { completionHandler(.failure(error)) }
+                }
+            }
+            task.resume()
+        }
+    }
+    
 }

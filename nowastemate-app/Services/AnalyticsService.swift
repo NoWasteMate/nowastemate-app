@@ -39,6 +39,9 @@ protocol AnalyticsServiceProtocol {
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
 
     func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void)
+    
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void)
+    
 }
 
 struct AnalyticsService: AnalyticsServiceProtocol {
@@ -194,6 +197,46 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             }
             task.resume()
         }
+    }
+    
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            
+            //declare to be set later
+            let url: URL
+            
+            if let familyId {
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste/?familyId=\(familyId)")!
+            } else {
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste")!
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let wasteStats = try JSONDecoder().decode([String: Double].self, from: data)
+                              completionHandler(.success(wasteStats))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+                }
+            }
+            task.resume()
+
+        }
+        
     }
     
 }

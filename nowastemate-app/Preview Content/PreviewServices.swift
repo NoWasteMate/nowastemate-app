@@ -100,6 +100,9 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void) {
         completionHandler(.success(.previewSample))
     }
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], any Error>) -> Void) {
+        completionHandler(.success(["Produce": 10]))
+    }
 }
 
 extension WasteScoreSummary {

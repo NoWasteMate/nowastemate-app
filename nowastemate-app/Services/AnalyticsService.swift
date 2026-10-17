@@ -37,6 +37,9 @@ protocol AnalyticsServiceProtocol {
     func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
     
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
+    
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<CategoryWaste, Error>) -> Void)
+    
 }
 
 struct AnalyticsService: AnalyticsServiceProtocol {
@@ -152,7 +155,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
-    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[CategoryWaste], Error>) -> Void){
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<CategoryWaste, Error>) -> Void){
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
@@ -177,7 +180,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
                     return
                 }
                 do {
-                    let wasteStats = try JSONDecoder().decode([CategoryWaste].self, from: data)
+                    let wasteStats = try JSONDecoder().decode(CategoryWaste.self, from: data)
                               completionHandler(.success(wasteStats))
                 }
                 

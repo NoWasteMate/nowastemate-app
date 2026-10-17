@@ -38,7 +38,7 @@ protocol AnalyticsServiceProtocol {
     
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
     
-    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<CategoryWaste, Error>) -> Void)
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void)
     
 }
 
@@ -155,7 +155,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
-    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<CategoryWaste, Error>) -> Void){
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void){
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
@@ -166,9 +166,9 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             let url: URL
             
             if let familyId {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste/?familyId=\(familyId)")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste/?familyId=\(familyId)")!
             } else {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste")!
             }
             
             var request = URLRequest(url: url)
@@ -180,7 +180,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
                     return
                 }
                 do {
-                    let wasteStats = try JSONDecoder().decode(CategoryWaste.self, from: data)
+                    let wasteStats = try JSONDecoder().decode([String: Double].self, from: data)
                               completionHandler(.success(wasteStats))
                 }
                 

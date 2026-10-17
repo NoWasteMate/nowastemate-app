@@ -22,7 +22,7 @@ class AnalyticsViewModel: ObservableObject {
     @Published var isLoadingUsage = false
     @Published var usageErrorMessage: String?
     
-    @Published var categoryWaste: CategoryWaste?
+    @Published var categoryWasteResults: [String: Double]?
     
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
@@ -99,7 +99,7 @@ class AnalyticsViewModel: ObservableObject {
         service.getCategoryWaste(user: user, familyId: familyId) { result in
             switch result {
             case .success(let wasteStats):
-                self.categoryWaste = wasteStats
+                self.categoryWasteResults = wasteStats
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
             }

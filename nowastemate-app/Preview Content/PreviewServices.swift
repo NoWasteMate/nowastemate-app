@@ -97,8 +97,8 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void) {
         completionHandler(.success(ProductUsage(days: days, consumedCount: 14, usedInRecipeCount: 5, wastedCount: 6, byReason: ["expired": 3, "forgot": 2])))
     }
-    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<CategoryWaste, any Error>) -> Void) {
-        completionHandler(.success(CategoryWaste(produce: 10, dairy: 5, canned: 2, beverage: 3, other: 25 )))
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], any Error>) -> Void) {
+        completionHandler(.success(["Produce": 10]))
     }
 }
 

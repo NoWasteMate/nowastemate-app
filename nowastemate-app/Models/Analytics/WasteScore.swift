@@ -23,6 +23,17 @@ enum WasteRating: String, Codable {
         case .excellent: return "Excellent"
         }
     }
+
+    // Asset catalog colour that tints the score circle and overview background
+    var colorName: String {
+        switch self {
+        case .needsWork: return "WasteScoreNeedsWork"
+        case .fair: return "WasteScoreFair"
+        case .good: return "WasteScoreGood"
+        case .great: return "WasteScoreGreat"
+        case .excellent: return "WasteScoreExcellent"
+        }
+    }
 }
 
 // score fields stay nil until productsNeeded reaches 0
@@ -32,6 +43,9 @@ struct WasteScore: Codable {
     let wasteRatePoints: Int?
     let avoidablePoints: Int?
     let wasteRate: Double?
+    let wasted: Int?
+    let avoidableWasted: Int?
+    let averageWasteRate: Double?
     let averageScore: Int?
     let productsNeeded: Int
 }

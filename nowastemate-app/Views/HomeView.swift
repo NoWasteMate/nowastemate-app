@@ -16,24 +16,20 @@ struct HomeView: View {
     @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @Binding var selectedTab: RootTab
-    
+
+    @State private var showsWasteOverview = false
+
     private let expiringSoonLimit = 5
     private let scoreCircleSize: CGFloat = 224
     
-    // Home always shows the user's own score, the family one is for the overview
+    // The family score is only shown on the Waste overview
     private var userScore: WasteScore? {
         analyticsVM.wasteScore?.user
     }
 
     private var scoreTint: Color {
-        switch userScore?.rating {
-        case .needsWork: return Color("WasteScoreNeedsWork")
-        case .fair: return Color("WasteScoreFair")
-        case .good: return Color("WasteScoreGood")
-        case .great: return Color("WasteScoreGreat")
-        case .excellent: return Color("WasteScoreExcellent")
-        case nil: return Color("HomeViewGradientPrimary")
-        }
+        guard let rating = userScore?.rating else { return Color("HomeViewGradientPrimary") }
+        return Color(rating.colorName)
     }
 
     private var scoreText: String {
@@ -97,52 +93,13 @@ struct HomeView: View {
                         // https://stackoverflow.com/questions/56561064/swiftui-multiple-buttons-in-a-list-row/
                         wasteScoreCircle
                             .onTapGesture {
-                                selectedTab = .inventory
+                                showsWasteOverview = true
                             }
                         .frame(maxWidth: .infinity, minHeight: 264)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets())
                     }
-                
-                    Section {
-                        VStack {
-                            Text("Waste Trends")
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        // hidden link like ProductRowView so the card doesn't get List's chevron
-                        .background {
-                            NavigationLink {
-                                WasteTrendView()
-                            } label: {
-                                EmptyView()
-                            }
-                            .opacity(0)
-                        }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
-                
-                    Section {
-                        VStack {
-                            Text("Product Usage")
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        .background {
-                            NavigationLink {
-                                ProductUsageView()
-                            } label: {
-                                EmptyView()
-                            }
-                            .opacity(0)
-                        }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
-                    
+
                     expiringSoonSection
                 
                     Section {
@@ -162,6 +119,11 @@ struct HomeView: View {
                 .padding(.horizontal, -20)
             }
             .padding([.horizontal, .top], 26)
+        }
+        // A NavigationLink would make the whole List row tappable
+        // https://www.createwithswift.com/programmatic-navigation-with-navigation-destination-in-swiftui/
+        .navigationDestination(isPresented: $showsWasteOverview) {
+            WasteOverviewView()
         }
         .onAppear{
             if authVM.userInfo == nil {

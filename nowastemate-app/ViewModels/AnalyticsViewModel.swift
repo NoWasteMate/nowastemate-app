@@ -99,9 +99,14 @@ class AnalyticsViewModel: ObservableObject {
         service.getCategoryWaste(user: user, familyId: familyId) { result in
             switch result {
             case .success(let wasteStats):
-                self.categoryWasteResults = wasteStats
+                
+                DispatchQueue.main.async {
+                    self.categoryWasteResults = wasteStats
+                }
             case .failure(let error):
-                self.errorMessage = error.localizedDescription
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }

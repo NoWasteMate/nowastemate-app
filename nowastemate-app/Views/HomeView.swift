@@ -46,6 +46,17 @@ struct HomeView: View {
                     }
                     
                     NavigationLink {
+                        WasteTrendView()
+                    }
+                    label: {
+                        Image(systemName: "chart.xyaxis.line")
+                            .foregroundColor(.white)
+                            .imageScale(.small)
+                            .padding()
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
+                    }
+                    
+                    NavigationLink {
                         EditUserView()
                     }
                     label: {

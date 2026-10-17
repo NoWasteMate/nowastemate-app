@@ -152,4 +152,44 @@ struct AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
+    func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[CategoryWaste], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            
+            //declare to be set later
+            let url: URL
+            
+            if let familyId {
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste/?familyId=\(familyId)")!
+            } else {
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste")!
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let wasteStats = try JSONDecoder().decode([CategoryWaste].self, from: data)
+                              completionHandler(.success(wasteStats))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+                }
+            }
+            task.resume()
+
+        }
+        
+    }
+    
 }

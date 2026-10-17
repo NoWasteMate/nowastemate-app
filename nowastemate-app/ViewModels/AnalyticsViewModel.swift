@@ -22,6 +22,8 @@ class AnalyticsViewModel: ObservableObject {
     @Published var isLoadingUsage = false
     @Published var usageErrorMessage: String?
     
+    @Published var categoryWasteResults: [String: Double]?
+    
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
     
@@ -90,6 +92,23 @@ class AnalyticsViewModel: ObservableObject {
         selectedUsageWindow = 30
         isLoadingUsage = false
         usageErrorMessage = nil
+    }
+    
+    func categoryWaste(for user: User, familyId: String?) {
+        
+        service.getCategoryWaste(user: user, familyId: familyId) { result in
+            switch result {
+            case .success(let wasteStats):
+                
+                DispatchQueue.main.async {
+                    self.categoryWasteResults = wasteStats
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
     }
     
 }

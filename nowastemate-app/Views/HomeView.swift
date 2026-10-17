@@ -62,20 +62,26 @@ struct HomeView: View {
             
             VStack {
                 HStack {
-                    if (authVM.userInfo?.firstName != nil){
-                        Text("Hello, \(authVM.userInfo?.firstName ?? "")!" )
-                            .font(.title)
-                            .foregroundStyle(Color.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    } else {
-                        Text("Hello!" )
-                            .font(.title)
-                            .foregroundStyle(Color.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 4) {
+                        if (authVM.userInfo?.firstName != nil){
+                            Text("Hello, \(authVM.userInfo?.firstName ?? "")!" )
+                                .font(.title)
+                                .foregroundStyle(Color.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text("Hello!" )
+                                .font(.title)
+                                .foregroundStyle(Color.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        Text("Your Waste Score")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.9))
                     }
                     
                     NavigationLink {
-                        WasteTrendView()
+                        WasteOverviewView()
                     }
                     label: {
                         Image(systemName: "chart.xyaxis.line")
@@ -112,16 +118,6 @@ struct HomeView: View {
                     }
 
                     expiringSoonSection
-                
-                    Section {
-                        VStack {
-                            Text("Suggested Recipe")
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
@@ -159,8 +155,14 @@ struct HomeView: View {
             if userScore == nil && analyticsVM.scoreErrorMessage == nil {
                 ProgressView()
             } else {
-                Text(scoreText)
-                    .font(.system(size: 64, weight: .bold))
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(scoreText)
+                        .font(.system(size: 64, weight: .bold))
+                    if userScore?.score != nil {
+                        Text("pts")
+                            .font(.title3)
+                    }
+                }
                 Text(scoreCaption)
                     .font(.subheadline)
                     .multilineTextAlignment(.center)

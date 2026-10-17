@@ -27,6 +27,7 @@ class AnalyticsViewModel: ObservableObject {
     @Published var scoreErrorMessage: String?
     
     @Published var categoryWasteResults: [String: Double]?
+    @Published var categoryWasteErrorMessage: String?
     
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
@@ -122,6 +123,8 @@ class AnalyticsViewModel: ObservableObject {
         wasteScore = nil
         isLoadingScore = false
         scoreErrorMessage = nil
+        categoryWasteResults = nil
+        categoryWasteErrorMessage = nil
     }
     
     func categoryWaste(for user: User, familyId: String?) {
@@ -135,7 +138,7 @@ class AnalyticsViewModel: ObservableObject {
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
+                    self.categoryWasteErrorMessage = error.localizedDescription
                 }
             }
         }

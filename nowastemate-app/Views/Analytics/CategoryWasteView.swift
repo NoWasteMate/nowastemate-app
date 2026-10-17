@@ -19,23 +19,10 @@ struct CategoryWasteView: View {
     var body: some View {
         ZStack {
             
-            //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
-            //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient,.familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
-            
             VStack(alignment: .leading, spacing: 24) {
                 
                 Section {
                     VStack {
-                        
-                        Text("Overview")
-                        //https://sarunw.com/posts/swiftui-text-font/
-                            .font(.largeTitle)
-                            .bold()
-                            .foregroundColor(.white)
-                            .padding(.bottom, 20)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .multilineTextAlignment(.center)
                         
                         Text("Waste by Category")
                         //https://sarunw.com/posts/swiftui-text-font/
@@ -72,6 +59,9 @@ struct CategoryWasteView: View {
                                 )
                                 .padding(.horizontal, 12)
                             }
+                        } else if let message = analyticsVM.categoryWasteErrorMessage {
+                            Text(message)
+                                .foregroundStyle(Color.white)
                         }
                     }
                     .frame(maxWidth: .infinity, minHeight: 164)
@@ -86,7 +76,6 @@ struct CategoryWasteView: View {
                 analyticsVM.categoryWaste(for: user, familyId: nil)
             }
         }
-        .edgesIgnoringSafeArea(.all)
     }
 }
 

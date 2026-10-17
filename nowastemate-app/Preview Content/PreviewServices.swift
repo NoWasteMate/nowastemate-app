@@ -101,7 +101,7 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
         completionHandler(.success(.previewSample))
     }
     func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], any Error>) -> Void) {
-        completionHandler(.success(["Produce": 10]))
+        completionHandler(.success(["produce": 25, "dairy": 10, "meat": 0]))
     }
 }
 

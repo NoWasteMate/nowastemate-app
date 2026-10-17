@@ -14,6 +14,7 @@ import FirebaseAuth
 protocol RecipeServiceProtocol {
     func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
     func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct RecipeService: RecipeServiceProtocol {
@@ -98,10 +99,39 @@ struct RecipeService: RecipeServiceProtocol {
                 }
                 
                 completionHandler(.success(()))
-                           
+
             }
             task.resume()
         }
     }
-    
+
+    func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                completionHandler(.failure(error))
+                return
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/deleteRecipe/\(recipeId)")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+                if let error = error {
+                    completionHandler(.failure(error))
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    completionHandler(.failure(URLError(.badServerResponse)))
+                    return
+                }
+
+                completionHandler(.success(()))
+            }
+            task.resume()
+        }
+    }
+
 }

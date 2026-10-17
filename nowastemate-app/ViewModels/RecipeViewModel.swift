@@ -53,6 +53,20 @@ final class RecipeViewModel: ObservableObject {
         }
     }
 
+    func deleteRecipe(for user: User, recipe: Recipe) {
+        service.deleteRecipe(user: user, recipeId: recipe.id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.recipes.removeAll { $0.id == recipe.id }
+                    self.errorMessage = nil
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
     func resetRecipes() {
         recipes = []
         hasLoadedRecipes = false

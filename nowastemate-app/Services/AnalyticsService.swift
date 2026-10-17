@@ -203,6 +203,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
             print(error)
+            DispatchQueue.main.async { completionHandler(.failure(error)) }
             return;
           }
             
@@ -210,9 +211,9 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             let url: URL
             
             if let familyId {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste/?familyId=\(familyId)")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste?familyId=\(familyId)")!
             } else {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste")!
             }
             
             var request = URLRequest(url: url)
@@ -221,6 +222,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             
             let task = URLSession.shared.dataTask(with: request) {data, _, error in
                 guard let data = data, error == nil else {
+                    DispatchQueue.main.async { completionHandler(.failure(error ?? URLError(.badServerResponse))) }
                     return
                 }
                 do {

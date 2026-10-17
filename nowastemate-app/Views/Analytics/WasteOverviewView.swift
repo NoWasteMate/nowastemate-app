@@ -160,6 +160,7 @@ struct WasteOverviewView: View {
             // TODO: show the family trend once the backend has one
             WasteTrendView()
                 .frame(minHeight: trendMinHeight)
+            CategoryWasteView()
         }
     }
 

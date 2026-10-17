@@ -13,12 +13,45 @@ struct HomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @Binding var selectedTab: RootTab
     
     private let expiringSoonLimit = 5
-    private let totalCircleSize: CGFloat = 224
+    private let scoreCircleSize: CGFloat = 224
     
+    // Home always shows the user's own score, the family one is for the overview
+    private var userScore: WasteScore? {
+        analyticsVM.wasteScore?.user
+    }
+
+    private var scoreTint: Color {
+        switch userScore?.rating {
+        case .needsWork: return Color("WasteScoreNeedsWork")
+        case .fair: return Color("WasteScoreFair")
+        case .good: return Color("WasteScoreGood")
+        case .great: return Color("WasteScoreGreat")
+        case .excellent: return Color("WasteScoreExcellent")
+        case nil: return Color("HomeViewGradientPrimary")
+        }
+    }
+
+    private var scoreText: String {
+        guard let score = userScore?.score else { return "—" }
+        return "\(score)"
+    }
+
+    private var scoreCaption: String {
+        guard let userScore else { return "Couldn't load your score" }
+
+        let productsNeeded = userScore.productsNeeded
+        if productsNeeded > 0 {
+            let noun = productsNeeded == 1 ? "product" : "products"
+            return "Mark \(productsNeeded) more \(noun) to get your score"
+        }
+        return userScore.rating?.displayName ?? ""
+    }
+
     // Closest to expiring first, fresh and undated products left out
     private var expiringProducts: [Product] {
         productVM.products
@@ -62,7 +95,7 @@ struct HomeView: View {
                     Section {
                         // onTapGesture instead of Button so only the circle is tappable, not the whole List row
                         // https://stackoverflow.com/questions/56561064/swiftui-multiple-buttons-in-a-list-row/
-                        totalProductsCircle
+                        wasteScoreCircle
                             .onTapGesture {
                                 selectedTab = .inventory
                             }
@@ -138,22 +171,33 @@ struct HomeView: View {
             if !productVM.hasLoadedProducts, let user = authVM.user {
                 productVM.loadProducts(for: user)
             }
+            // Every appear so the score refreshes after marking a product
+            if let user = authVM.user {
+                analyticsVM.loadWasteScore(for: user)
+            }
             
             NotificationService.shared.requestAuth()
         }
     }
     
-    private var totalProductsCircle: some View {
+    private var wasteScoreCircle: some View {
         VStack {
-            Text("\(productVM.products.count)")
-                .font(.system(size: 64, weight: .bold))
-            Text("Products at Home")
-                .font(.subheadline)
+            // No summary and no error yet means the first load hasn't returned
+            if userScore == nil && analyticsVM.scoreErrorMessage == nil {
+                ProgressView()
+            } else {
+                Text(scoreText)
+                    .font(.system(size: 64, weight: .bold))
+                Text(scoreCaption)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
         }
         .foregroundStyle(.white)
-        .frame(width: totalCircleSize, height: totalCircleSize)
+        .frame(width: scoreCircleSize, height: scoreCircleSize)
         .background(
-            LinearGradient(colors: [Color("HomeViewGradientPrimary").opacity(0.6), Color("HomeViewGradientSecondary").opacity(0)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            LinearGradient(colors: [scoreTint.opacity(0.6), Color("HomeViewGradientSecondary").opacity(0)], startPoint: .topLeading, endPoint: .bottomTrailing),
             in: .circle
         )
         .glassEffect(.clear.interactive(), in: .circle)

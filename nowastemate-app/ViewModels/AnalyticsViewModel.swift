@@ -21,11 +21,16 @@ class AnalyticsViewModel: ObservableObject {
     @Published var selectedUsageWindow: Int? = 30
     @Published var isLoadingUsage = false
     @Published var usageErrorMessage: String?
+
+    @Published var wasteScore: WasteScoreSummary?
+    @Published var isLoadingScore = false
+    @Published var scoreErrorMessage: String?
     
     @Published var categoryWasteResults: [String: Double]?
     
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
+    private var scoreRequestId = 0
     
     // 6 weeks / 6 months
     let periods = 6
@@ -80,6 +85,27 @@ class AnalyticsViewModel: ObservableObject {
             }
         }
     }
+
+    // old score stays up while refetching so the Home circle doesn't flash empty
+    func loadWasteScore(for user: User) {
+        scoreRequestId += 1
+        let requestId = scoreRequestId
+
+        isLoadingScore = true
+        scoreErrorMessage = nil
+
+        service.getWasteScore(user: user) { result in
+            guard requestId == self.scoreRequestId else { return }
+            self.isLoadingScore = false
+
+            switch result {
+            case .success(let summary):
+                self.wasteScore = summary
+            case .failure(let error):
+                self.scoreErrorMessage = error.localizedDescription
+            }
+        }
+    }
     
     // clear it like ProductViewModel.resetProducts()
     func resetAnalytics() {
@@ -92,6 +118,10 @@ class AnalyticsViewModel: ObservableObject {
         selectedUsageWindow = 30
         isLoadingUsage = false
         usageErrorMessage = nil
+        scoreRequestId += 1
+        wasteScore = nil
+        isLoadingScore = false
+        scoreErrorMessage = nil
     }
     
     func categoryWaste(for user: User, familyId: String?) {

@@ -37,6 +37,8 @@ protocol AnalyticsServiceProtocol {
     func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
     
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
+
+    func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void)
     
     func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void)
     
@@ -146,6 +148,48 @@ struct AnalyticsService: AnalyticsServiceProtocol {
                 do {
                     let usage = try JSONDecoder().decode(ProductUsage.self, from: data)
                     DispatchQueue.main.async { completionHandler(.success(usage)) }
+                } catch {
+                    print(error)
+                    DispatchQueue.main.async { completionHandler(.failure(error)) }
+                }
+            }
+            task.resume()
+        }
+    }
+
+    func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async {
+                    completionHandler(.failure(error))
+                }
+                return
+            }
+
+            let url = AppConfig.baseUrl.appendingPathComponent("analytics/wasteScore")
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async {
+                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+                    }
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard statusCode == 200 else {
+                    print("getWasteScore failed: \(statusCode)")
+                    let failure: AnalyticsError = (statusCode == 401 || statusCode == 403) ? .unauthorized : .failed
+                    DispatchQueue.main.async { completionHandler(.failure(failure)) }
+                    return
+                }
+
+                do {
+                    let summary = try JSONDecoder().decode(WasteScoreSummary.self, from: data)
+                    DispatchQueue.main.async { completionHandler(.success(summary)) }
                 } catch {
                     print(error)
                     DispatchQueue.main.async { completionHandler(.failure(error)) }

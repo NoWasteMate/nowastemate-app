@@ -13,12 +13,41 @@ struct HomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @Binding var selectedTab: RootTab
-    
+
+    @State private var showsWasteOverview = false
+
     private let expiringSoonLimit = 5
-    private let totalCircleSize: CGFloat = 224
+    private let scoreCircleSize: CGFloat = 224
     
+    // The family score is only shown on the Waste overview
+    private var userScore: WasteScore? {
+        analyticsVM.wasteScore?.user
+    }
+
+    private var scoreTint: Color {
+        guard let rating = userScore?.rating else { return Color("HomeViewGradientPrimary") }
+        return Color(rating.colorName)
+    }
+
+    private var scoreText: String {
+        guard let score = userScore?.score else { return "—" }
+        return "\(score)"
+    }
+
+    private var scoreCaption: String {
+        guard let userScore else { return "Couldn't load your score" }
+
+        let productsNeeded = userScore.productsNeeded
+        if productsNeeded > 0 {
+            let noun = productsNeeded == 1 ? "product" : "products"
+            return "Mark \(productsNeeded) more \(noun) to get your score"
+        }
+        return userScore.rating?.displayName ?? ""
+    }
+
     // Closest to expiring first, fresh and undated products left out
     private var expiringProducts: [Product] {
         productVM.products
@@ -73,54 +102,15 @@ struct HomeView: View {
                     Section {
                         // onTapGesture instead of Button so only the circle is tappable, not the whole List row
                         // https://stackoverflow.com/questions/56561064/swiftui-multiple-buttons-in-a-list-row/
-                        totalProductsCircle
+                        wasteScoreCircle
                             .onTapGesture {
-                                selectedTab = .inventory
+                                showsWasteOverview = true
                             }
                         .frame(maxWidth: .infinity, minHeight: 264)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets())
                     }
-                
-                    Section {
-                        VStack {
-                            Text("Waste Trends")
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        // hidden link like ProductRowView so the card doesn't get List's chevron
-                        .background {
-                            NavigationLink {
-                                WasteTrendView()
-                            } label: {
-                                EmptyView()
-                            }
-                            .opacity(0)
-                        }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
-                
-                    Section {
-                        VStack {
-                            Text("Product Usage")
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 164)
-                        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 6))
-                        .background {
-                            NavigationLink {
-                                ProductUsageView()
-                            } label: {
-                                EmptyView()
-                            }
-                            .opacity(0)
-                        }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    }
-                    
+
                     expiringSoonSection
                 
                     Section {
@@ -141,6 +131,11 @@ struct HomeView: View {
             }
             .padding([.horizontal, .top], 26)
         }
+        // A NavigationLink would make the whole List row tappable
+        // https://www.createwithswift.com/programmatic-navigation-with-navigation-destination-in-swiftui/
+        .navigationDestination(isPresented: $showsWasteOverview) {
+            WasteOverviewView()
+        }
         .onAppear{
             if authVM.userInfo == nil {
                 authVM.findUser()
@@ -149,22 +144,33 @@ struct HomeView: View {
             if !productVM.hasLoadedProducts, let user = authVM.user {
                 productVM.loadProducts(for: user)
             }
+            // Every appear so the score refreshes after marking a product
+            if let user = authVM.user {
+                analyticsVM.loadWasteScore(for: user)
+            }
             
             NotificationService.shared.requestAuth()
         }
     }
     
-    private var totalProductsCircle: some View {
+    private var wasteScoreCircle: some View {
         VStack {
-            Text("\(productVM.products.count)")
-                .font(.system(size: 64, weight: .bold))
-            Text("Products at Home")
-                .font(.subheadline)
+            // No summary and no error yet means the first load hasn't returned
+            if userScore == nil && analyticsVM.scoreErrorMessage == nil {
+                ProgressView()
+            } else {
+                Text(scoreText)
+                    .font(.system(size: 64, weight: .bold))
+                Text(scoreCaption)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
         }
         .foregroundStyle(.white)
-        .frame(width: totalCircleSize, height: totalCircleSize)
+        .frame(width: scoreCircleSize, height: scoreCircleSize)
         .background(
-            LinearGradient(colors: [Color("HomeViewGradientPrimary").opacity(0.6), Color("HomeViewGradientSecondary").opacity(0)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            LinearGradient(colors: [scoreTint.opacity(0.6), Color("HomeViewGradientSecondary").opacity(0)], startPoint: .topLeading, endPoint: .bottomTrailing),
             in: .circle
         )
         .glassEffect(.clear.interactive(), in: .circle)

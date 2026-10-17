@@ -97,8 +97,21 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void) {
         completionHandler(.success(ProductUsage(days: days, consumedCount: 14, usedInRecipeCount: 5, wastedCount: 6, byReason: ["expired": 3, "forgot": 2])))
     }
+    func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void) {
+        completionHandler(.success(.previewSample))
+    }
     func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], any Error>) -> Void) {
         completionHandler(.success(["Produce": 10]))
+    }
+}
+
+extension WasteScoreSummary {
+    // Worked example from the Waste Score Confluence page: 50 marked, 5 wasted
+    static var previewSample: WasteScoreSummary {
+        WasteScoreSummary(
+            user: WasteScore(score: 76, rating: .good, wasteRatePoints: 40, avoidablePoints: 36, wasteRate: 0.10, wasted: 5, avoidableWasted: 5, averageWasteRate: 0.15, averageScore: 65, productsNeeded: 0),
+            family: WasteScore(score: 84, rating: .great, wasteRatePoints: 52, avoidablePoints: 32, wasteRate: 0.12, wasted: 6, avoidableWasted: 2, averageWasteRate: 0.15, averageScore: 58, productsNeeded: 0)
+        )
     }
 }
 

@@ -20,9 +20,6 @@ struct WasteTrendView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-
             VStack(alignment: .leading, spacing: 16) {
                 Picker("Period", selection: $analyticsVM.selectedPeriod) {
                     ForEach(TrendPeriod.allCases) { period in
@@ -37,7 +34,6 @@ struct WasteTrendView: View {
             }
             .padding(16)
         }
-        .navigationTitle("User waste over time")
         .task { load() }
         .onChange(of: analyticsVM.selectedPeriod) { load() }
     }

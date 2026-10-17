@@ -22,10 +22,8 @@ struct ProductUsageView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-            
-            ScrollView {
+            // WasteOverviewView does the scrolling now
+            VStack {
                 VStack(alignment: .leading, spacing: 16) {
                     Picker("Window", selection: $analyticsVM.selectedUsageWindow) {
                         ForEach(windows, id: \.label) { window in
@@ -39,7 +37,6 @@ struct ProductUsageView: View {
                 .padding(16)
             }
         }
-        .navigationTitle("Product Usage")
         .task { load() }
         .onChange(of: analyticsVM.selectedUsageWindow) { load() }
     }

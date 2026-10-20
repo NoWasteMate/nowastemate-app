@@ -49,8 +49,8 @@ struct EditProductView: View {
     var body: some View {
         ZStack {
             LinearGradient(colors: [
-                Color(red: 0.23, green: 0.29, blue: 0.24),
-                Color(red: 0.49, green: 0.57, blue: 0.50)
+                Color("EditProductGradientPrimary"),
+                Color("EditProductGradientSecondary")
             ], startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             

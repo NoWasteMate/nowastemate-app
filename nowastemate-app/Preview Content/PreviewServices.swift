@@ -159,7 +159,8 @@ extension Recipe {
             ingredients: [],
             instructions: [],
             createdAt: "2026-09-15T00:00:00Z",
-            category: category
+            category: category,
+            imageUrl: nil
         )
     }
 
@@ -191,7 +192,8 @@ extension Recipe {
                 "Tear the basil over the top and serve right away.",
             ],
             createdAt: "2026-10-12T00:00:00Z",
-            category: .pasta
+            category: .pasta,
+            imageUrl: nil
         )
     }
 }

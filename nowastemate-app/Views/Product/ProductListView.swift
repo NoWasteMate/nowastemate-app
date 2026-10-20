@@ -98,8 +98,8 @@ struct ProductListView: View {
             //Background Gradient
             ZStack {
                 LinearGradient(colors: [
-                    Color(red: 0.30, green: 0.48, blue: 0.36),
-                    Color(red: 0.64, green: 0.82, blue: 0.68)
+                    Color("ProductListGradientPrimary"),
+                    Color("ProductListGradientSecondary")
                 ], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
                 
@@ -343,7 +343,7 @@ struct ProductListView: View {
             }
             .foregroundStyle(.white)
             .frame(width: 72, height: 72)
-            .background(Color(red: 0.35, green: 0.60, blue: 0.40))
+            .background(Color("ProductListButton"))
             .clipShape(Circle())
             .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
         }
@@ -368,7 +368,7 @@ struct ProductListView: View {
             }
             .foregroundStyle(.white)
             .frame(width: 72, height: 72)
-            .background(Color(red: 0.35, green: 0.60, blue: 0.40))
+            .background(Color("ProductListButton"))
             .clipShape(Circle())
             .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
         }
@@ -387,7 +387,7 @@ struct ProductListView: View {
             }
             .foregroundStyle(.white)
             .frame(width: 72, height: 72)
-            .background(Color(red: 0.35, green: 0.60, blue: 0.40))
+            .background(Color("ProductListButton"))
             .clipShape(Circle())
             .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
         }
@@ -508,7 +508,7 @@ struct ProductRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(product.name)
                     .font(.body.weight(.medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("ProductRowText"))
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
@@ -524,13 +524,16 @@ struct ProductRowView: View {
             
             Text("Qty \(product.quantity)")
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(Color(red: 0.54, green: 0.54, blue: 0.54))
+                .foregroundColor(Color("ProductRowSecondaryText"))
                 .padding(.horizontal, 6)
                 .padding(.vertical, 1)
-                .overlay(Capsule().stroke(Color(red: 0.79, green: 0.79, blue: 0.79), lineWidth: 1))
+                .overlay(Capsule().stroke(Color("ProductRowQuantityBorder"), lineWidth: 1))
             
             outcomeButton
         }
+        // List's default row turns dark grey in dark mode, which clashes with the light gradients
+        // https://www.hackingwithswift.com/quick-start/swiftui/how-to-set-the-background-color-of-list-rows-using-listrowbackground
+        .listRowBackground(Color("ProductRowBackground"))
         // hidden link: tapping the row opens EditProductView without List's automatic chevron
         .background {
             NavigationLink {
@@ -613,7 +616,7 @@ struct ProductRowView: View {
                 } else {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color(red: 0.44, green: 0.56, blue: 0.77))
+                        .foregroundStyle(Color("ProductRowOutcomeButton"))
                 }
             }
             .frame(width: 36, height: 36)
@@ -642,10 +645,10 @@ struct OwnerBadge: View {
                 .font(.system(size: 8, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 14, height: 14)
-                .background(Color(red: 0.30, green: 0.48, blue: 0.36), in: Circle())
+                .background(Color("ProductListGradientPrimary"), in: Circle())
             Text(name)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color(red: 0.54, green: 0.54, blue: 0.54))
+                .foregroundStyle(Color("ProductRowSecondaryText"))
         }
     }
 }
@@ -658,16 +661,16 @@ private struct ExpiryLabel: View {
     var body: some View {
         switch product.expiryStatus() {
         case .expired:
-            label("Expired", color: Color(red: 0.72, green: 0.11, blue: 0.11), weight: .bold)
+            label("Expired", color: Color("ExpiryExpired"), weight: .bold)
                 .accessibilityLabel("Expired")
         case .today:
-            label("Expires Today", color: Color(red: 0.90, green: 0.22, blue: 0.21))
+            label("Expires Today", color: Color("ExpiryToday"))
                 .accessibilityLabel("Expires today")
         case .tomorrow:
-            label("Expires Tomorrow", color: Color(red: 0.91, green: 0.51, blue: 0.23))
+            label("Expires Tomorrow", color: Color("ExpiryTomorrow"))
                 .accessibilityLabel("Expires tomorrow")
         case .soon:
-            label("Expires Soon", color: Color(red: 0.79, green: 0.60, blue: 0.02))
+            label("Expires Soon", color: Color("ExpirySoon"))
             // "Soon" hides the real count, so VoiceOver reads it out
                 .accessibilityLabel("Expires in \(product.daysUntilExpiry() ?? 0) days")
         case .fresh:

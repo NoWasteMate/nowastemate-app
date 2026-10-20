@@ -47,7 +47,8 @@ struct RecipeListView: View {
 
                     ScrollView(){
                         VStack(alignment: .leading){
-                            GlassCardCarousel()
+                            // TODO: show again once the global recipe pool has suggestions
+                            // GlassCardCarousel()
 
                             SubtitleHeader(subtitleText: "Saved Recipes")
                                 .padding(.horizontal, 16)
@@ -163,11 +164,20 @@ struct ListGlassCard: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 12){
-            Image(systemName: icon(for: recipe.category))
-                .font(.title)
-                .foregroundStyle(.white)
-                .frame(width: 64, height: 64)
-                .background(.white.opacity(0.15), in: .rect(cornerRadius: 12))
+            // Category icon until the image loads or when there isn't one
+            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-load-a-remote-image-from-a-url
+            AsyncImage(url: recipe.imageUrl) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Image(systemName: icon(for: recipe.category))
+                    .font(.title)
+                    .foregroundStyle(.white)
+            }
+            .frame(width: 64, height: 64)
+            .background(.white.opacity(0.15))
+            .clipShape(.rect(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 4){
                 Text(recipe.recipeName)
                     .font(.headline)

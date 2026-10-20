@@ -16,72 +16,106 @@ struct RecipeDetailView: View {
 
     @State private var showDeleteConfirm = false
 
+    // photo moves at 80% of the scroll speed
+    private let imageParallaxAmount: CGFloat = 0.2
+
     var body: some View {
     
         ZStack {
-            LinearGradient(
-                colors: [Color("RecipeListGradientPrimary"), Color("RecipeListGradientSecondary")],
-                startPoint: .top,
-                endPoint: .bottom
-            ).ignoresSafeArea()
+            backgroundGradient.ignoresSafeArea()
             ScrollView(){
-                // One spacing value for every section so the gaps match
-                VStack(alignment: .leading, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(recipe.recipeName)
-                            .font(.largeTitle)
-                        Text(recipe.description)
-                            .font(.title3)
-                    }
-
-                    HStack {
-                        StatView(systemImage: "timer", value: "\(recipe.prepTime) min", label: "Prep")
-                        StatView(systemImage: "flame", value: "\(recipe.cookTime) min", label: "Cook")
-                        StatView(systemImage: "person.2", value: "\(recipe.servings)", label: "Serves")
-                        StatView(systemImage: "chart.bar", value: recipe.difficulty.capitalized, label: "Level")
-                    }
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity)
-                    .glassEffect(.clear.interactive(false), in: .rect(cornerRadius: 16))
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        // https://www.hackingwithswift.com/forums/swiftui/accessing-the-index-in-foreach/1334
-                        // Accessing indicies in for each (there is no id for ingredients)
-                        ForEach(recipe.ingredients.indices, id: \.self) { index in
-                            let ingredient = recipe.ingredients[index]
-                            let availability = productVM.availability(for: ingredient)
-                            HStack(spacing: 8) {
-                                Image(systemName: icon(for: availability))
-                                    .foregroundStyle(iconColour(for: availability))
-                                    .accessibilityLabel(accessibilityLabel(for: availability))
-                                // Gemini sends plain lowercase names like "chicken breast"
-                                Text(ingredient.name.capitalized)
-                                Spacer()
-                                // formatted() drops the trailing .0 so 200.0 shows as 200
-                                // Skips the space when there's no unit, otherwise "4 " sits out of line with the rest
-                                Text(ingredient.unit.isEmpty ? ingredient.quantity.formatted() : "\(ingredient.quantity.formatted()) \(ingredient.unit)")
-                                    .opacity(0.8)
+                VStack(spacing: 0) {
+                    // Older recipes and failed image calls have no imageUrl
+                    if let imageUrl = recipe.imageUrl {
+                        // Same 3:4 as the generated image so the header doesn't jump when it loads
+                        // https://sarunw.com/posts/how-to-resize-swiftui-image-and-keep-aspect-ratio/
+                        Color.white.opacity(0.15)
+                            .aspectRatio(3 / 4, contentMode: .fit)
+                            .overlay {
+                                AsyncImage(url: imageUrl) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                } placeholder: {
+                                    Color.clear
+                                }
                             }
-                        
-                            
+                            .clipped()
+                            // Photo scrolls slower than the recipe for a parallax header
+                            // Based on their rotation example but uses scroll offsets instead
+                            // https://www.hackingwithswift.com/books/ios-swiftui/scrollview-effects-using-visualeffect-and-scrolltargetbehavior
+                            .visualEffect { content, geometry in
+                                // Global minY works as the scroll offset since the header starts at the top of the screen
+                                // min() ignores pulling down past the top
+                                let scrollOffset = min(geometry.frame(in: .global).minY, 0)
+                                return content.offset(y: -scrollOffset * imageParallaxAmount)
+                            }
+                    }
+
+                    // Padding here instead of on the ScrollView so the photo goes edge to edge
+                    VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(recipe.recipeName)
+                                .font(.largeTitle)
+                            Text(recipe.description)
+                                .font(.title3)
                         }
 
-                    }
-                    // Same inset as the step cards' padding so the icons line up with the step numbers
-                    .padding(.horizontal)
-                    // Extra room before the steps so the plain list doesn't run into the first card
-                    .padding(.bottom, 12)
+                        HStack {
+                            StatView(systemImage: "timer", value: "\(recipe.prepTime) min", label: "Prep")
+                            StatView(systemImage: "flame", value: "\(recipe.cookTime) min", label: "Cook")
+                            StatView(systemImage: "person.2", value: "\(recipe.servings)", label: "Serves")
+                            StatView(systemImage: "chart.bar", value: recipe.difficulty.capitalized, label: "Level")
+                        }
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .glassEffect(.clear.interactive(false), in: .rect(cornerRadius: 16))
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        ForEach(recipe.instructions.indices, id: \.self) { index in
-                            StepCardView(number: index + 1, text: recipe.instructions[index])
+                        VStack(alignment: .leading, spacing: 10) {
+                            // https://www.hackingwithswift.com/forums/swiftui/accessing-the-index-in-foreach/1334
+                            // Accessing indicies in for each (there is no id for ingredients)
+                            ForEach(recipe.ingredients.indices, id: \.self) { index in
+                                let ingredient = recipe.ingredients[index]
+                                let availability = productVM.availability(for: ingredient)
+                                HStack(spacing: 8) {
+                                    Image(systemName: icon(for: availability))
+                                        .foregroundStyle(iconColour(for: availability))
+                                    // Language model sends plain lowercase names like "chicken breast"
+                                    Text(ingredient.name.capitalized)
+                                    Spacer()
+                                    // formatted() drops the trailing .0 so 200.0 shows as 200
+                                    // Skips the space when there's no unit, otherwise "4 " sits out of line with the rest
+                                    Text(ingredient.unit.isEmpty ? ingredient.quantity.formatted() : "\(ingredient.quantity.formatted()) \(ingredient.unit)")
+                                        .opacity(0.8)
+                                }
+                        
+                            
+                            }
+
+                        }
+                        // Same inset as the step cards' padding so the icons line up with the step numbers
+                        .padding(.horizontal)
+                        // Extra room before the steps so the plain list doesn't run into the first card
+                        .padding(.bottom, 12)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(recipe.instructions.indices, id: \.self) { index in
+                                StepCardView(number: index + 1, text: recipe.instructions[index])
+                            }
+                        }
+                    }
+                    .padding()
+                    // Covers the photo as the parallax pushes it down behind the recipe
+                    .background {
+                        if recipe.imageUrl != nil {
+                            backgroundGradient
                         }
                     }
                 }.foregroundStyle(.white)
-                // Padding inside the scroll view so cards scroll to the screen edge instead of cutting off early
-                .padding()
             }
             .scrollIndicators(.hidden)
+            // Photo goes under the status bar and navigation buttons
+            .ignoresSafeArea(.container, edges: recipe.imageUrl == nil ? [] : .top)
 
         }
         .toolbar {
@@ -103,6 +137,14 @@ struct RecipeDetailView: View {
         }
     }
 
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [Color("RecipeListGradientPrimary"), Color("RecipeListGradientSecondary")],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
     private func icon(for availability: IngredientAvailability) -> String {
         switch availability {
         case .owned: return "checkmark.circle.fill"
@@ -116,16 +158,6 @@ struct RecipeDetailView: View {
         case .owned: return .green
         case .missing: return .white.opacity(0.6)
         case .unknown: return .white.opacity(0.35)
-        }
-    }
-
-    // The icon is the only thing carrying availability, so VoiceOver needs it named.
-    // https://developer.apple.com/documentation/swiftui/view/accessibilitylabel(_:)-1d7jv
-    private func accessibilityLabel(for availability: IngredientAvailability) -> String {
-        switch availability {
-        case .owned: return "In your inventory"
-        case .missing: return "Not in your inventory"
-        case .unknown: return "Checking your inventory"
         }
     }
 }

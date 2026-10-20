@@ -32,4 +32,5 @@ struct Recipe: Codable, Identifiable {
     let instructions: [String]
     let createdAt: String
     let category: RecipeCategory?
+    let imageUrl: URL?
 }

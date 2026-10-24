@@ -118,6 +118,15 @@ struct RecipeDetailView: View {
             .ignoresSafeArea(.container, edges: recipe.imageUrl == nil ? [] : .top)
 
         }
+        // Stops the screen locking while someone is cooking from the recipe
+        // https://developer.apple.com/forums/thread/659905
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        // The forum answer never shows turning it back to false but its necessary or the entire app will remain isIdleTimerDisabled
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Delete Recipe", systemImage: "trash", role: .destructive) {
@@ -185,9 +194,12 @@ private struct StepCardView: View {
     var number: Int
     var text: String
 
+    // Ticked off while cooking
+    @State private var isDone = false
+
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "\(number).circle")
+            Image(systemName: isDone ? "checkmark.circle.fill" : "\(number).circle")
                 .font(.title2)
             VStack(alignment: .leading, spacing: 4) {
                 Text("Step \(number)")
@@ -200,7 +212,12 @@ private struct StepCardView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
+        // Done steps fade back so the next one stands out
+        .opacity(isDone ? 0.4 : 1)
         .glassEffect(.clear, in: .rect(cornerRadius: 16))
+        .onTapGesture {
+            isDone.toggle()
+        }
     }
 }
 

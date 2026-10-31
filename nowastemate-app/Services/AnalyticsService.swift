@@ -211,9 +211,9 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             let url: URL
             
             if let familyId {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste?familyId=\(familyId)")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste?familyId=\(familyId)")!
             } else {
-                url = URL(string: "\(AppConfig.baseUrl)/analytics/category_waste")!
+                url = URL(string: "\(AppConfig.baseUrl)/analytics/categoryWaste")!
             }
             
             var request = URLRequest(url: url)

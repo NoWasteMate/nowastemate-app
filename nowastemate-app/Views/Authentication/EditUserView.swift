@@ -36,8 +36,26 @@ struct EditUserView: View {
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
             LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
             
             VStack(alignment: .leading, spacing: 24) {
+                
+                HStack {
+                    
+                    NavigationLink {
+                        FAQView()
+                    }
+                    label: {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(.white)
+                            .imageScale(.small)
+                            .padding()
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
+                    }
+                    .border(.red)
+                }
+                .frame(maxWidth: .infinity, alignment: .topTrailing)
+                
 
                 //title
                 Text("Update Information")
@@ -166,7 +184,6 @@ struct EditUserView: View {
             }
             .padding(.horizontal, 30)
         }
-        .edgesIgnoringSafeArea(.all)
         .onAppear {
             email = authVM.userInfo?.email ?? ""
             firstName = authVM.userInfo?.firstName ?? ""

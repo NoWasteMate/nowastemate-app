@@ -52,7 +52,6 @@ struct EditUserView: View {
                             .padding()
                             .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
                     }
-                    .border(.red)
                 }
                 .frame(maxWidth: .infinity, alignment: .topTrailing)
                 

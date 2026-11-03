@@ -296,6 +296,9 @@ class ProductViewModel: ObservableObject {
             switch result {
             case .success:
                 self.products.removeAll { $0.id == product.id }
+                self.familyProducts.removeAll { $0.id == product.id }
+                // Deleted products were still getting expiry notifications
+                NotificationService.shared.cancel(product: product)
                 self.errorMessage = nil
             case .failure(let error):
                 self.errorMessage = error.localizedDescription

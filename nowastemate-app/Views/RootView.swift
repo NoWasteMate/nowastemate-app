@@ -22,6 +22,7 @@ struct RootView: View {
     @EnvironmentObject var recipeVM: RecipeViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var analyticsVM: AnalyticsViewModel
+    @Environment(\.scenePhase) var scenePhase
 
     @State private var selectedTab: RootTab = .home
     
@@ -66,6 +67,22 @@ struct RootView: View {
                     familyVM.findFamilyMembers(for: user)
                     familyVM.findFamilyId(for: user)
                     productVM.loadProductTypes(for: user)
+                }
+            }
+            // Found that expiry labels only work out the days left when a view redraws, so the ios app left in the background overnight kept showing yesterday's labels
+            // Reloading also reschedules notifications and picks up the family members edits
+            // https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-when-your-app-moves-to-the-background-or-foreground-with-scenephase
+            // The article's single parameter onChange is deprecated. Xcode suggested adding the old value as a first parameter
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    if let user = authVM.user {
+                        if productVM.hasLoadedProducts {
+                            productVM.loadProducts(for: user)
+                        }
+                        if productVM.hasLoadedFamilyProducts {
+                            productVM.loadFamilyProducts(for: user)
+                        }
+                    }
                 }
             }
         } else {

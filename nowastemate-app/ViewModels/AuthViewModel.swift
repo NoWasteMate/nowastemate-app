@@ -95,8 +95,8 @@ class AuthViewModel: ObservableObject {
         
     }
     
-    func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void = { _ in }){
-            self.authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in
+    func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void = { _ in }){
+            self.authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions, notificationDays: notificationDays, notificationHour: notificationHour) { error in
                 DispatchQueue.main.async {
                 if let error = error {
                     print("Error:", error.localizedDescription)

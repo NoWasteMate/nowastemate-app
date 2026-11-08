@@ -243,20 +243,70 @@ struct ProductListView: View {
                 
                 //placeholder for the classification, as alert loads before we populate the data.
                 Button("\(classifications?[0].capitalized ?? "Placeholder")") {
-                    productVM.produce = Product(name: classifications![0].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    
+                    //cant find the produce in the dict
+                    //this should never happen but setting it up just in case
+                    guard let recommendedDate = productVM.produceExpectedExpiry[classifications![0]] else {
+                        productVM.produce = Product(name: classifications![0].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                        showProduceClassification = true
+                        return
+                    }
+                    //https://www.appsdeveloperblog.com/add-days-months-or-years-to-current-date-in-swift/
+                    //getting current date, then adding the expected amount of dates based on the dict in productvm, then loading it
+                    let currentDate = Date()
+                    var dateComponent = DateComponents()
+                    dateComponent.day = recommendedDate
+                    let futureDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+                    //https://www.donnywals.com/formatting-dates-in-swift-using-date-formatstyle-on-ios-15/
+                    let formatted = futureDate!.formatted(.iso8601)
+                    
+                    productVM.produce = Product(name: classifications![0].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
                     
                 }
                 .keyboardShortcut(.defaultAction)
                 
                 Button("Alternative - \(classifications?[1].capitalized ?? "Placerholder")") {
-                    productVM.produce = Product(name: classifications![1].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    
+                    //cant find the produce in the dict
+                    //this should never happen but setting it up just in case
+                    guard let recommendedDate = productVM.produceExpectedExpiry[classifications![1]] else {
+                        productVM.produce = Product(name: classifications![1].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                        showProduceClassification = true
+                        return
+                    }
+                    //https://www.appsdeveloperblog.com/add-days-months-or-years-to-current-date-in-swift/
+                    //getting current date, then adding the expected amount of dates based on the dict in productvm, then loading it
+                    let currentDate = Date()
+                    var dateComponent = DateComponents()
+                    dateComponent.day = recommendedDate
+                    let futureDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+                    
+                    let formatted = futureDate!.formatted(.iso8601)
+                    
+                    productVM.produce = Product(name: classifications![1].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
-
+                    
                 }
                 
                 Button("Alternative - \(classifications?[2].capitalized ?? "Placerholder")") {
-                    productVM.produce = Product(name: classifications![2].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                    //cant find the produce in the dict
+                    //this should never happen but setting it up just in case
+                    guard let recommendedDate = productVM.produceExpectedExpiry[classifications![2]] else {
+                        productVM.produce = Product(name: classifications![2].capitalized, quantity: 1, createdAt: "", category: ProductCategory.produce)
+                        showProduceClassification = true
+                        return
+                    }
+                    //https://www.appsdeveloperblog.com/add-days-months-or-years-to-current-date-in-swift/
+                    //getting current date, then adding the expected amount of dates based on the dict in productvm, then loading it
+                    let currentDate = Date()
+                    var dateComponent = DateComponents()
+                    dateComponent.day = recommendedDate
+                    let futureDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+                    
+                    let formatted = futureDate!.formatted(.iso8601)
+                    
+                    productVM.produce = Product(name: classifications![2].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
 
                 }

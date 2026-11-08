@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import FirebaseAuth
 import Combine
+import UserNotifications
+
 
 
 //https://medium.com/@authfy/getting-started-with-swiftui-and-firebase-a-complete-guide-e7c25b7cd9c4
@@ -20,6 +22,8 @@ class AuthViewModel: ObservableObject {
     @Published var loginError: Bool = false
     @Published var errorMessage: String?
     @Published var userInfo: UserInfo? = nil
+    
+    var productVM: ProductViewModel?
 
     
     private let authService = AuthService.shared
@@ -103,8 +107,18 @@ class AuthViewModel: ObservableObject {
                     completion(error)
                     return
                 }
-                
-                
+                    
+                //we need this so that once preferences are updated we update the notifications
+                //this is to avoid an edge-case where user logs out, and does not log back in for a while, it would still use old notification preferences
+                let center = UNUserNotificationCenter.current()
+                    //wipe the existing list of scheduled notification
+                center.removeAllPendingNotificationRequests()
+                                    
+                for product in self.productVM?.products ?? [] {
+                        NotificationService.shared.schedule(product: product, notificationDays: notificationDays, notificationHour: notificationDays)
+                }
+                    
+                    
                 self.signOut()
                 completion(nil)
             }

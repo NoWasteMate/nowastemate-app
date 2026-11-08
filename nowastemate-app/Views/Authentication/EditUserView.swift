@@ -22,7 +22,7 @@ struct EditUserView: View {
     }
     
     var notNewInput: Bool {
-        email == authVM.userInfo?.email && firstName == authVM.userInfo?.firstName && lastName == authVM.userInfo?.lastName && dietaryRestrictions == authVM.userInfo?.dietaryRestrictions
+        email == authVM.userInfo?.email && firstName == authVM.userInfo?.firstName && lastName == authVM.userInfo?.lastName && dietaryRestrictions == authVM.userInfo?.dietaryRestrictions && notificationDays == authVM.userInfo?.notificationDays && notificationHour == authVM.userInfo?.notificationHour
     }
     
     @State private var showAlert = false
@@ -30,6 +30,9 @@ struct EditUserView: View {
 
 
     @EnvironmentObject var authVM: AuthViewModel
+    
+    @EnvironmentObject var productVM: ProductViewModel
+    
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -166,7 +169,7 @@ struct EditUserView: View {
                                     
                                     Picker("Hour Selection", selection: $notificationHour) {
                                         ForEach(1..<24) { number in
-                                            Text(String(number))
+                                            Text(String(number)).tag(number)
                                         }
                                     }
                                     .pickerStyle(.menu)

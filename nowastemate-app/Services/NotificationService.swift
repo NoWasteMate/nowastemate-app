@@ -13,6 +13,7 @@ import UserNotifications
 
 struct NotificationService {
     static let shared = NotificationService()
+    
 
     //this prompts to ask for permission
     func requestAuth(){
@@ -29,15 +30,16 @@ struct NotificationService {
     //https://developer.apple.com/documentation/foundation/calendar/datecomponents(in:from:)
     //TODO: Allow the user to change the how they want to receive notifications
     //TODO: With the current setup below, they will be able to set the exact time and amount of days before, that they want reminders, once we changed the hardcoded values to user configurable settings
-    func schedule(product: Product){
+    func schedule(product: Product, notificationDays: Int, notificationHour: Int){
         
-        let daysBefore = -1
+        
+        let daysBefore = -(notificationDays)
         
         guard let triggerDate = Calendar.current.date(byAdding: .day, value: daysBefore, to: product.expiryDate!) else { return }
         
         //datecomponents uses the time zone of the device, so in this scenario it effectively becomes 1 day before expiry, at 9am in their calendar timezone
         var component = Calendar.current.dateComponents([.year, .month, .day], from: triggerDate)
-        component.hour = 9
+        component.hour = notificationHour
         component.minute = 0
                 
         //terminate in a scenario where they are backlogging already expired groceries
@@ -57,7 +59,7 @@ struct NotificationService {
         content.sound = UNNotificationSound.default
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: component, repeats: false)
-        
+
         let request = UNNotificationRequest(identifier: product.id!, content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request)

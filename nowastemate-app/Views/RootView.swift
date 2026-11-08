@@ -67,6 +67,8 @@ struct RootView: View {
                     familyVM.findFamilyMembers(for: user)
                     familyVM.findFamilyId(for: user)
                     productVM.loadProductTypes(for: user)
+                    productVM.authVM = authVM
+                    authVM.productVM = productVM
                 }
             }
             // Found that expiry labels only work out the days left when a view redraws, so the ios app left in the background overnight kept showing yesterday's labels

@@ -60,6 +60,44 @@ class ProductViewModel: ObservableObject {
     // nil means everybody
     @Published var selectedMemberId: String? = nil
     
+    @Published var produceExpectedExpiry: [String : Int] = [
+        "apple": 7,
+        "banana": 4,
+        "beetroot": 14,
+        "cabbage": 14,
+        "capsisum": 14,
+        "carrot": 30,
+        "cauliflower": 10,
+        "chili pepper": 7,
+        "corn": 5,
+        "cucumber": 7,
+        "eggplant": 5,
+        "garlic": 30,
+        "ginger": 14,
+        "grapes": 7,
+        "jalapeno": 10,
+        "kiwi": 7,
+        "lemon": 7,
+        "lettuce": 7,
+        "mango": 4,
+        "onion": 60,
+        "orange": 7,
+        "paprika": 14,
+        "pear": 7,
+        "peas": 7,
+        "pineapple": 14,
+        "pomegranate": 7,
+        "potato": 60,
+        "raddish": 30,
+        "soy beans": 30,
+        "spinach": 7,
+        "sweetcorn": 5,
+        "sweetpotato": 60,
+        "tomato": 7,
+        "turnip": 14,
+        "watermelon": 14
+    ]
+    
     // what the list will show (own products, or family's filtered by member)
     var visibleProducts: [Product] {
         switch scope {

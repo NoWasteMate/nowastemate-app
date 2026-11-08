@@ -220,6 +220,7 @@ struct AddProductView: View {
             name = prefill.name
             quantity = max(prefill.quantity, 1)
             category = prefill.category ?? .other
+            expiryDate = prefill.expiryDate ?? Calendar.current.date(byAdding: .day, value: 7, to:Date()) ?? Date()
         }
     }
 

@@ -19,6 +19,8 @@ struct ProductUsageView: View {
     
     private let windows: [(label: String, days: Int?)] = [("30 days", 30), ("6 months", 180), ("All time", nil)]
     
+    // setting the button for personal and family
+    var showsFamily = false
     
     var body: some View {
         ZStack {
@@ -39,6 +41,7 @@ struct ProductUsageView: View {
         }
         .task { load() }
         .onChange(of: analyticsVM.selectedUsageWindow) { load() }
+        .onChange(of: showsFamily) { load() }
     }
 
         @ViewBuilder
@@ -56,12 +59,16 @@ struct ProductUsageView: View {
                 Button("Try again") { load() }
             }
         } else if let usage = analyticsVM.productUsage, usage.hasData {
+            Text(showsFamily ? "Your family" : "You")
+                .font(.headline)
+                .foregroundStyle(.white)
+            
             chart(for: usage)
         } else if analyticsVM.productUsage != nil {
             ContentUnavailableView(
-                "Nothing finished \(windowText)",
+                showsFamily ? "Nothing your family finished \(windowText)" : "Nothing finished \(windowText)",
                 systemImage: "chart.pie",
-                description: Text("Products you mark as consumed or wasted will show up here.")
+                description: Text(showsFamily ? "Products anyone in your family marks as consumed or wasted will show up here." : "Products you mark as consumed or wasted will show up here.")
             )
         }
     }
@@ -127,7 +134,7 @@ struct ProductUsageView: View {
 
     private func load() {
         guard let user = authVM.user else { return }
-        analyticsVM.productUsageOverview(for: user, days: analyticsVM.selectedUsageWindow)
+        analyticsVM.productUsageOverview(for: user, days: analyticsVM.selectedUsageWindow, family: showsFamily)
     }
     
 }

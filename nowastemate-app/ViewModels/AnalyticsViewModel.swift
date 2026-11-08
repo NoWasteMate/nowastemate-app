@@ -59,9 +59,9 @@ class AnalyticsViewModel: ObservableObject {
         }
     }
     
-    func productUsageOverview(for user: User, days: Int?) {
+    func productUsageOverview(for user: User, days: Int?, family: Bool) {
         loadProductUsage(days : days) { completion in
-            self.service.getProductUsageOverview(user: user, days: days, completionHandler: completion)
+            self.service.getProductUsageOverview(user: user, days: days, family: family, completionHandler: completion)
         }
     }
     

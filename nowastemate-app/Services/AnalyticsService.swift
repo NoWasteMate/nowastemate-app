@@ -36,7 +36,7 @@ enum AnalyticsError: LocalizedError {
 protocol AnalyticsServiceProtocol {
     func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
     
-    func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
+    func getProductUsageOverview(user: User, days: Int?, family: Bool, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
 
     func getWasteScore(user: User, completionHandler: @escaping (Result<WasteScoreSummary, Error>) -> Void)
     
@@ -103,7 +103,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
         }
     }
     
-    func getProductUsageOverview(user: User, days: Int?, completionHandler: @escaping (Result<ProductUsage, any Error>) -> Void) {
+    func getProductUsageOverview(user: User, days: Int?, family: Bool, completionHandler: @escaping (Result<ProductUsage, any Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -115,9 +115,10 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             
             var components = URLComponents(url: AppConfig.baseUrl.appendingPathComponent("analytics/productUsage"), resolvingAgainstBaseURL: false)
             
-            if let days = days {
-                components?.queryItems = [URLQueryItem(name: "days", value: String(days))]
-            }
+            var items: [URLQueryItem] = []
+            if let days { items.append(URLQueryItem(name: "days", value: String(days)))}
+            if family {items.append(URLQueryItem(name: "family", value: "true"))}
+            components?.queryItems = items.isEmpty ? nil : items
             
             guard let url = components?.url else {
                 DispatchQueue.main.async{

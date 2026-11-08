@@ -117,7 +117,7 @@ struct WasteOverviewView: View {
                     case .waste:
                         wasteTab
                     case .usage:
-                        ProductUsageView()
+                        ProductUsageView(showsFamily: isShowingFamily)
                     }
                 }
                 .padding(.vertical, 16)
@@ -127,7 +127,7 @@ struct WasteOverviewView: View {
             // https://developer.apple.com/documentation/swiftui/view/safeareabar(edge:alignment:spacing:content:)
             .safeAreaBar(edge: .top) { tabPicker }
             .safeAreaInset(edge: .bottom) {
-                if selectedTab == .waste && analyticsVM.wasteScore?.family != nil {
+                if analyticsVM.wasteScore?.family != nil {
                     familyToggleButton
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .padding(.horizontal)

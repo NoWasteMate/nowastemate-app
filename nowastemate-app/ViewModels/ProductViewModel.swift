@@ -83,6 +83,11 @@ class ProductViewModel: ObservableObject {
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
     private let service: ProductServiceProtocol
     private let productTypeService = ProductTypeService.shared
+    
+    //https://stackoverflow.com/questions/59491675/how-to-pass-environmentobject-into-view-model-in-swiftui
+    //we need an instance of the authvm so we can pull their notification settings
+    var authVM: AuthViewModel?
+
 
     init(service: ProductServiceProtocol = ProductService.shared) {
         self.service = service
@@ -131,8 +136,9 @@ class ProductViewModel: ObservableObject {
                 center.removeAllPendingNotificationRequests()
                 //iterate through the products and schedule the notifications
                 //reload here will also ensure that edits from family members will remove/add the application notifications once the joint list is in place
+                                
                 for product in self.products {
-                    NotificationService.shared.schedule(product: product)
+                    NotificationService.shared.schedule(product: product, notificationDays: self.authVM?.userInfo?.notificationDays ?? 1, notificationHour: self.authVM?.userInfo?.notificationHour ?? 9)
                 }
                 
             case .failure(let error):
@@ -320,7 +326,8 @@ class ProductViewModel: ObservableObject {
                     let center = UNUserNotificationCenter.current()
                     //wipe the existing scheduled notification
                     center.removePendingNotificationRequests(withIdentifiers: [product.id!])
-                    NotificationService.shared.schedule(product: product)
+                                        
+                    NotificationService.shared.schedule(product: product, notificationDays: self.authVM?.userInfo?.notificationDays ?? 1, notificationHour: self.authVM?.userInfo?.notificationHour ?? 9)
                 }
                 if let index = self.familyProducts.firstIndex(where: {
                     $0.id == product.id

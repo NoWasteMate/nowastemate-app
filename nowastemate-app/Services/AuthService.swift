@@ -163,7 +163,7 @@ struct AuthService {
         }
     }
     
-    func editUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void){
+    func editUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void){
         
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
@@ -175,7 +175,7 @@ struct AuthService {
             let url = URL(string: "\(AppConfig.baseUrl)/editUser")!
             var request = URLRequest(url: url)
             
-            let newUser = UserInfo(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions)
+            let newUser = UserInfo(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions, notificationDays: notificationDays, notificationHour: notificationHour)
             
             let encoder = JSONEncoder()
             do {

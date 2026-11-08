@@ -10,5 +10,6 @@ struct UserInfo: Codable {
     var firstName: String
     var lastName: String
     var dietaryRestrictions: String
-    
+    var notificationDays: Int?
+    var notificationHour: Int?
 }

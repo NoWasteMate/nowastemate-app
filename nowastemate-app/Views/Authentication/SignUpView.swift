@@ -17,7 +17,7 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var firstName = ""
     @State private var lastName = ""
-    @State private var dietaryRestrictions = ""
+    @State private var dietaryRestrictions: [DietaryRestrictions] = []
     
     var isFormValid: Bool {
         !email.isEmpty && !password.isEmpty && !confirmPassword.isEmpty && !firstName.isEmpty && !lastName.isEmpty
@@ -93,14 +93,35 @@ struct SignUpView: View {
                     .font(.headline)
                     .foregroundColor(Color.foreGroundBrown)
 
+                    NavigationLink {
+                        
+                        DietaryRestrictionsView()
+                        
+                    } label: {
+                        
+                        HStack {
+                            
+                            Text(authVM.newDietaryRestrictions != [] ? "Edit Restrictions" : "Set Up Restrictions")
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.right")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .symbolVariant(.circle)
+                                .foregroundStyle(.black)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+                    .tint(.black)
 
-                    TextField("", text: $dietaryRestrictions)
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
                     
                     Text("Email")
                         .font(.headline)
@@ -178,7 +199,7 @@ struct SignUpView: View {
                           }
                         
                         
-                        
+                        dietaryRestrictions = authVM.newDietaryRestrictions
                       
                         // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
                         authVM.signUp(email: email, password: password, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in

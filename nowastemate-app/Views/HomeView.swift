@@ -135,6 +135,8 @@ struct HomeView: View {
         .onAppear{
             if authVM.userInfo == nil {
                 authVM.findUser()
+            } else {
+                authVM.newDietaryRestrictions = authVM.userInfo?.dietaryRestrictions ?? []
             }
             // Only Inventory and Recipes loaded products before, so load here since neither have been opened yet
             if !productVM.hasLoadedProducts, let user = authVM.user {

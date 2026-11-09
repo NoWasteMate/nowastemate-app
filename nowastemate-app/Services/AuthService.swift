@@ -120,7 +120,7 @@ struct AuthService {
         }
     }
     
-    func syncUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Result<Void, Error>) -> Void){
+    func syncUser(email: String, firstName: String, lastName: String, dietaryRestrictions: [DietaryRestrictions], completion: @escaping (Result<Void, Error>) -> Void){
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -163,7 +163,7 @@ struct AuthService {
         }
     }
     
-    func editUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String, notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void){
+    func editUser(email: String, firstName: String, lastName: String, dietaryRestrictions: [DietaryRestrictions], notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void){
         
         Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {

@@ -18,10 +18,23 @@ enum DietaryRestrictions: String, Codable, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    case vegetarian = "Vegetarian"
-    case vegan = "Vegan"
+    case egg = "Egg"
+    case fish = "Fish"
+    case keto = "Keto"
+    case milk = "Milk"
+    case mustard = "Mustard"
+    case paleo = "Paleo"
+    case peanut = "Peanut"
     case pescetarian = "Pescetarian"
-    
+    case raw = "Raw"
+    case shellfish = "Shellfish"
+    case soy = "Soy"
+    case sugar = "Sugar"
+    case sulphite = "Sulphite"
+    case tree_nut = "Tree Nut"
+    case vegan = "Vegan"
+    case vegetarian = "Vegetarian"
+    case wheat = "Wheat"
     
 
 }

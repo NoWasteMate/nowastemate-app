@@ -17,7 +17,7 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var firstName = ""
     @State private var lastName = ""
-    @State private var dietaryRestrictions = ""
+    @State private var dietaryRestrictions: [DietaryRestrictions] = []
     
     var isFormValid: Bool {
         !email.isEmpty && !password.isEmpty && !confirmPassword.isEmpty && !firstName.isEmpty && !lastName.isEmpty
@@ -199,7 +199,7 @@ struct SignUpView: View {
                           }
                         
                         
-                        
+                        dietaryRestrictions = authVM.newDietaryRestrictions
                       
                         // error.localizedDescription is Firebase's user-presentable error message https://firebase.google.com/docs/auth/ios/errors
                         authVM.signUp(email: email, password: password, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { error in

@@ -9,7 +9,7 @@ struct UserInfo: Codable {
     var email: String
     var firstName: String
     var lastName: String
-    var dietaryRestrictions: String
+    var dietaryRestrictions: [DietaryRestrictions]
     var notificationDays: Int?
     var notificationHour: Int?
 }

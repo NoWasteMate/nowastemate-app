@@ -50,7 +50,7 @@ class AuthViewModel: ObservableObject {
         }
     }
         
-    func signUp(email: String, password: String, firstName: String, lastName: String, dietaryRestrictions: String, completion: @escaping (Error?) -> Void = { _ in }) {
+    func signUp(email: String, password: String, firstName: String, lastName: String, dietaryRestrictions: [DietaryRestrictions], completion: @escaping (Error?) -> Void = { _ in }) {
         authService.signUp(email: email, password: password) { error in
             if let error = error {
                 print("Sign Up Error:", error.localizedDescription)
@@ -76,6 +76,7 @@ class AuthViewModel: ObservableObject {
                 self.userInfo = nil
                 self.user = self.authService.currentUser
                 self.isSignedIn = false
+                self.newDietaryRestrictions = []
             }
         }
     }
@@ -85,7 +86,7 @@ class AuthViewModel: ObservableObject {
         
     }
     
-    func createUser(email: String, firstName: String, lastName: String, dietaryRestrictions: String) {
+    func createUser(email: String, firstName: String, lastName: String, dietaryRestrictions: [DietaryRestrictions]) {
         
         
         authService.syncUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions) { result in
@@ -100,7 +101,7 @@ class AuthViewModel: ObservableObject {
         
     }
     
-    func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: String, notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void = { _ in }){
+    func editRequest(email: String, firstName: String, lastName: String, dietaryRestrictions: [DietaryRestrictions], notificationDays: Int, notificationHour: Int, completion: @escaping (Error?) -> Void = { _ in }){
             self.authService.editUser(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions, notificationDays: notificationDays, notificationHour: notificationHour) { error in
                 DispatchQueue.main.async {
                 if let error = error {
@@ -133,6 +134,7 @@ class AuthViewModel: ObservableObject {
                 case .success(let user):
                     DispatchQueue.main.async {
                         self.userInfo = user
+                        self.newDietaryRestrictions = self.userInfo?.dietaryRestrictions ?? []
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {

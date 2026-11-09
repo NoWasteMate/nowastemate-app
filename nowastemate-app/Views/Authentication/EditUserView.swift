@@ -13,16 +13,19 @@ struct EditUserView: View {
     @State private var email = ""
     @State private var firstName = ""
     @State private var lastName = ""
-    @State private var dietaryRestrictions = ""
     @State private var notificationDays = 1
     @State private var notificationHour = 9
-    
+        
     var isFormValid: Bool {
         !email.isEmpty && !firstName.isEmpty && !lastName.isEmpty
     }
     
+    
+    //https://stackoverflow.com/questions/37900321/find-whether-two-swift-arrays-contain-the-same-elements
+    //compare if anything has changed
     var notNewInput: Bool {
-        email == authVM.userInfo?.email && firstName == authVM.userInfo?.firstName && lastName == authVM.userInfo?.lastName && dietaryRestrictions == authVM.userInfo?.dietaryRestrictions && notificationDays == authVM.userInfo?.notificationDays && notificationHour == authVM.userInfo?.notificationHour
+        email == authVM.userInfo?.email && firstName == authVM.userInfo?.firstName && lastName == authVM.userInfo?.lastName && notificationDays == authVM.userInfo?.notificationDays && notificationHour == authVM.userInfo?.notificationHour && Set(authVM.newDietaryRestrictions) == Set(authVM.userInfo?.dietaryRestrictions ?? [])
+        
     }
     
     @State private var showAlert = false
@@ -113,15 +116,34 @@ struct EditUserView: View {
                             .font(.headline)
                             .foregroundColor(Color.white)
                         
-                        
-                        TextField("", text: $dietaryRestrictions)
-                            .foregroundStyle(Color.white)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 5)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white, lineWidth: 1)
-                            )
+                        NavigationLink {
+                            
+                            DietaryRestrictionsView()
+                            
+                        } label: {
+                            
+                            HStack {
+                                
+                                Text(authVM.newDietaryRestrictions != [] ? "Edit Restrictions" : "Set Up Restrictions")
+                                
+                                Spacer()
+                                
+                                Image(systemName: "arrow.right")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                                    .symbolVariant(.circle)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .foregroundStyle(Color.white)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.white, lineWidth: 1)
+                        )
+                        .tint(.white)
                         
                         Text("Email")
                             .font(.headline)
@@ -201,7 +223,7 @@ struct EditUserView: View {
                                 return
                             }
                             
-                            authVM.editRequest(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: dietaryRestrictions, notificationDays: notificationDays, notificationHour: notificationHour) { error in
+                            authVM.editRequest(email: email, firstName: firstName, lastName: lastName, dietaryRestrictions: authVM.newDietaryRestrictions, notificationDays: notificationDays, notificationHour: notificationHour) { error in
                                 if let error = error {
                                     alertMessage = error.localizedDescription
                                     showAlert = true
@@ -248,7 +270,6 @@ struct EditUserView: View {
                 email = authVM.userInfo?.email ?? ""
                 firstName = authVM.userInfo?.firstName ?? ""
                 lastName = authVM.userInfo?.lastName ?? ""
-                dietaryRestrictions = authVM.userInfo?.dietaryRestrictions ?? ""
                 notificationDays = authVM.userInfo?.notificationDays ?? 1
                 notificationHour = authVM.userInfo?.notificationHour ?? 9
             }

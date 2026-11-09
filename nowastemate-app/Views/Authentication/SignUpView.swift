@@ -93,14 +93,35 @@ struct SignUpView: View {
                     .font(.headline)
                     .foregroundColor(Color.foreGroundBrown)
 
+                    NavigationLink {
+                        
+                        DietaryRestrictionsView()
+                        
+                    } label: {
+                        
+                        HStack {
+                            
+                            Text(authVM.newDietaryRestrictions != [] ? "Edit Restrictions" : "Set Up Restrictions")
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.right")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .symbolVariant(.circle)
+                                .foregroundStyle(.black)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+                    .tint(.black)
 
-                    TextField("", text: $dietaryRestrictions)
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
                     
                     Text("Email")
                         .font(.headline)

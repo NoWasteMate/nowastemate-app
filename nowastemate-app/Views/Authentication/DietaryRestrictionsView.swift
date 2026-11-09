@@ -16,6 +16,10 @@ struct DietaryRestrictionsView: View {
     
     @State var restrictions: Set<DietaryRestrictions> = []
     
+    @EnvironmentObject var authVM: AuthViewModel
+
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         
         ZStack {
@@ -96,15 +100,33 @@ struct DietaryRestrictionsView: View {
                                 )
                         }
                         
-                        
-                        
-                        
-                        
                     }
                     .padding()
                 }
                 .padding(.horizontal, 30)
+                    
+                Button("Confirm"){
+                    
+                    let choices = Array(restrictions)
+                    
+                    authVM.newDietaryRestrictions = choices
+                    
+                    dismiss()
+                    
+                    print(authVM.newDietaryRestrictions)
+                    
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
+                    .background(.white)
+                    .cornerRadius(30)
+                    .padding()
             }
+                .onAppear {
+                    restrictions = Set(authVM.newDietaryRestrictions)
+                }
             
         }
     }

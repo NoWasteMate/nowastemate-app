@@ -22,6 +22,7 @@ class AuthViewModel: ObservableObject {
     @Published var loginError: Bool = false
     @Published var errorMessage: String?
     @Published var userInfo: UserInfo? = nil
+    @Published var newDietaryRestrictions: [DietaryRestrictions] = []
     
     var productVM: ProductViewModel?
 

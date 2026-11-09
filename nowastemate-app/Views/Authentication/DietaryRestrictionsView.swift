@@ -13,17 +13,29 @@
 import SwiftUI
 
 struct DietaryRestrictionsView: View {
-    
-    @State private var isOn = false
+        
+    @State var restrictions: Set<DietaryRestrictions> = []
 
     var body: some View {
         VStack{
                     ForEach(DietaryRestrictions.allCases) { choice in
                         HStack {
-                            Toggle(isOn: $isOn) {
-                                Text(choice.rawValue)
-                                    }
-                            .toggleStyle(.automatic)
+                            Text(choice.rawValue)
+                            
+                            Button {
+                                
+                                if (restrictions.contains(choice)) {
+                                    restrictions.remove(choice)
+                                } else {
+                                    restrictions.insert(choice)
+                                }
+                                                        
+                                
+                            } label: {
+                                Image(systemName: restrictions.contains(choice) ? "checkmark.circle" : "circle")
+                                    .foregroundColor(.black)
+                                    .imageScale(.small)
+                            }.foregroundStyle(restrictions.contains(choice) ? .blue : .black)
                         }
                     }
                 }    }

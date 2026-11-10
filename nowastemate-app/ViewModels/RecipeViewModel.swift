@@ -16,6 +16,7 @@ import Combine
 @Observable
 final class RecipeViewModel: ObservableObject {
     var recipes: [Recipe] = []
+    var suggestedRecipes: [Recipe] = []
     // only false until the first load so reloads don't blank the list. Aligned with hasLoadedProducts now
     var hasLoadedRecipes = false
     // Spins just the Generate button
@@ -67,8 +68,39 @@ final class RecipeViewModel: ObservableObject {
         }
     }
 
+    func loadSuggestedRecipes(for user: User) {
+        service.getSuggestedRecipes(user: user) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let recipes):
+                    self.suggestedRecipes = recipes
+                case .failure:
+                    // Empty list hides the row
+                    self.suggestedRecipes = []
+                }
+            }
+        }
+    }
+
+    func saveSuggestedRecipe(for user: User, poolId: String) {
+        service.saveSuggestedRecipe(user: user, poolId: poolId) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.loadRecipes(for: user)
+                    // Leaving the detail screen reloads suggestions before the save finishes
+                    self.loadSuggestedRecipes(for: user)
+                    self.errorMessage = nil
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
     func resetRecipes() {
         recipes = []
+        suggestedRecipes = []
         hasLoadedRecipes = false
         isGenerating = false
         errorMessage = nil

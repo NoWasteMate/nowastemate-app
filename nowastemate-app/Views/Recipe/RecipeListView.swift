@@ -47,8 +47,12 @@ struct RecipeListView: View {
 
                     ScrollView(){
                         VStack(alignment: .leading){
-                            // TODO: show again once the global recipe pool has suggestions
-                            // GlassCardCarousel()
+                            if !recipeVM.suggestedRecipes.isEmpty {
+                                SubtitleHeader(subtitleText: "Suggested for you")
+                                    .padding(.horizontal, 16)
+
+                                GlassCardCarousel(recipes: recipeVM.suggestedRecipes)
+                            }
 
                             SubtitleHeader(subtitleText: "Saved Recipes")
                                 .padding(.horizontal, 16)
@@ -77,6 +81,7 @@ struct RecipeListView: View {
             if let user = authVM.user {
                 productVM.loadProducts(for: user)
                 recipeVM.loadRecipes(for: user)
+                recipeVM.loadSuggestedRecipes(for: user)
             }
         }
     }
@@ -111,6 +116,7 @@ struct GenerateRecipeButton: View {
 }
 
 struct GlassCardCarousel: View{
+    let recipes: [Recipe]
     private let cardHeight: CGFloat = 280
 
     var body: some View {
@@ -118,16 +124,13 @@ struct GlassCardCarousel: View{
         // https://www.hackingwithswift.com/quick-start/swiftui/how-to-make-a-scrollview-snap-with-paging-or-between-child-views
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 12) {
-                FavouriteGlassCard(cardTitle: "Suggested Recipe 1")
+                ForEach(recipes) { recipe in
+                    NavigationLink(destination: RecipeDetailView(recipe: recipe, isSuggested: true)) {
+                        SuggestedRecipeCard(recipe: recipe)
+                    }
                     .containerRelativeFrame(.horizontal)
                     .frame(height: cardHeight)
-
-                FavouriteGlassCard(cardTitle: "Suggested Recipe 2")
-                    .containerRelativeFrame(.horizontal)
-                    .frame(height: cardHeight)
-                FavouriteGlassCard(cardTitle: "Suggested Recipe 3")
-                    .containerRelativeFrame(.horizontal)
-                    .frame(height: cardHeight)
+                }
             }
             .scrollTargetLayout()
             .padding(.vertical) // gives a bit of allowence  on each vertical side of the element to still scroll
@@ -221,22 +224,46 @@ struct ListGlassCard: View {
     }
 }
 
-struct FavouriteGlassCard: View {
-    let cardTitle: String
+struct SuggestedRecipeCard: View {
+    let recipe: Recipe
     var body: some View{
-        VStack{
-            Spacer()
-            Text(cardTitle)
-                .font(.title2)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 20)
+        cardText
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            // A background can't change the card's size so the filled image stays inside it
+            .background { cardImage }
+            .clipShape(.rect(cornerRadius: 20))
+            .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
+    }
+
+    private var cardImage: some View {
+        AsyncImage(url: recipe.imageUrl) { image in
+            image
+                .resizable()
+                .scaledToFill()
+        } placeholder: {
+            Color.clear
         }
-        .frame(maxWidth: .infinity)
-        .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 20))
-        //https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views
-        //https://medium.com/icommunity/liquid-glass-in-swiftui-uikit-77d480db1d29
+    }
+
+    private var cardText: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(recipe.recipeName)
+                .font(.headline)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
+            Text("Uses \(recipe.ingredientsUsed) items")
+                .font(.subheadline)
+                .foregroundStyle(.white)
+                .italic()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 48)
+        .padding(.bottom, 12)
+        .padding(.horizontal, 12)
+        
+        // adds fade to dark so the white text reads over any photo
+        .background(LinearGradient(colors: [.clear, .black.opacity(0.6)], startPoint: .top, endPoint: .bottom))
     }
 }
 

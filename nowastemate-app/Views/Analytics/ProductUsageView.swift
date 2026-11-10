@@ -80,7 +80,7 @@ struct ProductUsageView: View {
                     .foregroundStyle(by: .value("Outcome", slice.label))
             }
             .chartForegroundStyleScale(["Consumed": Color.green, "Used in recipe": Color.blue, "Wasted": Color.orange])
-            .chartLegend(.hidden)
+            .chartLegend(position: .bottom)
             // Total in the middle of the donut
             .chartBackground { _ in
                 VStack {

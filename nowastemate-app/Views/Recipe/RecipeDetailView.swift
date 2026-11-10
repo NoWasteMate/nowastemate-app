@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     let recipe: Recipe
+    var isSuggested = false
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var recipeVM: RecipeViewModel
     @EnvironmentObject var authVM: AuthViewModel
@@ -129,17 +130,26 @@ struct RecipeDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Delete Recipe", systemImage: "trash", role: .destructive) {
-                    showDeleteConfirm = true
-                }
-                // Attached to the button so iOS 26 shows it as a popover from the trash icon
-                // https://useyourloaf.com/blog/swiftui-confirmation-dialogs/
-                .confirmationDialog("Delete this recipe?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
-                    Button("Delete", role: .destructive) {
+                if isSuggested {
+                    Button("Save Recipe", systemImage: "bookmark") {
                         if let user = authVM.user {
-                            recipeVM.deleteRecipe(for: user, recipe: recipe)
+                            recipeVM.saveSuggestedRecipe(for: user, poolId: recipe.id)
                         }
                         dismiss()
+                    }
+                } else {
+                    Button("Delete Recipe", systemImage: "trash", role: .destructive) {
+                        showDeleteConfirm = true
+                    }
+                    // Attached to the button so iOS 26 shows it as a popover from the trash icon
+                    // https://useyourloaf.com/blog/swiftui-confirmation-dialogs/
+                    .confirmationDialog("Delete this recipe?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+                        Button("Delete", role: .destructive) {
+                            if let user = authVM.user {
+                                recipeVM.deleteRecipe(for: user, recipe: recipe)
+                            }
+                            dismiss()
+                        }
                     }
                 }
             }

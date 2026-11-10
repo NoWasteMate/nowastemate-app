@@ -15,6 +15,8 @@ protocol RecipeServiceProtocol {
     func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
     func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void)
     func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func getSuggestedRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
+    func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct RecipeService: RecipeServiceProtocol {
@@ -115,6 +117,70 @@ struct RecipeService: RecipeServiceProtocol {
             let url = URL(string: "\(AppConfig.baseUrl)/deleteRecipe/\(recipeId)")!
             var request = URLRequest(url: url)
             request.httpMethod = "DELETE"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+                if let error = error {
+                    completionHandler(.failure(error))
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    completionHandler(.failure(URLError(.badServerResponse)))
+                    return
+                }
+
+                completionHandler(.success(()))
+            }
+            task.resume()
+        }
+    }
+
+    func getSuggestedRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
+
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                completionHandler(.failure(error))
+                return
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/suggestedRecipes")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completionHandler(.failure(error))
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      let data = data else {
+                    completionHandler(.failure(URLError(.badServerResponse)))
+                    return
+                }
+
+                do {
+                    let recipes = try JSONDecoder().decode([Recipe].self, from: data)
+                    completionHandler(.success(recipes))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+
+    func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                completionHandler(.failure(error))
+                return
+            }
+            let url = URL(string: "\(AppConfig.baseUrl)/saveSuggestedRecipe/\(poolId)")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
 
             let task = URLSession.shared.dataTask(with: request) { _, response, error in

@@ -31,6 +31,7 @@ struct AppPreviewEnvironment: PreviewModifier {
         let recipeVM = RecipeViewModel(service: PreviewRecipeService())
         recipeVM.recipes = Recipe.previewSamples
         recipeVM.hasLoadedRecipes = true
+        recipeVM.suggestedRecipes = Recipe.suggestedPreviewSamples
 
         let analyticsVM = AnalyticsViewModel(service: PreviewAnalyticsService())
         analyticsVM.wasteTrend = .previewSample(period: .week)

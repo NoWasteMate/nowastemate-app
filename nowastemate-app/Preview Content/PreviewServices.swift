@@ -23,6 +23,14 @@ struct PreviewRecipeService: RecipeServiceProtocol {
     func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
+
+    func getSuggestedRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void) {
+        completionHandler(.success(Recipe.suggestedPreviewSamples))
+    }
+
+    func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        completionHandler(.success(()))
+    }
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {
@@ -145,6 +153,11 @@ extension Recipe {
             .dessert, .drink, .platedMain, .general, nil
         ]
         return categories.map { preview(category: $0) }
+    }
+
+    // The first three samples, matching the backend's limit of 3 suggestions
+    static var suggestedPreviewSamples: [Recipe] {
+        Array(previewSamples.prefix(3))
     }
 
     static func preview(category: RecipeCategory?) -> Recipe {

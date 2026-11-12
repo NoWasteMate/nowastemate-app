@@ -157,8 +157,8 @@ struct WasteOverviewView: View {
             scoreBlock
                 .padding(.horizontal, 16)
 
-            // TODO: show the family trend once the backend has one
-            WasteTrendView()
+            // show the family trend once the backend has one
+            WasteTrendView(showsFamily: isShowingFamily)
                 .frame(minHeight: trendMinHeight)
             
             if (isShowingFamily){

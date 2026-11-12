@@ -34,7 +34,7 @@ enum AnalyticsError: LocalizedError {
 
 // Protocol lets previews inject sample data instead of calling backend
 protocol AnalyticsServiceProtocol {
-    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
+    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, family: Bool, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void)
     
     func getProductUsageOverview(user: User, days: Int?, family: Bool, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void)
 
@@ -48,7 +48,7 @@ struct AnalyticsService: AnalyticsServiceProtocol {
     static let shared = AnalyticsService()
     
     // Get method
-    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
+    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, family: Bool, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
                 print(error)
@@ -58,10 +58,15 @@ struct AnalyticsService: AnalyticsServiceProtocol {
             
             // URLComponents builds the query string instead of hand-interpolating it
             var components = URLComponents(url: AppConfig.baseUrl.appendingPathComponent("analytics/wasteTrend"), resolvingAgainstBaseURL: false)
-            components?.queryItems = [
+            var items = [
                 URLQueryItem(name: "period", value: period.rawValue),
                 URLQueryItem(name: "periods", value: String(periods))
             ]
+            
+            // the server finds the user is in a family
+            if family { items.append(URLQueryItem(name : "family", value: "true"))}
+            components?.queryItems = items
+            
             guard let url = components?.url else {
                 DispatchQueue.main.async { completionHandler(.failure(URLError(.badURL))) }
                 return

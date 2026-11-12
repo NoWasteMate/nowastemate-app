@@ -99,8 +99,27 @@ struct PreviewProductService: ProductServiceProtocol {
 }
 
 struct PreviewAnalyticsService: AnalyticsServiceProtocol {
-    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
-        completionHandler(.success(.previewSample(period: period, periods: periods)))
+    func getUserWasteOvertime(user: User, period: TrendPeriod, periods: Int, family: Bool, completionHandler: @escaping (Result<WasteTrend, Error>) -> Void) {
+        let sample = WasteTrend.previewSample(period: period, periods: periods)
+        
+        guard family else {
+            completionHandler(.success(sample))
+            return
+        }
+        
+        // toggle visibility should change in the chart so we can see if it changed from Personal to Family
+        let familySample = WasteTrend(
+            period: sample.period,
+            buckets: sample.buckets.map {
+                WasteTrendInformation(
+                    periodStart: $0.periodStart,
+                    wastedCount: $0.wastedCount * 2,
+                    consumedCount: $0.consumedCount * 2,
+                    byReason: $0.byReason.mapValues { $0 * 2}
+                )
+            })
+        
+        completionHandler(.success(familySample))
     }
     func getProductUsageOverview(user: User, days: Int?, family: Bool, completionHandler: @escaping (Result<ProductUsage, Error>) -> Void) {
         let usage = family ? ProductUsage(days: days, consumedCount: 31, usedInRecipeCount: 9, wastedCount: 14, byReason: ["expired": 8, "forgot": 6]) : ProductUsage(days: days, consumedCount: 14, usedInRecipeCount: 5, wastedCount: 6, byReason: ["expired": 3, "forgot": 2])

@@ -32,6 +32,9 @@ class AnalyticsViewModel: ObservableObject {
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
     private var scoreRequestId = 0
+    private var trendRequestId = 0
+    // which scope the current chart belongs to
+    private var trendIsFamily = false
     
     // 6 weeks / 6 months
     let periods = 6
@@ -42,12 +45,23 @@ class AnalyticsViewModel: ObservableObject {
         self.service = service
     }
     
-    func userWasteOvertime(for user: User, period: TrendPeriod) {
+    func userWasteOvertime(for user: User, period: TrendPeriod, family: Bool) {
+        trendRequestId += 1
+        let requestId = trendRequestId
+        
+        // personal chart never sit under a family headline
+        if family != trendIsFamily { wasteTrend = nil }
+        trendIsFamily = family
+        
         isLoading = true
         errorMessage = nil
         
-        service.getUserWasteOvertime(user: user, period: period, periods: periods) { result in
+        service.getUserWasteOvertime(user: user, period: period, periods: periods, family: family) { result in
+            
             guard period == self.selectedPeriod else { return }
+            
+            guard requestId == self.trendRequestId else { return }
+            
             self.isLoading = false
             
             switch result {
@@ -114,6 +128,9 @@ class AnalyticsViewModel: ObservableObject {
         selectedPeriod = .week
         isLoading = false
         errorMessage = nil
+        usageRequestId += 1
+        trendRequestId += 1
+        trendIsFamily = false
         usageRequestId += 1
         productUsage = nil
         selectedUsageWindow = 30

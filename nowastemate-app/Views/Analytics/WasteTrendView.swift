@@ -17,6 +17,9 @@ import Charts
 struct WasteTrendView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var analyticsVM: AnalyticsViewModel
+    
+    // setting the button for personal and family
+    var showsFamily = false
 
     var body: some View {
         ZStack {
@@ -36,6 +39,7 @@ struct WasteTrendView: View {
         }
         .task { load() }
         .onChange(of: analyticsVM.selectedPeriod) { load() }
+        .onChange(of: showsFamily) { load() }
     }
 
     @ViewBuilder
@@ -56,18 +60,21 @@ struct WasteTrendView: View {
             chart(for: trend)
         } else if analyticsVM.wasteTrend != nil {
             ContentUnavailableView(
+                showsFamily ? "No wasted items in your family yet" :
                 "No wasted items yet",
                 systemImage: "leaf",
-                description: Text("Items you mark as wasted will show up here.")
+                description: Text(showsFamily ? "Items in your family marks as wasted will show up here." : "Items you mark as wasted will show up here.")
             )
         }
     }
 
     private func chart(for trend: WasteTrend) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("\(trend.totalWasted) items wasted in the last \(analyticsVM.periods) \(trend.period == .week ? "weeks" : "months")")
-                .font(.headline)
-                .foregroundStyle(.white)
+        let unit = trend.period == .week ? "weeks" : "months"
+        
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(showsFamily ? "Your family wasted \(trend.totalWasted) items in the last \(analyticsVM.periods) \(unit)" : "\(trend.totalWasted) items wasted in the last \(analyticsVM.periods) \(unit)")
+                    .font(.headline)
+                    .foregroundStyle(.white)
 
             Chart {
                 ForEach(trend.buckets) { bucket in
@@ -98,7 +105,7 @@ struct WasteTrendView: View {
 
     private func load() {
         guard let user = authVM.user else { return }
-        analyticsVM.userWasteOvertime(for: user, period: analyticsVM.selectedPeriod)
+        analyticsVM.userWasteOvertime(for: user, period: analyticsVM.selectedPeriod, family: showsFamily)
     }
 }
 

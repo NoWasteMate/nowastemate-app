@@ -94,8 +94,34 @@ enum ExpiryDateParser {
     // cleaning up the characters by upper casing them
 
     private static func normalize(_ raw: String) -> String {
-        raw.folding(options: .diacriticInsensitive, locale: nil).uppercased()
+        raw.folding(options: .diacriticInsensitive, locale: nil)
+            .uppercased()
+            .split(separator: " ", omittingEmptySubsequences: false)
+            .map(fixOCRDigits)
+            .joined(separator: " ")
     }
+    
+    // "2O26-11-1S" -> "2026-11-15". Only in tokens that are mostly digits, and only for letters
+        // next to a digit, so "NO" (November) and "BB:" stay letters
+    private static func fixOCRDigits(_ token: Substring) -> String {
+        let alphanumerics = token.filter { $0.isLetter || $0.isNumber }
+        let digitCount = alphanumerics.filter(\.isNumber).count
+        guard digitCount > 0, digitCount * 2 >= alphanumerics.count else { return String(token) }
+        
+        let swaps: [Character: Character] = ["O": "0", "I": "1", "L": "1", "S": "5", "B": "8"]
+        let chars = Array(token)
+        var fixed = ""
+        for (i, char) in chars.enumerated() {
+            let nextToDigit = (i > 0 && chars[i - 1].isNumber) || (i + 1 < chars.count && chars[i + 1].isNumber)
+            if let swap = swaps[char], nextToDigit {
+                fixed.append(swap)
+            } else {
+                fixed.append(char)
+            }
+        }
+        return fixed
+    }
+    
 
     // Matching the result for the user by score
     
@@ -220,7 +246,9 @@ enum ExpiryDateParser {
         ["EXP 03/04/27"],
         ["LOT 2611151234"],
         ["Nutrition Facts", "Calories 120"],
-        ["EXP 27 FE 31"]
+        ["EXP 27 FE 31"],
+        ["BB 2O26-11-1S"],
+        ["BB:2026-11-15"],
     ]
     return List(cases, id: \.self) { lines in
         let found = ExpiryDateParser.candidates(lines: lines, now: now)

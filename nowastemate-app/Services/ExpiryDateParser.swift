@@ -36,6 +36,9 @@ enum ExpiryDateParser {
     // 2026 NO 15, 26 NO 15, NO 15 (year optional, Canadian YY MM DD order)
     // CFIA date markings: https://inspection.canada.ca/en/food-labels/labelling/industry/date-markings-and-storage-instructions
     private static let monthCodeRegex = makeRegex(#"\b(?:(\d{4}|\d{2})\s+)?(JA|FE|MR|AL|MA|JN|JL|AU|SE|OC|NO|DE)\s+(\d{1,2})\b"#)
+    
+    // 15/11/2026, 11/15/26, 15.11.26
+    private static let numericRegex = makeRegex(#"\b(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})\b"#)
 
     private static let expiryKeywordRegex = makeRegex(#"\b(EXP|EXPIRY|EXPIRES|BB|BBE|BEST BEFORE|BEST BY|USE BY|MEILLEUR AVANT)\b"#)
     private static let packagedOnRegex = makeRegex(#"\b(PACKAGED ON|PACKED ON|EMBALLE LE|PKD|MFG|PROD|LOT)\b"#)
@@ -72,7 +75,8 @@ enum ExpiryDateParser {
                 // "NO 15" with no year is only a date if a best-before keyword is right there
                 if match.yearWasMissing && label != .expiry { continue }
                 
-                var score = 0
+                guard let range = rangeScore(match.date, now: now, calendar: calendar) else { continue }
+                var score = range
                 if label == .expiry { score += 3 }
                 if label == .packagedOn { score -= 5 }
                 
@@ -83,7 +87,8 @@ enum ExpiryDateParser {
         let unique = Dictionary(grouping: found, by: \.date).compactMap { $0.value.max(by: { $0.score < $1.score }) }
         return unique
             .filter { $0.score > 0 }
-            .sorted { $0.score > $1.score }
+            // tie-break by date so the top result doesn't flip between updates
+            .sorted { $0.score != $1.score ? $0.score > $1.score : $0.date < $1.date }
     }
 
     // cleaning up the characters by upper casing them
@@ -101,8 +106,7 @@ enum ExpiryDateParser {
         for r in results(isoRegex, in: line) {
             guard let y = int(r, 1, line), let m = int(r, 2, line), let d = int(r, 3, line),
                   let date = makeDate(year: y, month: m, day: d, calendar: calendar) else { continue }
-            result.append(Match(text: group(r, 0, line) ?? "", location: r.range.location,
-                                date: date, isAmbiguous: false, yearWasMissing: false))
+            result.append(Match(text: group(r, 0, line) ?? "", location: r.range.location, date: date, isAmbiguous: false, yearWasMissing: false))
         }
         
         for r in results(monthCodeRegex, in: line) {
@@ -110,10 +114,28 @@ enum ExpiryDateParser {
                   let monthIndex = monthCodes.firstIndex(of: code),
                   let day = int(r, 3, line) else { continue }
             let year = int(r, 1, line)
-            let date = year.map { makeDate(year: fullYear($0), month: monthIndex + 1, day: day, calendar: calendar) }
-            ?? nextOccurrence(month: monthIndex + 1, day: day, now: now, calendar: calendar)
+            let date = year.map { makeDate(year: fullYear($0), month: monthIndex + 1, day: day, calendar: calendar) } ?? nextOccurrence(month: monthIndex + 1, day: day, now: now, calendar: calendar)
             guard let date else { continue }
             result.append(Match(text: group(r, 0, line) ?? "", location: r.range.location,date: date, isAmbiguous: false, yearWasMissing: year == nil))
+        }
+        
+        for r in results(numericRegex, in: line) {
+            guard let a = int(r, 1, line), let b = int(r, 2, line), let y = int(r, 3, line) else {continue}
+            // both numbers <= 12 (and different) means it could be read either way, so return both
+            let readings: [(day: Int, month: Int)]
+            if a <= 12 && b <= 12 && a != b {
+                readings = [(a, b), (b, a)]
+            } else if a > 12 {
+                // 15/11/2026: day first
+                readings = [(a, b)]
+            } else {
+                // 11/15/26: month first
+                readings = [(b, a)]
+            }
+            for reading in readings {
+                guard let date = makeDate(year: fullYear(y), month: reading.month, day: reading.day, calendar: calendar) else { continue }
+                result.append(Match(text: group(r, 0, line) ?? "", location: r.range.location, date: date, isAmbiguous: readings.count == 2, yearWasMissing: false))
+            }
         }
 
         return result
@@ -126,6 +148,18 @@ enum ExpiryDateParser {
         let labels = results(expiryKeywordRegex, in: line).map { ($0.range.location, Label.expiry) }
                    + results(packagedOnRegex, in: line).map { ($0.range.location, Label.packagedOn) }
         return labels.filter { $0.0 < location }.max(by: { $0.0 < $1.0 })?.1
+    }
+    
+    // nil = drop it (more than 10 years away, probably a lot number); +1 within 3 years; -2 if over 30 days old
+    private static func rangeScore(_ date: Date, now: Date, calendar: Calendar) -> Int? {
+        guard let tooFar = calendar.date(byAdding: .year, value: 10, to: now),
+              let tooOld = calendar.date(byAdding: .year, value: -10, to: now),
+              date < tooFar, date > tooOld else { return nil }
+
+        let today = calendar.startOfDay(for: now)
+        if date >= today, let limit = calendar.date(byAdding: .year, value: 3, to: today), date <= limit { return 1 }
+        if let monthAgo = calendar.date(byAdding: .day, value: -30, to: today), date < monthAgo { return -2 }
+        return 0
     }
     
     // Dates section
@@ -181,7 +215,12 @@ enum ExpiryDateParser {
         ["BEST BEFORE", "NO 05"],
         ["NO 15"],
         ["NO SUGAR ADDED", "MA 12"],
-        ["PACKAGED ON 26 NO 01", "BEST BEFORE 26 NO 20"]
+        ["PACKAGED ON 26 NO 01", "BEST BEFORE 26 NO 20"],
+        ["EXP 15/11/2026"],
+        ["EXP 03/04/27"],
+        ["LOT 2611151234"],
+        ["Nutrition Facts", "Calories 120"],
+        ["EXP 27 FE 31"]
     ]
     return List(cases, id: \.self) { lines in
         let found = ExpiryDateParser.candidates(lines: lines, now: now)

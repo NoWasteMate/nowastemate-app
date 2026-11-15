@@ -36,7 +36,7 @@ struct LeaderboardView: View {
                             //https://sarunw.com/posts/swiftui-text-font/
                                 .font(.title)
                                 .foregroundColor(.white)
-                                .padding(.bottom, 40)
+                                .padding(.vertical, 40)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .multilineTextAlignment(.center)
                             
@@ -44,6 +44,8 @@ struct LeaderboardView: View {
                             
                             //https://www.hackingwithswift.com/forums/swiftui/swiftui-foreach-iterating-over-an-array-of-key-value-pairs/21069
                             if let members = analyticsVM.familyLeaderboard?.sorted(by: {$0.score ?? 0 > $1.score ?? 0}) {
+                                
+                                
                                                                 
                                 ForEach(members) { member in
                                     
@@ -57,8 +59,8 @@ struct LeaderboardView: View {
                                             if (members[1] == member) {
                                                 Text(String(2)).bold().foregroundStyle(.white)
                                             }
-                                            
-                                            if (members[2] == member) {
+                                            //in case there is only 2 in family
+                                            if (members.count > 2 && members[2] == member) {
                                                 Text(String(3)).bold().foregroundStyle(.white)
                                             }
                                             
@@ -84,21 +86,43 @@ struct LeaderboardView: View {
                             
                             //https://www.programiz.com/swift-programming/library/dictionary/contains
                             
-                                VStack (spacing: 10){
                                     
-                                    if members.contains(where: {$0.id != authVM.user?.uid && $0.score == nil }) {
-                                        Text("Some Family Members do not have enough products logged and have been omitted")
-                                    }
-                                    
-                                    
-                                    if members.contains(where: {$0.id == authVM.user?.uid && $0.score == nil }) {
-                                        Text("Your user does not have enough products logged and has been omitted")
+                                    if (members.contains(where: {$0.score == nil})){
                                         
+                                        DisclosureGroup("Notes"){
+                                            
+                                            VStack (spacing: 10){
+                                                
+                                                if members.contains(where: {$0.id != authVM.user?.uid && $0.score == nil }) {
+                                                    Text("Some Family Members do not have enough products logged and have been omitted")
+                                                        .padding()
+                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                        .overlay(
+                                                            RoundedRectangle(cornerRadius: 10)
+                                                                .stroke(.white, lineWidth: 1))
+                                                }
+                                                
+                                                
+                                                if members.contains(where: {$0.id == authVM.user?.uid && $0.score == nil }) {
+                                                    Text("Your user does not have enough products logged and has been omitted")
+                                                        .padding()
+                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                        .overlay(
+                                                            RoundedRectangle(cornerRadius: 10)
+                                                                .stroke(.white, lineWidth: 1))
+                                                    
+                                                }
+                                            }.foregroundStyle(.white).font(.footnote)
+                                                .padding()
+                                        
+                                        }
+                                        .padding()
+                                        .foregroundStyle(.white)
+                                        //TODO: Fix color on the tab
+                                        .tint(.white)
                                     }
                                     
-                                }.foregroundStyle(.white).font(.footnote)
-                                    .padding(.vertical, 10)
-                            
+                                
                                 
                             } else if let message = analyticsVM.categoryWasteErrorMessage {
                                 Text(message)

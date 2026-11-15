@@ -205,6 +205,8 @@ struct FamilyMemberView: View {
                                     Text("Please confirm you want to leave the family - This cannot be undone.")
                                 })
                             }
+                            
+                            
                         }
                         
                     }
@@ -231,6 +233,31 @@ struct FamilyMemberView: View {
 
                 
                 VStack {
+                    
+                    
+                    HStack {
+                        NavigationLink {
+                            LeaderboardView()
+                        }
+                        label: {
+                            
+                            Text("Check Out The Family Leaderboard").foregroundStyle(.white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.white)
+                                .imageScale(.small)
+                        }
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.white, lineWidth: 1)
+                    )
+                    .padding(.horizontal, 12)
                     
                     Text("Add Family Members with This Code:")
                     //https://sarunw.com/posts/swiftui-text-font/

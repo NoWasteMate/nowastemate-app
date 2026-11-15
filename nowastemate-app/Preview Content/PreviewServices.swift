@@ -133,7 +133,7 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     }
     
     func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], any Error>) -> Void) {
-        completionHandler(.success([LeaderboardFamilyMember(firstName: "John", lastName: "Smith", score: 70)]))
+        completionHandler(.success([LeaderboardFamilyMember(id: "123", firstName: "John", lastName: "Smith", score: 70)]))
     }
 }
 

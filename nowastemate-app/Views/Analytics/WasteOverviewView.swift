@@ -166,6 +166,31 @@ struct WasteOverviewView: View {
             } else {
                 Top3CategoryWaste(isShowingFamily: false)
             }
+            
+            HStack {
+                NavigationLink {
+                    LeaderboardView()
+                }
+                label: {
+                    
+                    Text("Check Out The Family Leaderboard").foregroundStyle(.white)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.white)
+                        .imageScale(.small)
+                }
+            }
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(.white, lineWidth: 1)
+            )
+            .padding(.horizontal, 12)
+            
         }
     }
 

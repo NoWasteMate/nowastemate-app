@@ -42,6 +42,8 @@ protocol AnalyticsServiceProtocol {
     
     func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], Error>) -> Void)
     
+    func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], Error>) -> Void)
+    
 }
 
 struct AnalyticsService: AnalyticsServiceProtocol {
@@ -234,6 +236,38 @@ struct AnalyticsService: AnalyticsServiceProtocol {
                 do {
                     let wasteStats = try JSONDecoder().decode([String: Double].self, from: data)
                               completionHandler(.success(wasteStats))
+                }
+                
+                catch {
+                    print(error)
+                    completionHandler(.failure(error))
+                }
+            }
+            task.resume()
+
+        }
+        
+    }
+    
+    func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], Error>) -> Void){
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+          if let error = error {
+            print(error)
+            return;
+          }
+            let url = URL(string: "\(AppConfig.baseUrl)/analytics/familyLeaderboard")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                do {
+                    let members = try JSONDecoder().decode([LeaderboardFamilyMember].self, from: data)
+                            print(members)
+                              completionHandler(.success(members))
                 }
                 
                 catch {

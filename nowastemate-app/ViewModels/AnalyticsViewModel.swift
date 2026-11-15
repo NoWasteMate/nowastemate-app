@@ -29,6 +29,8 @@ class AnalyticsViewModel: ObservableObject {
     @Published var categoryWasteResults: [String: Double]?
     @Published var categoryWasteErrorMessage: String?
     
+    @Published var familyLeaderboard: [LeaderboardFamilyMember]?
+    
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
     private var scoreRequestId = 0
@@ -152,6 +154,21 @@ class AnalyticsViewModel: ObservableObject {
                 
                 DispatchQueue.main.async {
                     self.categoryWasteResults = wasteStats
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.categoryWasteErrorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    func familyLeaderboard(for user: User){
+        service.getFamilyLeaderboard(user: user) { result in
+            switch result {
+            case .success(let leaderboard):
+                DispatchQueue.main.async {
+                    self.familyLeaderboard = leaderboard
                 }
             case .failure(let error):
                 DispatchQueue.main.async {

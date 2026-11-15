@@ -12,6 +12,7 @@ struct FamilyMemberView: View {
     
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @State private var editNameAlert: Bool = false
     @State private var manageFamilyAlert: Bool = false
@@ -204,6 +205,8 @@ struct FamilyMemberView: View {
                                     Text("Please confirm you want to leave the family - This cannot be undone.")
                                 })
                             }
+                            
+                            
                         }
                         
                     }
@@ -230,6 +233,31 @@ struct FamilyMemberView: View {
 
                 
                 VStack {
+                    
+                    
+                    HStack {
+                        NavigationLink {
+                            LeaderboardView()
+                        }
+                        label: {
+                            
+                            Text("Check Out The Family Leaderboard").foregroundStyle(.white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.white)
+                                .imageScale(.small)
+                        }
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.white, lineWidth: 1)
+                    )
+                    .padding(.horizontal, 12)
                     
                     Text("Add Family Members with This Code:")
                     //https://sarunw.com/posts/swiftui-text-font/
@@ -336,6 +364,9 @@ struct FamilyMemberView: View {
         .edgesIgnoringSafeArea(.all)
         .onAppear {
             isClicked = false
+            if let user = authVM.user {
+                analyticsVM.familyLeaderboard(for: user)
+            }
         }
 
     }

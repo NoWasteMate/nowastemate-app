@@ -131,6 +131,10 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getCategoryWaste(user: User, familyId: String?, completionHandler: @escaping (Result<[String: Double], any Error>) -> Void) {
         completionHandler(.success(["produce": 25, "dairy": 10, "meat": 0]))
     }
+    
+    func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], any Error>) -> Void) {
+        completionHandler(.success([LeaderboardFamilyMember(id: "123", firstName: "John", lastName: "Smith", score: 70)]))
+    }
 }
 
 extension WasteScoreSummary {

@@ -12,6 +12,7 @@ struct FamilyMemberView: View {
     
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @State private var editNameAlert: Bool = false
     @State private var manageFamilyAlert: Bool = false
@@ -336,6 +337,9 @@ struct FamilyMemberView: View {
         .edgesIgnoringSafeArea(.all)
         .onAppear {
             isClicked = false
+            if let user = authVM.user {
+                analyticsVM.familyLeaderboard(for: user)
+            }
         }
 
     }

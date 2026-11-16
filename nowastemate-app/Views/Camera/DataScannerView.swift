@@ -17,6 +17,7 @@ struct DataScannerView: UIViewControllerRepresentable {
     
     let recognizedDataType: DataScannerViewController.RecognizedDataType
     let recognizesMultipleItems: Bool
+    var onTap: ((RecognizedItem) -> Void)? = nil
     
     func makeUIViewController(context: Context) -> DataScannerViewController {
         
@@ -33,6 +34,8 @@ struct DataScannerView: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
         uiViewController.delegate = context.coordinator
+        context.coordinator.onTap = onTap
+        
         try? uiViewController.startScanning()
     }
     
@@ -47,20 +50,37 @@ struct DataScannerView: UIViewControllerRepresentable {
     class Coordinator: NSObject, DataScannerViewControllerDelegate {
         
         @Binding var recognizedItems: [RecognizedItem]
+        var onTap: ((RecognizedItem) -> Void)?
         
         init(recoginzedItems: Binding<[RecognizedItem]>) {
             self._recognizedItems = recoginzedItems
         }
         
         func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
+            onTap?(item)
             print("didTapOn \(item)")
         }
         
         func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem]) {
             
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
             recognizedItems.append(contentsOf: addedItems)
-            print("didAddItems \(addedItems)")
+            
+            let hasBarcode = addedItems.contains { item in
+                if case .barcode = item { return true }
+                return false
+            }
+            
+            if hasBarcode {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                //recognizedItems.append(contentsOf: addedItems)
+                print("didAddItems \(addedItems)")
+            }
+        }
+        
+        func dataScanner(_ dataScanner: DataScannerViewController, didUpdate updatedItems: [RecognizedItem], allItems: [RecognizedItem]) {
+            recognizedItems = recognizedItems.map { item in
+                updatedItems.first(where: { $0.id == item.id }) ?? item
+            }
         }
         
         func dataScanner(_ dataScanner: DataScannerViewController, didRemove removedItems: [RecognizedItem], allItems: [RecognizedItem]) {

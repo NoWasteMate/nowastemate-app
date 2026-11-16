@@ -31,6 +31,9 @@ struct AddProductView: View {
     
     // onAppear fires again when navigating back this stops it wiping the user's edits
     @State private var hasAppliedPrefill = false
+    
+    @State private var showExpiryScanner = false
+    @State private var isExpiryScanned = false
 
     // Suggestions only show while typing and dissapear once they are picked
     // https://www.hackingwithswift.com/quick-start/swiftui/how-to-dismiss-the-keyboard-for-a-textfield
@@ -128,33 +131,47 @@ struct AddProductView: View {
                     
                     Text("Expiry Date").fontWeight(.bold)
                         .foregroundStyle(.white)
+                    
+                    HStack {
                         Button("Pick Date", systemImage: "calendar") {
                             showDatePicker = true
                         }
-                            .padding()
-                            .background(.regularMaterial)
-                            .foregroundStyle(.primary)
-                            .clipShape(Capsule())
-                            .sheet(isPresented: $showDatePicker) {
-                        NavigationStack {
-                            DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
-                                .datePickerStyle(.graphical)
-                                .padding()
-                                .navigationTitle("Expiry Date")
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .confirmationAction) {
-                                        Button("Done") {
-                                            showDatePicker = false
+                        .padding()
+                        .background(.regularMaterial)
+                        .foregroundStyle(.primary)
+                        .clipShape(Capsule())
+                        .sheet(isPresented: $showDatePicker) {
+                            NavigationStack {
+                                DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
+                                    .datePickerStyle(.graphical)
+                                    .padding()
+                                    .navigationTitle("Expiry Date")
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .confirmationAction) {
+                                            Button("Done") {
+                                                isExpiryScanned = false
+                                                showDatePicker = false
+                                            }
                                         }
                                     }
-                                }
+                            }
                         }
+                        
+                        Button("Scan Date", systemImage: "text.viewfinder") {
+                            showExpiryScanner = true
+                        }
+                        .padding()
+                        .background(.regularMaterial)
+                        .foregroundStyle(.primary)
+                        .clipShape(Capsule())
+                        .fullScreenCover(isPresented: $showExpiryScanner) {
+                            ExpiryScanView(onConfirm: applyScannedDate)
+                        }
+                        
                     }
-                    Text("Expires: \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
                     
+                    Text("Expires: \(expiryDate.formatted(date: .abbreviated, time: .omitted))\(isExpiryScanned ? " · Scanned" : "")")
                     //Button to send the user inputted product to ProductViewModel
 //                    Button("Save Product") {
 //                        guard let user = authVM.user else { return }
@@ -239,6 +256,11 @@ struct AddProductView: View {
     private func pick(_ type: ProductType) {
         name = type.name.capitalized
         nameIsFocused = false
+    }
+    
+    private func applyScannedDate(_ date: Date) {
+        expiryDate = date
+        isExpiryScanned = true
     }
 }
 

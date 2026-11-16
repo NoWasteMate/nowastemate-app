@@ -11,4 +11,5 @@ struct FamilyMember: Codable, Hashable {
     var member: String
     var email: String? = nil
     var firstName: String? = nil
+    var lastName: String? = nil
 }

@@ -60,11 +60,53 @@ struct ExpiryScanView: View {
     // Bottom panel
     
     private var panel: some View {
-        Text("Point the camera at the best-before or expiry date")
-            .multilineTextAlignment(.center)
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial)
+        VStack(spacing: 12) {
+            if let best = vm.bestCandidate {
+                Text("Found")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(best.date.formatted(date: .long, time: .omitted))
+                    .font(.title2.bold())
+                
+                if best.date < .now {                             // 23:59:59 has passed, so the day is over
+                    Label("This date has already passed", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                }
+                
+                Button("Use this date") { confirm(best.date) }
+                    .buttonStyle(.borderedProminent)
+                Button("Scan again") { vm.reset() }
+            } else {
+                Text("Point the camera at the best-before or expiry date")
+                    .multilineTextAlignment(.center)
+            }
+            
+            // other matches (and the second reading of an ambiguous date); tapping one is the user's choice
+            if !otherCandidates.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(otherCandidates) { candidate in
+                            Button(candidate.date.formatted(date: .abbreviated, time: .omitted)) {
+                                confirm(candidate.date)
+                            }
+                            .buttonStyle(.glass)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(.ultraThinMaterial)
+    }
+
+    private var otherCandidates: [ExpiryCandidate] {
+        Array(vm.candidates.filter { $0.id != vm.bestCandidate?.id }.prefix(4))
+    }
+
+    private func confirm(_ date: Date) {
+        onConfirm(date)
+        dismiss()
     }
     
     private func unavailable(_ message: String) -> some View {

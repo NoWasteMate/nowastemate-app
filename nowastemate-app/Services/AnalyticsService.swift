@@ -44,6 +44,8 @@ protocol AnalyticsServiceProtocol {
     
     func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], Error>) -> Void)
     
+    func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void)
+    
 }
 
 struct AnalyticsService: AnalyticsServiceProtocol {

@@ -135,6 +135,10 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
     func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], any Error>) -> Void) {
         completionHandler(.success([LeaderboardFamilyMember(id: "123", firstName: "John", lastName: "Smith", score: 70)]))
     }
+    
+    func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void){
+        completionHandler(.success(ProduceItem(predictedProduce: "apple", chosenProduce: "banana")))
+    }
 }
 
 extension WasteScoreSummary {

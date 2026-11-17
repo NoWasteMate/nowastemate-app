@@ -151,7 +151,7 @@ extension ProductWasteRisk {
         [
             ProductWasteRisk(id: "preview-1", name: "Tomatoes", productType: "tomato", dateExpiration: nil, risk: .high, categoryOftenWasted: false),
             ProductWasteRisk(id: "preview-2", name: "Pasta", productType: "pasta", dateExpiration: nil, risk: .low, categoryOftenWasted: false),
-            ProductWasteRisk(id: "preview-3", name: "Parmesan", productType: "parmesan", dateExpiration: nil, risk: .medium, categoryOftenWasted: false)
+            ProductWasteRisk(id: "preview-3", name: "Parmesan", productType: "parmesan", dateExpiration: nil, risk: .medium, categoryOftenWasted: true)
         ]
     }
 }

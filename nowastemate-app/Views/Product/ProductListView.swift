@@ -142,8 +142,23 @@ struct ProductListView: View {
                                         ProductRowView(product: product)
                                     }
                                 } header: {
-                                    Text(category.rawValue.capitalized)
-                                        .foregroundStyle(.white.opacity(0.9))
+                                    HStack {
+                                        Text(category.rawValue.capitalized)
+                                        Spacer()
+                                        if isOftenWasted(items) {
+                                            NavigationLink {
+                                                CategoryWasteView(isFamily: productVM.scope == .family)
+                                            } label: {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "exclamationmark.triangle.fill")
+                                                        .symbolRenderingMode(.multicolor)
+                                                    Text("Category often wasted")
+                                                }
+                                                .font(.caption.weight(.semibold))
+                                            }
+                                        }
+                                    }
+                                    .foregroundStyle(.white.opacity(0.9))
                                 }
                             }
                         }
@@ -543,7 +558,14 @@ struct ProductListView: View {
         if member.member == authVM.user?.uid { return "You" }
         return member.firstName ?? member.email ?? "Member"
     }
-    
+
+    // The backend flags each product, not the category, so check the section's products
+    private func isOftenWasted(_ products: [Product]) -> Bool {
+        analyticsVM.wasteRisks.contains { risk in
+            risk.categoryOftenWasted && products.contains { $0.id == risk.id }
+        }
+    }
+
 }
 
 #if DEBUG

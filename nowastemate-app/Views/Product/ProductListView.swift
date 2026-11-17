@@ -142,8 +142,23 @@ struct ProductListView: View {
                                         ProductRowView(product: product)
                                     }
                                 } header: {
-                                    Text(category.rawValue.capitalized)
-                                        .foregroundStyle(.white.opacity(0.9))
+                                    HStack {
+                                        Text(category.rawValue.capitalized)
+                                        Spacer()
+                                        if isOftenWasted(items) {
+                                            NavigationLink {
+                                                CategoryWasteView(isFamily: productVM.scope == .family)
+                                            } label: {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "exclamationmark.triangle.fill")
+                                                        .symbolRenderingMode(.multicolor)
+                                                    Text("Category often wasted")
+                                                }
+                                                .font(.caption.weight(.semibold))
+                                            }
+                                        }
+                                    }
+                                    .foregroundStyle(.white.opacity(0.9))
                                 }
                             }
                         }
@@ -157,10 +172,12 @@ struct ProductListView: View {
                         print("Loading product data...")
                         guard let user = authVM.user else { return }
                         productVM.loadProducts(for: user)
+                        analyticsVM.loadWasteRisks(for: user, family: productVM.scope == .family)
                     }
                     .refreshable {
                         guard let user = authVM.user else { return }
                         productVM.reloadCurrentScope(for: user)
+                        analyticsVM.loadWasteRisks(for: user, family: productVM.scope == .family)
                     }
                 }.padding(20)
             }
@@ -478,6 +495,10 @@ struct ProductListView: View {
             if scope == .family, !productVM.hasLoadedFamilyProducts, let user = authVM.user {
                 productVM.loadFamilyProducts(for: user)
             }
+            // Family risks cover the other members' products too
+            if let user = authVM.user {
+                analyticsVM.loadWasteRisks(for: user, family: scope == .family)
+            }
         } label: {
             Text(title)
                 .font(.caption.weight(.semibold))
@@ -537,7 +558,14 @@ struct ProductListView: View {
         if member.member == authVM.user?.uid { return "You" }
         return member.firstName ?? member.email ?? "Member"
     }
-    
+
+    // The backend flags each product, not the category, so check the section's products
+    private func isOftenWasted(_ products: [Product]) -> Bool {
+        analyticsVM.wasteRisks.contains { risk in
+            risk.categoryOftenWasted && products.contains { $0.id == risk.id }
+        }
+    }
+
 }
 
 #if DEBUG
@@ -551,6 +579,7 @@ struct ProductRowView: View {
     var product: Product
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @State private var showWasteReasons = false
     @State private var triggerDiagnosticWaste = false
@@ -561,6 +590,10 @@ struct ProductRowView: View {
     private var isMarking: Bool {
         guard let id = product.id else { return false }
         return productVM.markingProductIds.contains(id)
+    }
+    
+    private var wasteRisk: WasteRisk? {
+        analyticsVM.wasteRisks.first { $0.id == product.id }?.risk
     }
     
     // Only in the Family View
@@ -580,6 +613,15 @@ struct ProductRowView: View {
                 
                 HStack(spacing: 8) {
                     ExpiryLabel(product: product)
+                    
+                    // Outlined like the quantity so it doesn't read as another expiry date
+                    if let wasteRisk {
+                        Text("\(wasteRisk.rawValue.capitalized) risk")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(riskColor(wasteRisk))
+                            .padding(.horizontal, 6)
+                            .overlay(Capsule().stroke(riskColor(wasteRisk), lineWidth: 1))
+                    }
                     
                     if let ownerLabel {
                         OwnerBadge(name: ownerLabel)
@@ -697,6 +739,14 @@ struct ProductRowView: View {
     private func mark(_ outcome: ProductOutcome, reason: WasteReason? = nil) {
         guard let user = authVM.user else { return }
         productVM.markOutcome(for: user, product: product, outcome: outcome, wasteReason: reason)
+    }
+    
+    private func riskColor(_ risk: WasteRisk) -> Color {
+        switch risk {
+        case .high: return Color("WasteRiskHigh")
+        case .medium: return Color("WasteRiskMedium")
+        case .low: return Color("WasteRiskLow")
+        }
     }
     
     

@@ -19,7 +19,8 @@ struct HomeView: View {
 
     @State private var showsWasteOverview = false
 
-    private let expiringSoonLimit = 5
+    private let likelyToWasteLimit = 5
+    private let riskOrder: [WasteRisk] = [.high, .medium, .low]
     private let scoreCircleSize: CGFloat = 224
     
     // The family score is only shown on the Waste overview
@@ -48,11 +49,18 @@ struct HomeView: View {
         return userScore.rating?.displayName ?? ""
     }
 
-    // Closest to expiring first, fresh and undated products left out
-    private var expiringProducts: [Product] {
+    // Highest risk first, then closest to expiring. Fresh low risk products are left out
+    private var likelyToWasteProducts: [Product] {
         productVM.products
-            .filter { $0.expiryStatus() != .fresh }
-            .sorted { ($0.daysUntilExpiry() ?? 0) < ($1.daysUntilExpiry() ?? 0) }
+            .filter { $0.expiryStatus() != .fresh || wasteRisk(of: $0) != .low }
+            .sorted { first, second in
+                let firstRank = riskOrder.firstIndex(of: wasteRisk(of: first)) ?? 0
+                let secondRank = riskOrder.firstIndex(of: wasteRisk(of: second)) ?? 0
+                if firstRank != secondRank {
+                    return firstRank < secondRank
+                }
+                return (first.daysUntilExpiry() ?? 0) < (second.daysUntilExpiry() ?? 0)
+            }
     }
     
     var body: some View {
@@ -117,7 +125,7 @@ struct HomeView: View {
                             .listRowInsets(EdgeInsets())
                     }
 
-                    expiringSoonSection
+                    likelyToWasteSection
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
@@ -145,6 +153,7 @@ struct HomeView: View {
             // Every appear so the score refreshes after marking a product
             if let user = authVM.user {
                 analyticsVM.loadWasteScore(for: user)
+                analyticsVM.loadWasteRisks(for: user, family: false)
             }
             
             NotificationService.shared.requestAuth()
@@ -180,33 +189,38 @@ struct HomeView: View {
         .glassEffect(.clear.interactive(), in: .circle)
     }
 
-    private var expiringSoonSection: some View {
+    private var likelyToWasteSection: some View {
         Section {
             if !productVM.hasLoadedProducts {
                 ProgressView()
                     .frame(maxWidth: .infinity)
-            } else if expiringProducts.isEmpty {
-                Text("Nothing expiring in the next few days")
+            } else if likelyToWasteProducts.isEmpty {
+                Text("Nothing likely to go to waste right now")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(expiringProducts.prefix(expiringSoonLimit)) { product in
+                ForEach(likelyToWasteProducts.prefix(likelyToWasteLimit)) { product in
                     ProductRowView(product: product)
                 }
             }
         } header: {
             HStack {
-                Text("Expiring Soon")
+                Text("Likely to Waste")
                 Spacer()
-                if !expiringProducts.isEmpty {
+                if !likelyToWasteProducts.isEmpty {
                     // TODO: open Inventory filtered to expiring products once it has an expiry filter
-                    Button("See All (\(expiringProducts.count))") {
+                    Button("See All (\(likelyToWasteProducts.count))") {
                         selectedTab = .inventory
                     }
                 }
             }
             .foregroundStyle(.white.opacity(0.9))
         }
+    }
+    
+    // Products the backend has no risk for count as low
+    private func wasteRisk(of product: Product) -> WasteRisk {
+        analyticsVM.wasteRisks.first { $0.id == product.id }?.risk ?? .low
     }
 }
 

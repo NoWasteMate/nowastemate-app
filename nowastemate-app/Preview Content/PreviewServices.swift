@@ -136,8 +136,23 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
         completionHandler(.success([LeaderboardFamilyMember(id: "123", firstName: "John", lastName: "Smith", score: 70)]))
     }
     
+    func getWasteRisks(user: User, family: Bool, completionHandler: @escaping (Result<[ProductWasteRisk], Error>) -> Void) {
+        completionHandler(.success(ProductWasteRisk.previewSamples))
+    }
+    
     func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void){
         completionHandler(.success(ProduceItem(predictedProduce: "apple", chosenProduce: "banana")))
+    }
+}
+
+extension ProductWasteRisk {
+    // Ids match Product.previewSamples, one of each level so previews show all three colours
+    static var previewSamples: [ProductWasteRisk] {
+        [
+            ProductWasteRisk(id: "preview-1", name: "Tomatoes", productType: "tomato", dateExpiration: nil, risk: .high, categoryOftenWasted: false),
+            ProductWasteRisk(id: "preview-2", name: "Pasta", productType: "pasta", dateExpiration: nil, risk: .low, categoryOftenWasted: false),
+            ProductWasteRisk(id: "preview-3", name: "Parmesan", productType: "parmesan", dateExpiration: nil, risk: .medium, categoryOftenWasted: true)
+        ]
     }
 }
 

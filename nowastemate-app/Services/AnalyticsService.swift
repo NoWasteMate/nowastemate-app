@@ -44,6 +44,8 @@ protocol AnalyticsServiceProtocol {
     
     func getFamilyLeaderboard(user: User, completionHandler: @escaping (Result<[LeaderboardFamilyMember], Error>) -> Void)
     
+    func getWasteRisks(user: User, family: Bool, completionHandler: @escaping (Result<[ProductWasteRisk], Error>) -> Void)
+    
     func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void)
     
 }
@@ -281,6 +283,52 @@ struct AnalyticsService: AnalyticsServiceProtocol {
 
         }
         
+    }
+    
+    func getWasteRisks(user: User, family: Bool, completionHandler: @escaping (Result<[ProductWasteRisk], Error>) -> Void) {
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async { completionHandler(.failure(error)) }
+                return
+            }
+            
+            var components = URLComponents(url: AppConfig.baseUrl.appendingPathComponent("analytics/wasteRisk"), resolvingAgainstBaseURL: false)
+            if family { components?.queryItems = [URLQueryItem(name: "family", value: "true")] }
+            
+            guard let url = components?.url else {
+                DispatchQueue.main.async { completionHandler(.failure(URLError(.badURL))) }
+                return
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async { completionHandler(.failure(error ?? URLError(.badServerResponse))) }
+                    return
+                }
+                
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard statusCode == 200 else {
+                    print("getWasteRisks failed: \(statusCode)")
+                    let failure: AnalyticsError = (statusCode == 401 || statusCode == 403) ? .unauthorized : .failed
+                    DispatchQueue.main.async { completionHandler(.failure(failure)) }
+                    return
+                }
+                
+                do {
+                    let risks = try JSONDecoder().decode([ProductWasteRisk].self, from: data)
+                    DispatchQueue.main.async { completionHandler(.success(risks)) }
+                } catch {
+                    print(error)
+                    DispatchQueue.main.async { completionHandler(.failure(error)) }
+                }
+            }
+            task.resume()
+        }
     }
     
     func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void){

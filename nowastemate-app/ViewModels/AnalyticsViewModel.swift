@@ -178,4 +178,21 @@ class AnalyticsViewModel: ObservableObject {
         }
     }
     
+    func pickedProduce(for user: User, produceItem: ProduceItem){
+        service.postPickedProduce(user: user, produceItem: produceItem) { result in
+            switch result {
+            case .success(let pick):
+                DispatchQueue.main.async {
+                    //no action needed
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    
+    
 }

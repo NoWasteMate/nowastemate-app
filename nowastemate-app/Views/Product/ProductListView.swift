@@ -34,6 +34,7 @@ struct ProductListView: View {
     @EnvironmentObject var dataScannerVM: CameraViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var analyticsVM: AnalyticsViewModel
     
     @State private var showScannedProduct = false
     @State private var showProduceClassification = false
@@ -260,6 +261,11 @@ struct ProductListView: View {
                     //https://www.donnywals.com/formatting-dates-in-swift-using-date-formatstyle-on-ios-15/
                     let formatted = futureDate!.formatted(.iso8601)
                     
+                    guard let user = authVM.user else { return }
+
+                    //set up the post call with the expected produce and what was actually picked
+                    analyticsVM.pickedProduce(for: user, produceItem: ProduceItem(predictedProduce: classifications![0], chosenProduce: classifications![0]))
+                    
                     productVM.produce = Product(name: classifications![0].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
                     
@@ -284,6 +290,10 @@ struct ProductListView: View {
                     
                     let formatted = futureDate!.formatted(.iso8601)
                     
+                    guard let user = authVM.user else { return }
+                    
+                    analyticsVM.pickedProduce(for: user, produceItem: ProduceItem(predictedProduce: classifications![0], chosenProduce: classifications![1]))
+                    
                     productVM.produce = Product(name: classifications![1].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
                     
@@ -306,13 +316,20 @@ struct ProductListView: View {
                     
                     let formatted = futureDate!.formatted(.iso8601)
                     
+                    guard let user = authVM.user else { return }
+
+                    analyticsVM.pickedProduce(for: user, produceItem: ProduceItem(predictedProduce: classifications![0], chosenProduce: classifications![2]))
+                    
                     productVM.produce = Product(name: classifications![2].capitalized, quantity: 1, createdAt: "", dateExpiration: formatted, category: ProductCategory.produce)
                     showProduceClassification = true
 
                 }
-                //https://stackoverflow.com/questions/73616346/swiftui-how-to-hide-cancel-button-in-alert-window
-                //hiding the cancel button by not using the roles
+                
                 Button("None of the above", role: .destructive) {
+                    guard let user = authVM.user else { return }
+
+                    analyticsVM.pickedProduce(for: user, produceItem: ProduceItem(predictedProduce: classifications![0], chosenProduce: "other"))
+                    
                     productVM.produce = nil
                     showProduceClassification = true
                     

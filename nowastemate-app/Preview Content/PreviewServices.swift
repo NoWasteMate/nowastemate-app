@@ -136,6 +136,14 @@ struct PreviewAnalyticsService: AnalyticsServiceProtocol {
         completionHandler(.success([LeaderboardFamilyMember(id: "123", firstName: "John", lastName: "Smith", score: 70)]))
     }
     
+    // Ids match Product.previewSamples so the rows can show the icon
+    func getWasteRisks(user: User, family: Bool, completionHandler: @escaping (Result<[ProductWasteRisk], Error>) -> Void) {
+        completionHandler(.success([
+            ProductWasteRisk(id: "preview-1", name: "Tomatoes", productType: "tomato", dateExpiration: nil, risk: .high, categoryOftenWasted: false),
+            ProductWasteRisk(id: "preview-3", name: "Parmesan", productType: "parmesan", dateExpiration: nil, risk: .high, categoryOftenWasted: true)
+        ]))
+    }
+    
     func postPickedProduce(user: User, produceItem: ProduceItem, completionHandler: @escaping (Result<ProduceItem, Error>) -> Void){
         completionHandler(.success(ProduceItem(predictedProduce: "apple", chosenProduce: "banana")))
     }

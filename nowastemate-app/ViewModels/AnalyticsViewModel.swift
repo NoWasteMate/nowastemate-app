@@ -31,10 +31,13 @@ class AnalyticsViewModel: ObservableObject {
     
     @Published var familyLeaderboard: [LeaderboardFamilyMember]?
     
+    @Published var wasteRisks: [ProductWasteRisk] = []
+    
     // tracking to see each request if it is older then that gets ignored
     private var usageRequestId = 0
     private var scoreRequestId = 0
     private var trendRequestId = 0
+    private var riskRequestId = 0
     // which scope the current chart belongs to
     private var trendIsFamily = false
     
@@ -142,6 +145,8 @@ class AnalyticsViewModel: ObservableObject {
         wasteScore = nil
         isLoadingScore = false
         scoreErrorMessage = nil
+        riskRequestId += 1
+        wasteRisks = []
         categoryWasteResults = nil
         categoryWasteErrorMessage = nil
     }
@@ -159,6 +164,24 @@ class AnalyticsViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.categoryWasteErrorMessage = error.localizedDescription
                 }
+            }
+        }
+    }
+    
+    func loadWasteRisks(for user: User, family: Bool) {
+        riskRequestId += 1
+        let requestId = riskRequestId
+
+        service.getWasteRisks(user: user, family: family) { result in
+            guard requestId == self.riskRequestId else { return }
+
+            switch result {
+            case .success(let risks):
+                self.wasteRisks = risks
+            case .failure(let error):
+                // Rows just show no icon when this fails
+                print(error)
+                self.wasteRisks = []
             }
         }
     }

@@ -19,6 +19,12 @@ enum RecipeCategory: String, Codable {
     case general
 }
 
+enum RecipeDifficulty: String, Codable, CaseIterable {
+    case easy
+    case medium
+    case hard
+}
+
 struct Recipe: Codable, Identifiable {
     let id: String
     let recipeName: String

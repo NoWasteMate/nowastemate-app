@@ -13,7 +13,7 @@ import FirebaseAuth
 // around 22mins
 protocol RecipeServiceProtocol {
     func getAllRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
-    func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func generateRecipe(user: User, request: GenerateRecipeRequest, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getSuggestedRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
     func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
@@ -64,7 +64,7 @@ struct RecipeService: RecipeServiceProtocol {
         }
     }
     
-    func generateRecipe(user: User, productIds: [String], completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func generateRecipe(user: User, request body: GenerateRecipeRequest, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
@@ -76,8 +76,6 @@ struct RecipeService: RecipeServiceProtocol {
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            let body = GenerateRecipeRequest(productIds: productIds)
 
             do {
                 request.httpBody = try JSONEncoder().encode(body)

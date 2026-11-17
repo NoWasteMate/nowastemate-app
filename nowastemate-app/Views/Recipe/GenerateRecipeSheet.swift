@@ -20,14 +20,14 @@ struct GenerateRecipeSheet: View {
     @State private var detent: PresentationDetent = .medium
     @State private var showPreferences = false
 
-    @State private var mealType = "Any"
-    @State private var difficulty = "Any"
-    @State private var maxCookTime: Double = 45
+    // nil means Any
+    @State private var mealType: RecipeCategory?
+    @State private var difficulty: RecipeDifficulty?
+    @State private var maxTotalTime: Double = 45
     @State private var servings = 2
     @State private var prioritiseExpiring = true
 
-    private let mealTypes = ["Any", "Breakfast", "Soup", "Salad", "Pasta", "Handheld", "Plated Main", "Dessert", "Drink"]
-    private let difficulties = ["Any", "Easy", "Medium", "Hard"]
+    private let mealCategories: [RecipeCategory] = [.breakfast, .soup, .salad, .pasta, .handheld, .platedMain, .dessert, .drink]
 
     // How far the content scrolls before the small title shows (roughly the height of the large title)
     private let titleScrollDistance: CGFloat = 56
@@ -262,7 +262,8 @@ struct GenerateRecipeSheet: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Difficulty")
                     Picker("Difficulty", selection: $difficulty) {
-                        ForEach(difficulties, id: \.self) { Text($0) }
+                        Text("Any").tag(RecipeDifficulty?.none)
+                        ForEach(RecipeDifficulty.allCases, id: \.self) { Text($0.rawValue.capitalized).tag(Optional($0)) }
                     }
                     .pickerStyle(.segmented)
                 }
@@ -270,12 +271,12 @@ struct GenerateRecipeSheet: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("Cook time")
+                        Text("Total time")
                         Spacer()
-                        Text("Up to \(Int(maxCookTime)) min")
+                        Text("Up to \(Int(maxTotalTime)) min")
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $maxCookTime, in: 10...120, step: 5)
+                    Slider(value: $maxTotalTime, in: 10...120, step: 5)
                         .tint(Color("RecipeListGradientPrimary"))
                 }
                 .padding(.vertical, 10)
@@ -302,7 +303,7 @@ struct GenerateRecipeSheet: View {
     // https://developer.apple.com/documentation/swiftui/view/transaction(value:_:)
     private var mealPicker: some View {
         HStack(spacing: 4) {
-            Text(mealType)
+            Text(mealType.map(mealName) ?? "Any")
             Image(systemName: "chevron.up.chevron.down")
                 .font(.footnote.weight(.semibold))
         }
@@ -313,7 +314,8 @@ struct GenerateRecipeSheet: View {
         .background {
             Menu {
                 Picker("Meal", selection: $mealType) {
-                    ForEach(mealTypes, id: \.self) { Text($0) }
+                    Text("Any").tag(RecipeCategory?.none)
+                    ForEach(mealCategories, id: \.self) { Text(mealName($0)).tag(Optional($0)) }
                 }
                 .pickerStyle(.inline)
             } label: {
@@ -323,11 +325,18 @@ struct GenerateRecipeSheet: View {
         }
     }
 
-    // TODO: send the options too once POST /generateRecipe takes them (only products are sent at the moment)
     private var generateButton: some View {
         Button {
             if let user = authVM.user {
-                recipeVM.generateRecipe(for: user, productIds: Array(selected))
+                let request = GenerateRecipeRequest(
+                    productIds: Array(selected),
+                    mealType: mealType,
+                    difficulty: difficulty,
+                    maxTotalTime: Int(maxTotalTime),
+                    servings: servings,
+                    expiringFirst: prioritiseExpiring
+                )
+                recipeVM.generateRecipe(for: user, request: request)
             }
             dismiss()
         } label: {
@@ -349,6 +358,10 @@ struct GenerateRecipeSheet: View {
         withAnimation(.smooth(duration: 0.4)) {
             showPreferences = open
         }
+    }
+
+    private func mealName(_ category: RecipeCategory) -> String {
+        category == .platedMain ? "Plated Main" : category.rawValue.capitalized
     }
 
     private var showCategories: Bool { detent == .large }

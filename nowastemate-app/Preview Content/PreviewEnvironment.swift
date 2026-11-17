@@ -36,6 +36,7 @@ struct AppPreviewEnvironment: PreviewModifier {
         let analyticsVM = AnalyticsViewModel(service: PreviewAnalyticsService())
         analyticsVM.wasteTrend = .previewSample(period: .week)
         analyticsVM.wasteScore = .previewSample
+        analyticsVM.wasteRisks = ProductWasteRisk.previewSamples
         
         //Marks the preview as signed in so RootView renders the tabs instead of LogInView.
         let authVM = AuthViewModel()

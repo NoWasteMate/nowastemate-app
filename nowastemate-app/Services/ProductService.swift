@@ -341,48 +341,58 @@ struct ProductService: ProductServiceProtocol {
     }
     
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-            if let error = error {
-                print(error)
-                return;
+        
+        
+        guard let id = product.id else {
+            DispatchQueue.main.async {
+                completionHandler(.failure(ProductRequestError.notFound("This product could not be found")))
             }
-            let url = URL(string: "\(AppConfig.baseUrl)/putProduct/\(product.id ?? "")")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "PUT"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let encoder = JSONEncoder()
-            
-            do {
-                request.httpBody = try encoder.encode(product)
-            } catch {
-                print("Failed to encode object: \(error)")
-                return
-            }
-            
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    print(response)
-                    DispatchQueue.main.async {
-                        completionHandler(.success(()))
-                    }
-                }
-                
-                catch {
-                    print(error)
-                    DispatchQueue.main.async {
-                        completionHandler(.failure(error))
-                    }
-                }
-            }
-            task.resume()
-
+            return
         }
+        send(user: user, makeRequest: { try Self.request("/putProduct/\(id)", method: "PUT", token: $0, body: JSONEncoder().encode(product)) }, decode: { _ in () }, completion: completionHandler)
+        
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//            if let error = error {
+//                print(error)
+//                return;
+//            }
+//            let url = URL(string: "\(AppConfig.baseUrl)/putProduct/\(product.id ?? "")")!
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "PUT"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//            
+//            let encoder = JSONEncoder()
+//            
+//            do {
+//                request.httpBody = try encoder.encode(product)
+//            } catch {
+//                print("Failed to encode object: \(error)")
+//                return
+//            }
+//            
+//            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+//                guard let data = data, error == nil else {
+//                    return
+//                }
+//                do {
+//                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+//                    print(response)
+//                    DispatchQueue.main.async {
+//                        completionHandler(.success(()))
+//                    }
+//                }
+//                
+//                catch {
+//                    print(error)
+//                    DispatchQueue.main.async {
+//                        completionHandler(.failure(error))
+//                    }
+//                }
+//            }
+//            task.resume()
+//
+//        }
     }
     
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void) {

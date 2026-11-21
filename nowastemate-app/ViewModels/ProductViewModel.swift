@@ -340,20 +340,20 @@ class ProductViewModel: ObservableObject {
         scannedProduct = nil
     }
     
-    func deleteProduct(for user: User, product: Product) {
-        service.deleteProduct(user: user, product: product) { result in
-            switch result {
-            case .success:
-                self.products.removeAll { $0.id == product.id }
-                self.familyProducts.removeAll { $0.id == product.id }
-                // Deleted products were still getting expiry notifications
-                NotificationService.shared.cancel(product: product)
-                self.errorMessage = nil
-            case .failure(let error):
-                self.errorMessage = error.localizedDescription
-            }
-        }
-    }
+//    func deleteProduct(for user: User, product: Product) {
+//        service.deleteProduct(user: user, product: product) { result in
+//            switch result {
+//            case .success:
+//                self.products.removeAll { $0.id == product.id }
+//                self.familyProducts.removeAll { $0.id == product.id }
+//                // Deleted products were still getting expiry notifications
+//                NotificationService.shared.cancel(product: product)
+//                self.errorMessage = nil
+//            case .failure(let error):
+//                self.errorMessage = error.localizedDescription
+//            }
+//        }
+//    }
     
     func editProduct(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
         isSavingProduct = true

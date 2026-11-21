@@ -157,7 +157,7 @@ extension ProductService {
 protocol ProductServiceProtocol {
     func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
-    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+//    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void)
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void)
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void)
@@ -307,38 +307,38 @@ struct ProductService: ProductServiceProtocol {
         
     }
     
-    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-            if let error = error {
-                print(error)
-                return;
-            }
-            
-            let url = URL(string: "\(AppConfig.baseUrl)/deleteProduct/\(product.id ?? "")")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "DELETE"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    print(response)
-                }
-                
-                catch {
-                    print(error)
-                }
-                
-                
-            }
-            task.resume()
-        }
-            
-    }
+//    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//            if let error = error {
+//                print(error)
+//                return;
+//            }
+//            
+//            let url = URL(string: "\(AppConfig.baseUrl)/deleteProduct/\(product.id ?? "")")!
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "DELETE"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//            
+//            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+//                guard let data = data, error == nil else {
+//                    return
+//                }
+//                do {
+//                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+//                    print(response)
+//                }
+//                
+//                catch {
+//                    print(error)
+//                }
+//                
+//                
+//            }
+//            task.resume()
+//        }
+//            
+//    }
     
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         

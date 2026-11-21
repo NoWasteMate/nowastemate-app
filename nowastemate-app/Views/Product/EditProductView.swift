@@ -203,16 +203,6 @@ struct EditProductView: View {
                         .disabled(!isFormValid || productVM.isSavingProduct)
                         .opacity(isFormValid && !productVM.isSavingProduct ? 1 : 0.3)
                         
-//                        Button("Delete Product") {
-//                            guard let user = authVM.user else { return }
-//                            productVM.deleteProduct(for: user, product: product)
-//                            dismiss()
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .padding()
-//                        .background(Color.red)
-//                        .foregroundStyle(.white)
-//                        .clipShape(Capsule())
                     }
                     .padding(.horizontal)
                 }

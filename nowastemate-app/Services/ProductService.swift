@@ -169,79 +169,97 @@ struct ProductService: ProductServiceProtocol {
     static let shared = ProductService()
     
     //Getting the list of products depending on user
+    //Error handling references:
+    // https://m.youtube.com/watch?v=tADAlisn4HA
+    // https://www.youtube.com/watch?v=aTj0ZLha1zE
     func getProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void){
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-          if let error = error {
-            print(error)
-            DispatchQueue.main.async {
-                completionHandler(.failure(error))
-            }
-            return;
-          }
-            let url = URL(string: "\(AppConfig.baseUrl)/getProducts")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-
-                    DispatchQueue.main.async {
-                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
-                    }
-                    return
-                }
-                do {
-                    //let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    //print(response)
-                    
-                    let products = try JSONDecoder().decode([Product].self, from: data)
-                    print(products)
-                    DispatchQueue.main.async {
-                        completionHandler(.success(products))
-                    }
-
-                }
-                
-                catch {
-                    print(error)
-                    DispatchQueue.main.async {
-                        completionHandler(.failure(error))
-                    }
-                }
-            }
-            task.resume()
-
-        }
+        
+        send(user: user, makeRequest: { try Self.request("/getProducts", method: "GET", token: $0) }, decode: { try JSONDecoder().decode([Product].self, from: $0) }, completion: completionHandler)
+        
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//          if let error = error {
+//            print(error)
+//            DispatchQueue.main.async {
+//                completionHandler(.failure(error))
+//            }
+//            return;
+//          }
+//            let url = URL(string: "\(AppConfig.baseUrl)/getProducts")!
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "GET"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            
+//            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+//                guard let data = data, error == nil else {
+//
+//                    DispatchQueue.main.async {
+//                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+//                    }
+//                    return
+//                }
+//                do {
+//                    //let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+//                    //print(response)
+//                    
+//                    let products = try JSONDecoder().decode([Product].self, from: data)
+//                    print(products)
+//                    DispatchQueue.main.async {
+//                        completionHandler(.success(products))
+//                    }
+//
+//                }
+//                
+//                catch {
+//                    print(error)
+//                    DispatchQueue.main.async {
+//                        completionHandler(.failure(error))
+//                    }
+//                }
+//            }
+//            task.resume()
+//
+//        }
         
     }
     
     // getting every family member's active products
     func getFamilyProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void){
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-            if let error = error {
-                DispatchQueue.main.async { completionHandler(.failure(error)) }
-                return
+        
+        send(user: user,
+            makeRequest: { try Self.request("/getFamilyProducts", method: "GET", token: $0) },
+             decode: { try JSONDecoder().decode([Product].self, from: $0) }) { result in
+            // 404 = "not in a family", which is an empty list, not an error
+            if case .failure(let error) = result, case .notFound? = error as? ProductRequestError {
+                completionHandler(.success([]))
+            } else {
+                completionHandler(result)
             }
-            let url = URL(string: "\(AppConfig.baseUrl)/getFamilyProducts")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            
-            let task = URLSession.shared.dataTask(with: request) { data, _, error in
-                guard let data = data, error == nil else {
-                    DispatchQueue.main.async { completionHandler(.failure(error ?? URLError(.badServerResponse))) }
-                    return
-                }
-                do {
-                    let products = try JSONDecoder().decode([Product].self, from: data)
-                    DispatchQueue.main.async { completionHandler(.success(products)) }
-                } catch {
-                    DispatchQueue.main.async { completionHandler(.failure(error)) }
-                }
-            }
-            task.resume()
         }
+        
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//            if let error = error {
+//                DispatchQueue.main.async { completionHandler(.failure(error)) }
+//                return
+//            }
+//            let url = URL(string: "\(AppConfig.baseUrl)/getFamilyProducts")!
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "GET"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            
+//            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+//                guard let data = data, error == nil else {
+//                    DispatchQueue.main.async { completionHandler(.failure(error ?? URLError(.badServerResponse))) }
+//                    return
+//                }
+//                do {
+//                    let products = try JSONDecoder().decode([Product].self, from: data)
+//                    DispatchQueue.main.async { completionHandler(.success(products)) }
+//                } catch {
+//                    DispatchQueue.main.async { completionHandler(.failure(error)) }
+//                }
+//            }
+//            task.resume()
+//        }
     }
     
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {

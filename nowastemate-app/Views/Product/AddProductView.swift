@@ -225,8 +225,8 @@ struct AddProductView: View {
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
                     .padding(.horizontal)
-                    .disabled(!isFormValid)
-                    .opacity(isFormValid ? 1 : 0.3)
+                    .disabled(!isFormValid || productVM.isSavingProduct)
+                    .opacity(isFormValid && !productVM.isSavingProduct ? 1 : 0.3)
                 }
             }
             

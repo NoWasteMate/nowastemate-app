@@ -176,7 +176,7 @@ struct EditProductView: View {
                     
                     
                     HStack(spacing: 12) {
-                        Button("Edit Product") {
+                        Button(productVM.isSavingProduct ? "Saving..." : "Edit Product") {
                             guard let user = authVM.user, isFormValid else { return }
 
                             var updatedProduct = product
@@ -185,16 +185,17 @@ struct EditProductView: View {
                             updatedProduct.category = category
                             updatedProduct.dateExpiration = ISO8601DateFormatter().string(from: expiryDate)
 
-                            productVM.editProduct(for: user, product: updatedProduct)
-                            dismiss()
+                            productVM.editProduct(for: user, product: updatedProduct) {
+                                dismiss()
+                            }
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.black)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
-                        .disabled(!isFormValid)
-                        .opacity(isFormValid ? 1 : 0.3)
+                        .disabled(!isFormValid || productVM.isSavingProduct)
+                        .opacity(isFormValid && !productVM.isSavingProduct ? 1 : 0.3)
                         
 //                        Button("Delete Product") {
 //                            guard let user = authVM.user else { return }

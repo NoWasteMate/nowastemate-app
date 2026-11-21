@@ -98,6 +98,8 @@ class ProductViewModel: ObservableObject {
         "watermelon": 14
     ]
     
+    @Published var isSavingProduct = false
+    
     // what the list will show (own products, or family's filtered by member)
     var visibleProducts: [Product] {
         switch scope {
@@ -265,7 +267,10 @@ class ProductViewModel: ObservableObject {
 
     func addProducts(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
         
+        isSavingProduct = true
+        
         service.addProduct(user: user, product: product) { result in
+            self.isSavingProduct = false
             switch result {
             case .success:
                 self.errorMessage = nil
@@ -350,8 +355,10 @@ class ProductViewModel: ObservableObject {
         }
     }
     
-    func editProduct(for user: User, product: Product) {
+    func editProduct(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
+        isSavingProduct = true
         service.editProduct(user: user, product: product) { result in
+            self.isSavingProduct = false
             switch result {
             case .success:
                 if let index = self.products.firstIndex(where: { $0.id == product.id }) {
@@ -375,6 +382,7 @@ class ProductViewModel: ObservableObject {
                     self.familyProducts[index] = product
                 }
                 self.errorMessage = nil
+                onSuccess?()
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
                 

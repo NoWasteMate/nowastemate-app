@@ -395,6 +395,8 @@ struct ProductService: ProductServiceProtocol {
 //        }
     }
     
+    // https://fastapi.tiangolo.com/reference/security/
+    // https://www.rfc-editor.org/rfc/rfc9110#name-403-forbidden
     func getBarcodeDetails(user: User, barcode: String, completionHandler: @escaping (Result<Product, Error>) -> Void) {
         user.getIDTokenForcingRefresh(true) { idToken, error in
             if let error = error {
@@ -428,7 +430,7 @@ struct ProductService: ProductServiceProtocol {
                     let failure: BarcodeLookupError
                     
                     switch statusCode {
-                    case 401: failure = .unauthorized
+                    case 401, 403: failure = .unauthorized
                     case 404: failure = .notFound(detail ?? "Product not found, add manually")
                     case 422: failure = .unsupported
                     default:  failure = .retry(detail ?? "Barcode service unavailable, try again")
@@ -500,7 +502,7 @@ struct ProductService: ProductServiceProtocol {
                     let failure: ProductOutcomeError
                     
                     switch statusCode {
-                    case 401: failure = .unauthorized
+                    case 401, 403: failure = .unauthorized
                     case 404: failure = .notFound
                     case 409: failure = .alreadyMarked
                     default:  failure = .failed(detail ?? "Couldn't mark the product, try again")

@@ -262,41 +262,48 @@ struct ProductService: ProductServiceProtocol {
 //        }
     }
     
+    // references for POST requests
+    // https://www.youtube.com/watch?v=aTj0ZLha1zE
+    // https://www.youtube.com/watch?v=st8MMg4hQ3g
+    
     func addProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-            if let error = error {
-                DispatchQueue.main.async { completionHandler(.failure(error)) }
-                return;
-            }
-            
-            let url = URL(string: "\(AppConfig.baseUrl)/products")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            
-            let encoder = JSONEncoder()
-            
-            do {
-                request.httpBody = try encoder.encode(product)
-            } catch {
-                DispatchQueue.main.async { completionHandler(.failure(error)) }
-                return
-            }
-            
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard data != nil, error == nil else {
-                    DispatchQueue.main.async {
-                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
-                    }
-                    return
-                }
-                DispatchQueue.main.async { completionHandler(.success(())) }
-            }
-            task.resume()
-            
-        }
+        
+        send(user: user, makeRequest: { try Self.request("/products", method: "POST", token: $0, body: JSONEncoder().encode(product)) }, decode: { _ in () }, completion: completionHandler)
+        
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//            if let error = error {
+//                DispatchQueue.main.async { completionHandler(.failure(error)) }
+//                return;
+//            }
+//            
+//            let url = URL(string: "\(AppConfig.baseUrl)/products")!
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "POST"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//            
+//            
+//            let encoder = JSONEncoder()
+//            
+//            do {
+//                request.httpBody = try encoder.encode(product)
+//            } catch {
+//                DispatchQueue.main.async { completionHandler(.failure(error)) }
+//                return
+//            }
+//            
+//            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+//                guard data != nil, error == nil else {
+//                    DispatchQueue.main.async {
+//                        completionHandler(.failure(error ?? URLError(.badServerResponse)))
+//                    }
+//                    return
+//                }
+//                DispatchQueue.main.async { completionHandler(.success(())) }
+//            }
+//            task.resume()
+//            
+//        }
         
     }
     

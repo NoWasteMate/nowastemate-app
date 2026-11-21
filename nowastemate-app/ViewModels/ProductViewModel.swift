@@ -98,6 +98,8 @@ class ProductViewModel: ObservableObject {
         "watermelon": 14
     ]
     
+    @Published var isSavingProduct = false
+    
     // what the list will show (own products, or family's filtered by member)
     var visibleProducts: [Product] {
         switch scope {
@@ -265,7 +267,10 @@ class ProductViewModel: ObservableObject {
 
     func addProducts(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
         
+        isSavingProduct = true
+        
         service.addProduct(user: user, product: product) { result in
+            self.isSavingProduct = false
             switch result {
             case .success:
                 self.errorMessage = nil
@@ -335,23 +340,25 @@ class ProductViewModel: ObservableObject {
         scannedProduct = nil
     }
     
-    func deleteProduct(for user: User, product: Product) {
-        service.deleteProduct(user: user, product: product) { result in
-            switch result {
-            case .success:
-                self.products.removeAll { $0.id == product.id }
-                self.familyProducts.removeAll { $0.id == product.id }
-                // Deleted products were still getting expiry notifications
-                NotificationService.shared.cancel(product: product)
-                self.errorMessage = nil
-            case .failure(let error):
-                self.errorMessage = error.localizedDescription
-            }
-        }
-    }
+//    func deleteProduct(for user: User, product: Product) {
+//        service.deleteProduct(user: user, product: product) { result in
+//            switch result {
+//            case .success:
+//                self.products.removeAll { $0.id == product.id }
+//                self.familyProducts.removeAll { $0.id == product.id }
+//                // Deleted products were still getting expiry notifications
+//                NotificationService.shared.cancel(product: product)
+//                self.errorMessage = nil
+//            case .failure(let error):
+//                self.errorMessage = error.localizedDescription
+//            }
+//        }
+//    }
     
-    func editProduct(for user: User, product: Product) {
+    func editProduct(for user: User, product: Product, onSuccess: (() -> Void)? = nil) {
+        isSavingProduct = true
         service.editProduct(user: user, product: product) { result in
+            self.isSavingProduct = false
             switch result {
             case .success:
                 if let index = self.products.firstIndex(where: { $0.id == product.id }) {
@@ -363,7 +370,9 @@ class ProductViewModel: ObservableObject {
                     //clearing the notification in case of a scenario where they backdate or similar where schedule would terminate
                     let center = UNUserNotificationCenter.current()
                     //wipe the existing scheduled notification
-                    center.removePendingNotificationRequests(withIdentifiers: [product.id!])
+                    if let id = product.id {
+                        center.removePendingNotificationRequests(withIdentifiers: [id])
+                    }
                                         
                     NotificationService.shared.schedule(product: product, notificationDays: self.authVM?.userInfo?.notificationDays ?? 1, notificationHour: self.authVM?.userInfo?.notificationHour ?? 9)
                 }
@@ -373,6 +382,7 @@ class ProductViewModel: ObservableObject {
                     self.familyProducts[index] = product
                 }
                 self.errorMessage = nil
+                onSuccess?()
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
                 

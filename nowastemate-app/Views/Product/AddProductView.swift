@@ -195,7 +195,15 @@ struct AddProductView: View {
 //                    .foregroundStyle(.black)
 //                    .clipShape(Capsule())
 //                    .padding(.horizontal)
-//                    
+//
+                    
+                    if let error = productVM.errorMessage {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                    }
                     
                     Button("Save Product") {
                         guard let user = authVM.user, isFormValid else { return }
@@ -225,13 +233,14 @@ struct AddProductView: View {
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
                     .padding(.horizontal)
-                    .disabled(!isFormValid)
-                    .opacity(isFormValid ? 1 : 0.3)
+                    .disabled(!isFormValid || productVM.isSavingProduct)
+                    .opacity(isFormValid && !productVM.isSavingProduct ? 1 : 0.3)
                 }
             }
             
         }
         .onAppear {
+            productVM.errorMessage = nil
             guard let prefill, !hasAppliedPrefill else { return }
             hasAppliedPrefill = true
             name = prefill.name

@@ -211,6 +211,34 @@ struct ProductListView: View {
                         }
                 }
             }.animation(.easeInOut, value: productVM.lastOutcomeMessage)
+            // https://developer.apple.com/documentation/swiftui/view/safeareainset(edge:alignment:spacing:content:)
+            // https://www.youtube.com/watch?v=QfDd9GxjFvk
+            // https://www.youtube.com/watch?v=53lbqYYAPLw
+            // https://www.youtube.com/watch?v=ccvWZ-bG_3Y
+                .safeAreaInset(edge: .top) {
+                    if let error = productVM.errorMessage, productVM.lastOutcomeMessage == nil {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            Text(error)
+                                .font(.subheadline)
+                            Spacer()
+                            
+                            Button("Retry") {
+                                guard let user = authVM.user else { return }
+                                
+                                productVM.reloadCurrentScope(for: user)
+                            }
+                            .font(.subheadline.weight(.semibold))
+                        }
+                        .padding(12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .animation(.easeInOut, value: productVM.errorMessage)
+
             
             .sheet(isPresented: $showCamera, onDismiss: {
                 if productVM.scannedProduct != nil { showScannedProduct = true }

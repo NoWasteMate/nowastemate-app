@@ -172,11 +172,17 @@ struct EditProductView: View {
 //                    .foregroundStyle(.black)
 //                    .clipShape(Capsule())
 //                    .padding(.horizontal)
-//                    
                     
+                    if let error = productVM.errorMessage {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                    }
                     
                     HStack(spacing: 12) {
-                        Button("Edit Product") {
+                        Button(productVM.isSavingProduct ? "Saving..." : "Edit Product") {
                             guard let user = authVM.user, isFormValid else { return }
 
                             var updatedProduct = product
@@ -185,32 +191,23 @@ struct EditProductView: View {
                             updatedProduct.category = category
                             updatedProduct.dateExpiration = ISO8601DateFormatter().string(from: expiryDate)
 
-                            productVM.editProduct(for: user, product: updatedProduct)
-                            dismiss()
+                            productVM.editProduct(for: user, product: updatedProduct) {
+                                dismiss()
+                            }
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.black)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
-                        .disabled(!isFormValid)
-                        .opacity(isFormValid ? 1 : 0.3)
+                        .disabled(!isFormValid || productVM.isSavingProduct)
+                        .opacity(isFormValid && !productVM.isSavingProduct ? 1 : 0.3)
                         
-//                        Button("Delete Product") {
-//                            guard let user = authVM.user else { return }
-//                            productVM.deleteProduct(for: user, product: product)
-//                            dismiss()
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .padding()
-//                        .background(Color.red)
-//                        .foregroundStyle(.white)
-//                        .clipShape(Capsule())
                     }
                     .padding(.horizontal)
                 }
             }
-            
+            .onAppear { productVM.errorMessage = nil }
         }
     }
 }

@@ -77,9 +77,9 @@ struct PreviewProductService: ProductServiceProtocol {
         completionHandler(.success(()))
     }
 
-    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
-        completionHandler(.success(Product.previewSamples))
-    }
+//    func deleteProduct(user: User, product: Product, completionHandler: @escaping (Result<[Product], Error>) -> Void) {
+//        completionHandler(.success(Product.previewSamples))
+//    }
 
     func editProduct(user: User, product: Product, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))

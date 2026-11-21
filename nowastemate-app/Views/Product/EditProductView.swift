@@ -172,8 +172,14 @@ struct EditProductView: View {
 //                    .foregroundStyle(.black)
 //                    .clipShape(Capsule())
 //                    .padding(.horizontal)
-//                    
                     
+                    if let error = productVM.errorMessage {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                    }
                     
                     HStack(spacing: 12) {
                         Button(productVM.isSavingProduct ? "Saving..." : "Edit Product") {
@@ -211,7 +217,7 @@ struct EditProductView: View {
                     .padding(.horizontal)
                 }
             }
-            
+            .onAppear { productVM.errorMessage = nil }
         }
     }
 }

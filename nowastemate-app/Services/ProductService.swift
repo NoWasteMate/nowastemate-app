@@ -516,40 +516,51 @@ struct ProductService: ProductServiceProtocol {
         }
     }
     
+    // references for error handling:
+    // https://www.youtube.com/watch?v=Tw_WLMIfEPQ
+    // https://www.youtube.com/shorts/HnjUEGboFu8
+    // https://developer.apple.com/documentation/swift/checkedcontinuation
+    //  https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-continuations-to-convert-completion-handlers-into-async-functions
     func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void){
-        user.getIDTokenForcingRefresh(true) { idToken, error in
-          if let error = error {
-            print(error)
-            return;
-          }
-            guard let productId = product.id,
-                  let url = URL(string: "\(AppConfig.baseUrl)/get_waste_diagnostic/\(productId)") else {
-                completionHandler(.failure(ProductOutcomeError.notFound)) 
-                return
-            }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
-            
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    
-                    let reason = try JSONDecoder().decode(WasteReason.self, from: data)
-                              completionHandler(.success(reason))
-                }
-                
-                catch {
-                    print(error)
-                    completionHandler(.failure(error))
-                    
-                }
-            }
-            task.resume()
-            
+        
+        guard let id = product.id else {
+            DispatchQueue.main.async { completionHandler(.failure(ProductOutcomeError.notFound)) }
+            return
         }
+        send(user: user, makeRequest: { try Self.request("/get_waste_diagnostic/\(id)", method: "GET", token: $0) }, decode: { try JSONDecoder().decode(WasteReason.self, from: $0) }, completion: completionHandler)
+//        user.getIDTokenForcingRefresh(true) { idToken, error in
+//          if let error = error {
+//            print(error)
+//            return;
+//          }
+//            guard let productId = product.id,
+//                  let url = URL(string: "\(AppConfig.baseUrl)/get_waste_diagnostic/\(productId)") else {
+//                completionHandler(.failure(ProductOutcomeError.notFound)) 
+//                return
+//            }
+//            var request = URLRequest(url: url)
+//            request.httpMethod = "GET"
+//            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+//            
+//            let task = URLSession.shared.dataTask(with: request) {data, _, error in
+//                guard let data = data, error == nil else {
+//                    return
+//                }
+//                do {
+//                    
+//                    let reason = try JSONDecoder().decode(WasteReason.self, from: data)
+//                              completionHandler(.success(reason))
+//                }
+//                
+//                catch {
+//                    print(error)
+//                    completionHandler(.failure(error))
+//                    
+//                }
+//            }
+//            task.resume()
+//            
+//        }
     }
 
 }

@@ -363,7 +363,9 @@ class ProductViewModel: ObservableObject {
                     //clearing the notification in case of a scenario where they backdate or similar where schedule would terminate
                     let center = UNUserNotificationCenter.current()
                     //wipe the existing scheduled notification
-                    center.removePendingNotificationRequests(withIdentifiers: [product.id!])
+                    if let id = product.id {
+                        center.removePendingNotificationRequests(withIdentifiers: [id])
+                    }
                                         
                     NotificationService.shared.schedule(product: product, notificationDays: self.authVM?.userInfo?.notificationDays ?? 1, notificationHour: self.authVM?.userInfo?.notificationHour ?? 9)
                 }

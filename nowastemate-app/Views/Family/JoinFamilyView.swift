@@ -37,20 +37,20 @@ struct JoinFamilyView: View {
                     //https://sarunw.com/posts/swiftui-text-font/
                         .font(.largeTitle)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .padding(.bottom, 20)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
                     
                     VStack(spacing: 8) {
                         //https://stackoverflow.com/questions/57688242/swiftui-how-to-change-the-placeholder-color-of-the-textfield
-                        TextField("", text: $code, prompt: Text("Enter Family Code").foregroundColor(.white))
+                        TextField("", text: $code, prompt: Text("Enter Family Code").foregroundColor(.baseText))
                             .padding()
                             .background(Color.white.opacity(0.5))
-                            .border(Color.gray)
+                            .border(Color.baseText)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.white, lineWidth: 2)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(.white, lineWidth: 2)
                             )
                             .cornerRadius(12)
                         
@@ -78,10 +78,10 @@ struct JoinFamilyView: View {
                             )
                             
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.black)
+                        .background(Color.inverseBaseText)
                         .cornerRadius(30)
                         .padding(.top)
                         
@@ -89,13 +89,11 @@ struct JoinFamilyView: View {
                             //https://sarunw.com/posts/swiftui-text-font/
                             .font(.subheadline)
                             .bold()
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.baseText)
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .center)
                             .multilineTextAlignment(.center)
-                        
-                        //TODO: Add button with FAQ
-                        
+                                                
                         
                         
                     }

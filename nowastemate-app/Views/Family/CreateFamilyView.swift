@@ -40,18 +40,17 @@ struct CreateFamilyView: View {
                     //https://sarunw.com/posts/swiftui-text-font/
                     .font(.largeTitle)
                     .bold()
-                    .foregroundColor(.white)
-                    .padding(.bottom, 20)
+                    .foregroundColor(Color.baseText)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 8) {
                     
-                    Text("Create a Family Name")
+                    Text("What Should Your Family Be Called?")
                         //https://sarunw.com/posts/swiftui-text-font/
                         .font(.subheadline)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
@@ -60,10 +59,10 @@ struct CreateFamilyView: View {
                     TextField("", text: $title)
                         .padding()
                         .background(Color.white.opacity(0.5))
-                        .border(Color.gray)
+                        .border(Color.baseText)
                         .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.white, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(.white, lineWidth: 2)
                         )
                         .cornerRadius(12)
                         
@@ -91,10 +90,10 @@ struct CreateFamilyView: View {
                         )
                             
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.inverseBaseText)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
+                    .background(Color.baseText)
                     .cornerRadius(30)
                     .padding(.top)
                     

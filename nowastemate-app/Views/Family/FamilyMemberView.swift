@@ -40,20 +40,29 @@ struct FamilyMemberView: View {
             //making it span entire screen
             LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient,.familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
-
             
             VStack(alignment: .leading, spacing: 10) {
                 
                 HStack {
                     Text("Family Members")
                         .font(.largeTitle).bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                     
                     Spacer()
-                }.padding()
-                
-                ScrollView  {
                     
+                    NavigationLink {
+                        LeaderboardView()
+                    }
+                    label: {
+                        Image(systemName: "trophy")
+                            .foregroundColor(Color.baseText)
+                            .imageScale(.small)
+                            .padding()
+                            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
+                    }
+                    
+                }.padding(.bottom, 20)
+                                    
                     VStack (alignment: .leading, spacing: 15) {
                         
                         VStack {
@@ -66,7 +75,7 @@ struct FamilyMemberView: View {
                                         
                                         Text(familyVM.family?.title ?? "")
                                             .font(.title)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(Color.baseText)
                                         
                                         if (familyVM.isOwner){
                                             Button {
@@ -75,7 +84,7 @@ struct FamilyMemberView: View {
                                             }
                                             label: {
                                                 Image(systemName: "pencil")
-                                                    .foregroundColor(.white)
+                                                    .foregroundColor(Color.baseText)
                                                     .imageScale(.small).bold()
                                             }
                                             .alert("Change Family Name", isPresented: $editNameAlert, actions: {
@@ -117,10 +126,10 @@ struct FamilyMemberView: View {
                                                         .resizable()
                                                         .scaledToFit()
                                                         .frame(width: 12, height: 12)
-                                                        .foregroundStyle(.white)
+                                                        .foregroundStyle(Color.baseText)
                                                 }
                                             }
-                                            .foregroundColor(.white)
+                                            .foregroundColor(Color.baseText).bold()
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                             .padding()
                                             .cornerRadius(12)
@@ -226,44 +235,22 @@ struct FamilyMemberView: View {
                             RoundedRectangle(cornerRadius: 30)
                                 .fill(Color.white.opacity(0.1))
                         )
+                        //https://www.reddit.com/r/SwiftUI/comments/1hjowlj/strokeborder_vs_stroke_can_you_explain_why_frame/
                         .overlay(
                             RoundedRectangle(cornerRadius: 30)
-                                .stroke(.white, lineWidth: 2)
+                                .strokeBorder(Color.baseText, lineWidth: 2)
                         )
                         .frame(height: UIScreen.main.bounds.height * 0.4)                             //https://stackoverflow.com/questions/61160039/swiftui-trying-to-keep-the-fullscreen-size-of-a-view-in-a-scrollview
                         
                         
                         VStack {
                             
-                            
-                            HStack {
-                                NavigationLink {
-                                    LeaderboardView()
-                                }
-                                label: {
-                                    
-                                    Text("Check Out The Family Leaderboard").foregroundStyle(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "arrow.right")
-                                        .foregroundColor(.white)
-                                        .imageScale(.small)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(.white, lineWidth: 2)
-                            )
-                            
-                            Text("Add Family Members with This Code:")
+                            Text("Invite Family Members With This Code:")
                             //https://sarunw.com/posts/swiftui-text-font/
                                 .font(.subheadline)
                                 .bold()
                                 .padding(.top, 20)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.baseText)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .multilineTextAlignment(.center)
                             
@@ -271,7 +258,7 @@ struct FamilyMemberView: View {
                                 
                                 if let family = familyVM.familyId {
                                     Text("\(family)")
-                                        .foregroundStyle(Color.white)
+                                        .foregroundStyle(Color.baseText)
                                         .padding()
                                 } else if let errorMessage = familyVM.errorMessage {
                                     Text(errorMessage)
@@ -290,7 +277,7 @@ struct FamilyMemberView: View {
                                         UIPasteboard.general.string = "\(familyId)"
                                     } label: {
                                         Image(systemName: "doc.on.clipboard")
-                                            .foregroundColor(.white)
+                                            .foregroundColor(Color.baseText)
                                             .imageScale(.small)
                                             .padding()
                                     }
@@ -302,7 +289,7 @@ struct FamilyMemberView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(.white, lineWidth: 2)
+                                    .strokeBorder(Color.baseText, lineWidth: 2)
                             )
                             
                             
@@ -312,11 +299,11 @@ struct FamilyMemberView: View {
                                     .font(.caption)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.baseText)
                                     .cornerRadius(12)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(.white, lineWidth: 2)
+                                            .strokeBorder(Color.baseText, lineWidth: 2)
                                     )
                                     .transition(.opacity.combined(with: .move(edge: .top)))
                                 
@@ -329,11 +316,11 @@ struct FamilyMemberView: View {
                                 Button("Leave Family"){
                                     confirmLeave = true
                                 }
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.inverseBaseText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 24)
-                                .background(.white)
+                                .background(Color.baseText)
                                 .cornerRadius(30)
                             }
                         }
@@ -342,23 +329,22 @@ struct FamilyMemberView: View {
                             VStack {
                                 
                                 Text("Wish to join someone else's Family instead?")
-                                    .foregroundStyle(Color.white)
+                                    .foregroundStyle(Color.baseText)
                                 
                                 
                                 Button("Remove Family"){
                                     confirmFamilyDeletion = true
                                 }
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.inverseBaseText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 24)
-                                .background(.white)
+                                .background(Color.baseText)
                                 .cornerRadius(30)
                             }
                         }
                     }
-                }
-                
+                Spacer()
             }.padding(20)
             
         }

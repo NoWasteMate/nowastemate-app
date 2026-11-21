@@ -37,7 +37,7 @@ struct FamilyView: View {
                     //https://sarunw.com/posts/swiftui-text-font/
                         .font(.largeTitle)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .padding(.bottom, 20)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
@@ -49,24 +49,24 @@ struct FamilyView: View {
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
                         .symbolVariant(.fill)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.baseText)
                     
                     
                     NavigationLink("Create Family", destination: CreateFamilyView())
-                        .foregroundColor(.black)
+                        .foregroundColor(Color.inverseBaseText)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.white)
+                        .background(Color.baseText)
                         .cornerRadius(30)
                         .bold()
                     
                     NavigationLink("Join Family", destination: JoinFamilyView())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical)
-                        .background(Color.buttonBackgroundPrimary)
-                        .cornerRadius(32)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                        .foregroundColor(Color.baseText)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.inverseBaseText)
+                        .cornerRadius(30)
+                        .bold()
                 }
                 .padding(.horizontal, 30)
                 

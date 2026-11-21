@@ -20,6 +20,8 @@ struct FamilyView: View {
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
             LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient,.familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+
             
             if familyVM.family != nil {
                 
@@ -70,7 +72,6 @@ struct FamilyView: View {
                 
             }
         }
-        .edgesIgnoringSafeArea(.all)
     }
 }
 

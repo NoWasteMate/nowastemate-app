@@ -55,6 +55,103 @@ enum ProductOutcomeError: LocalizedError {
     }
 }
 
+// https://developer.apple.com/documentation/foundation/localizederror
+enum ProductRequestError: LocalizedError, Equatable {
+    case unauthorized
+    case notFound(String)
+    case invalid
+    case server(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .unauthorized:        return "Please sign in again"
+        case .notFound(let msg):   return msg
+        case .invalid:             return "Some product details aren't valid"
+        case .server(let msg):     return msg
+        }
+    }
+}
+
+extension ProductService {
+    // status code + body -> error
+    // https://developer.apple.com/documentation/foundation/httpurlresponse/statuscode
+    // https://fastapi.tiangolo.com/tutorial/handling-errors/
+    // https://www.youtube.com/watch?v=gpPa0zf51bI
+    // https://www.youtube.com/watch?v=gpPa0zf51bI
+    // https://www.youtube.com/watch?v=xVZCAdB9lpg
+    
+    nonisolated static func mapError(statusCode: Int, data: Data?) -> ProductRequestError {
+        let detail = data.flatMap { try? JSONDecoder().decode(BackendErrorDetail.self, from: $0)}?.detail
+        
+        switch statusCode {
+        // 403 = missing bearer token from HTTPBearer
+        case 401, 403: return .unauthorized
+        case 404: return .notFound(detail ?? "This product could not be found")
+        case 422: return .invalid
+        default: return .server(detail ?? "Something went wrong, try again")
+        }
+    }
+    
+    static func request(_ path: String, method: String, token: String, body: Data? = nil) throws -> URLRequest {
+        guard let url = URL(string: "\(AppConfig.baseUrl)\(path)") else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        if let body {
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = body
+        }
+        return request
+    }
+    
+    // when user gets token, it gets the request and status check then decode
+    // https://developer.apple.com/documentation/dispatch/dispatchqueue/main
+    // https://developer.apple.com/documentation/swift/result
+    func send<T>(user: User, makeRequest: @escaping (_ token: String) throws -> URLRequest, decode: @escaping (Data) throws -> T, completion: @escaping (Result<T, Error>) -> Void) {
+        
+        func finish(_ result: Result<T, Error>) {
+            DispatchQueue.main.async { completion(result) }
+        }
+        
+        user.getIDTokenForcingRefresh(true) {
+            idToken, error in
+            if let error { finish(.failure(error)); return }
+            guard let idToken else {
+                finish(.failure(ProductRequestError.unauthorized));
+                return
+            }
+            
+            let request: URLRequest
+            do {
+                request = try makeRequest(idToken)
+            } catch {
+                finish(.failure(error));
+                return
+            }
+            
+            URLSession.shared.dataTask(with: request) {
+                data, response, error in
+                if let error {
+                    finish(.failure(error)); return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard (200..<300).contains(statusCode) else {
+                    print("\(request.httpMethod ?? "") \(request.url?.path ?? "") failed: \(statusCode)")
+                    
+                    finish(.failure(Self.mapError(statusCode: statusCode, data: data)))
+                    return
+                }
+                do {
+                    finish(.success(try decode(data ?? Data())))
+                }
+                catch {
+                    finish(.failure(error))
+                }
+            }.resume()
+        }
+    }
+}
+
 //Protocol lets previews inject a sample data service instead of calling the backend. https://developer.apple.com/videos/play/wwdc2020/10149/
 // around 22mins
 protocol ProductServiceProtocol {

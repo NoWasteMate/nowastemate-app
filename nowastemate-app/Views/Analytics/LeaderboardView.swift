@@ -24,7 +24,7 @@ struct LeaderboardView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             if analyticsVM.familyLeaderboard != nil && !isAlone {
                 
@@ -32,13 +32,25 @@ struct LeaderboardView: View {
                     Section {
                         VStack {
                             
-                            Text("Family Leaderboard")
-                            //https://sarunw.com/posts/swiftui-text-font/
-                                .font(.title)
-                                .foregroundColor(.white)
-                                .padding(.vertical, 40)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .multilineTextAlignment(.center)
+                            VStack (spacing: 20) {
+                                
+                                Text("Family Leaderboard")
+                                //https://sarunw.com/posts/swiftui-text-font/
+                                    .font(.largeTitle).bold()
+                                    .foregroundColor(Color.baseText)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .multilineTextAlignment(.center)
+                                
+                                Image(systemName: "trophy.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                    .frame(maxWidth: .infinity)
+                                    .symbolVariant(.circle)
+                                    .foregroundStyle(Color.baseText)
+                                    .padding(.bottom, 20)
+                                
+                            }
                             
                             
                             
@@ -54,33 +66,88 @@ struct LeaderboardView: View {
                                         HStack {
                                             
                                             if (members[0] == member){
-                                                Text(String(1)).bold().foregroundStyle(.white)
+                                                Text(String(1)).bold().foregroundStyle(Color.baseText)
+                                                    .font(.title)
+                                                
+                                                Text("\(member.firstName) \(member.lastName)").foregroundStyle(Color.baseText)
+                                                    .font(.title)
+
+                                                Spacer()
+                                                
+                                                Text("\(member.score ?? 0)").foregroundStyle(Color.baseText)
+                                                    .font(.title)
+
+                                                
+                                                Text("pts")
+                                                    .foregroundStyle(Color.baseText)
+                                                    .font(.footnote)
                                             }
-                                            if (members[1] == member) {
-                                                Text(String(2)).bold().foregroundStyle(.white)
+                                            else if (members[1] == member) {
+                                                Text(String(2)).bold().foregroundStyle(Color.baseText)
+                                                    .font(.title2)
+
+                                                
+                                                Text("\(member.firstName) \(member.lastName)").foregroundStyle(Color.baseText)
+                                                    .font(.title2)
+
+                                                
+                                                Spacer()
+                                                
+                                                Text("\(member.score ?? 0)").foregroundStyle(Color.baseText)
+                                                    .font(.title2)
+
+                                                
+                                                Text("pts")
+                                                    .foregroundStyle(Color.baseText)
+                                                    .font(.footnote)
+
                                             }
                                             //in case there is only 2 in family
-                                            if (members.count > 2 && members[2] == member) {
-                                                Text(String(3)).bold().foregroundStyle(.white)
+                                            else if (members.count > 2 && members[2] == member) {
+                                                Text(String(3)).bold().foregroundStyle(Color.baseText)
+                                                    .font(.title3)
+
+                                                
+                                                Text("\(member.firstName) \(member.lastName)").foregroundStyle(Color.baseText)
+                                                    .font(.title3)
+
+                                                
+                                                Spacer()
+                                                
+                                                Text("\(member.score ?? 0)").foregroundStyle(Color.baseText)
+                                                    .font(.title3)
+
+                                                
+                                                Text("pts")
+                                                    .foregroundStyle(Color.baseText)
+                                                    .font(.footnote)
                                             }
                                             
+                                            else {
+                                                Text("\(member.firstName) \(member.lastName)").foregroundStyle(Color.baseText)
+                                                
+                                                Spacer()
+                                                
+                                                Text("\(member.score ?? 0)").foregroundStyle(Color.baseText)
+                                                
+                                                Text("pts")
+                                                    .foregroundStyle(Color.baseText)
+                                                    .font(.footnote)
+                                            }
                                             
-                                            Text("\(member.firstName) \(member.lastName)").foregroundStyle(Color.white)
-                                            
-                                            Spacer()
-                                            
-                                            Text("\(member.score ?? 0)").foregroundStyle(Color.white)
                                         }
+                                        
+
+                                        
                                     }
                                         
                                     }
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color.baseText).bold()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding()
-                                    .glassEffect(.clear, in: .rect(cornerRadius: 10))                  .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(.white, lineWidth: 1)
-                                    )
+                                    .cornerRadius(12)
+                                    
+                                    .glassEffect(.clear.interactive().tint(Color("CardColor")), in:.rect(cornerRadius: 12))
                                     .padding(.horizontal, 12)
                                     
                             
@@ -99,7 +166,7 @@ struct LeaderboardView: View {
                                                         .frame(maxWidth: .infinity, alignment: .leading)
                                                         .overlay(
                                                             RoundedRectangle(cornerRadius: 10)
-                                                                .stroke(.white, lineWidth: 1))
+                                                                .stroke(Color.baseText, lineWidth: 1))
                                                 }
                                                 
                                                 
@@ -109,24 +176,24 @@ struct LeaderboardView: View {
                                                         .frame(maxWidth: .infinity, alignment: .leading)
                                                         .overlay(
                                                             RoundedRectangle(cornerRadius: 10)
-                                                                .stroke(.white, lineWidth: 1))
+                                                                .stroke(Color.baseText, lineWidth: 1))
                                                     
                                                 }
-                                            }.foregroundStyle(.white).font(.footnote)
+                                            }.foregroundStyle(Color.baseText).font(.footnote)
                                                 .padding()
                                         
                                         }
                                         .padding()
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.baseText)
                                         //TODO: Fix color on the tab
-                                        .tint(.white)
+                                        .tint(Color.baseText)
                                     }
                                     
                                 
                                 
                             } else if let message = analyticsVM.categoryWasteErrorMessage {
                                 Text(message)
-                                    .foregroundStyle(Color.white)
+                                    .foregroundStyle(.red)
                             }
                             
                             
@@ -139,9 +206,9 @@ struct LeaderboardView: View {
                 }
             } else if isAlone {
                 VStack {
-                    Text("You are alone in your Family").foregroundStyle(.white).font(.title)
+                    Text("You are alone in your Family").foregroundStyle(Color.baseText).font(.title)
                         .padding()
-                    Text("Add Family Members to see the leaderboard").foregroundStyle(.white)
+                    Text("Add Family Members to see the leaderboard").foregroundStyle(Color.baseText)
                         .padding()
                 }
                 

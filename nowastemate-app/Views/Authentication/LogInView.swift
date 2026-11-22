@@ -39,7 +39,7 @@ struct LogInView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.userManagementBrown, .offWhite, .offWhite, .offWhite, .userManagementBrown]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
             VStack(alignment: .leading, spacing: 24) {
 
                 //title
@@ -49,23 +49,23 @@ struct LogInView: View {
                             .largeTitle
                             .weight(.medium)
                         )
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.baseText)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 16) {
                     Text("Email")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     TextField("", text: $email)
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
-                        .foregroundStyle(.buttonBrown)
+                        .foregroundStyle(Color.baseText)
 
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                     if (!isEmailValid && !email.isEmpty){
                         Text("Please ensure you enter a valid email")
@@ -76,24 +76,24 @@ struct LogInView: View {
 
                     Text("Password")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     //https://stackoverflow.com/questions/77755756/how-to-add-a-border-in-swiftui-with-clipshape
                     //adding the rounded border
                     SecureField("", text: $password)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
-                        .foregroundStyle(.buttonBrown)
+                        .foregroundStyle(Color.baseText)
 
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
 
                     Button(action: {}) {
                         Text("Can’t Log In?")
                             .font(.subheadline)
-                            .foregroundColor(.foreGroundBrown)
+                            .foregroundColor(Color.baseText)
                             .underline()
                     }
                     .padding(.top, 6)
@@ -108,21 +108,22 @@ struct LogInView: View {
                         Text("Unable to Log In")
                     })
                     
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.inverseBaseText)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 24)
                     //https://stackoverflow.com/questions/71446122/custom-coloring-with-if-else-in-swiftui Conditional coloring
-                    .background(!isFormValid ? .gray : isFormValid ? .buttonBrown : .gray)
+                    .background(!isFormValid ? .black.opacity(0.25) : isFormValid ? Color.baseText : .gray)
                     //https://sarunw.com/posts/swiftui-button-disable/
                     .disabled(!isFormValid)
                     .cornerRadius(30)
                    
                     NavigationLink("Sign Up", destination: SignUpView())
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 24)
-                        .background(.black)
+                        .background(Color.inverseBaseText)
                         .cornerRadius(30)
                         .padding(.bottom)
                     
@@ -131,7 +132,7 @@ struct LogInView: View {
                 //https://stackoverflow.com/questions/65202061/swiftui-apply-background-color-to-rounded-rectangle
                 .background(
                     RoundedRectangle(cornerRadius: 40)
-                        .fill(Color.white.opacity(0.5))
+                        .fill(Color.white.opacity(0.2))
                 )
             }
             .padding(.horizontal, 30)

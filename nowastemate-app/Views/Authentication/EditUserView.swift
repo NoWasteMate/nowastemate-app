@@ -43,7 +43,7 @@ struct EditUserView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
             ScrollView {
@@ -57,7 +57,7 @@ struct EditUserView: View {
                         }
                         label: {
                             Image(systemName: "info.circle")
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.baseText)
                                 .imageScale(.small)
                                 .padding()
                                 .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 30))
@@ -73,7 +73,7 @@ struct EditUserView: View {
                             .largeTitle
                                 .weight(.medium)
                         )
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .frame(maxWidth: .infinity, alignment: .center)
                     
                     Image(systemName: "person.crop.circle.fill")
@@ -82,39 +82,39 @@ struct EditUserView: View {
                         .frame(width: 100, height: 100)
                         .frame(maxWidth: .infinity)
                         .symbolVariant(.circle)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.baseText)
                     
                     VStack(spacing: 8) {
                         
                         Text("First Name")
                             .font(.headline)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.baseText)
                         
                         TextField("", text: $firstName)
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.baseText)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 5)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white, lineWidth: 1)
+                                    .stroke(Color.baseText, lineWidth: 1)
                             )
                         
                         Text("Last Name")
                             .font(.headline)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.baseText)
                         
                         TextField("", text: $lastName)
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.baseText)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 5)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white, lineWidth: 1)
+                                    .stroke(Color.baseText, lineWidth: 1)
                             )
                         
                         Text("Dietary Restrictions?")
                             .font(.headline)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.baseText)
                         
                         NavigationLink {
                             
@@ -133,31 +133,31 @@ struct EditUserView: View {
                                     .scaledToFit()
                                     .frame(width: 20, height: 20)
                                     .symbolVariant(.circle)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.baseText)
                             }
                         }
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color.baseText)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.white, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                         .tint(.white)
                         
                         Text("Email")
                             .font(.headline)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.baseText)
                             .bold()
                         
                         TextField("", text: $email)
                             .textInputAutocapitalization(.never)
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.baseText)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 5)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white, lineWidth: 1)
+                                    .stroke(Color.baseText, lineWidth: 1)
                             )
                         //https://stackoverflow.com/questions/63332391/set-picker-starting-with-two-digit-numbers-from-00-swiftui
                         //https://wesleydegroot.nl/blog/swiftui-picker
@@ -179,7 +179,7 @@ struct EditUserView: View {
                                         }
                                     }
                                     .pickerStyle(.menu)
-                                    .tint(.white)
+                                    .tint(Color.baseText)
                                     
                                 }
                                 
@@ -195,22 +195,22 @@ struct EditUserView: View {
                                         }
                                     }
                                     .pickerStyle(.menu)
-                                    .tint(.white)
+                                    .tint(Color.baseText)
 
                                     
                                     
                                 }
                                 
-                            }.foregroundStyle(Color.white)
+                            }.foregroundStyle(Color.baseText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 6)
                                 .padding(.horizontal, 10)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.white, lineWidth: 1)
+                                        .stroke(Color.baseText, lineWidth: 1)
                                 )
                             
-                        }.foregroundStyle(.white)
+                        }.foregroundStyle(Color.baseText)
                         
                         
                         
@@ -243,7 +243,7 @@ struct EditUserView: View {
                             )
                             
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.inverseBaseText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 24)
@@ -254,11 +254,11 @@ struct EditUserView: View {
                         Button("Logout"){
                             authVM.signOut()
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(Color.baseText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 24)
-                        .background(.white)
+                        .background(Color.inverseBaseText)
                         .cornerRadius(30)
                         .padding(.top)
                     }

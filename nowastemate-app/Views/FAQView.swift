@@ -15,7 +15,7 @@ struct FAQView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -28,7 +28,7 @@ struct FAQView: View {
                                 .largeTitle
                                     .weight(.medium)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.baseText)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .padding()
                         
@@ -38,7 +38,7 @@ struct FAQView: View {
                             .frame(width: 100, height: 100)
                             .frame(maxWidth: .infinity)
                             .symbolVariant(.circle)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.baseText)
                     }
                     .padding(.vertical, 40)
                     
@@ -55,7 +55,7 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.baseText)
                         
                         DisclosureGroup("How do I add Products?") {
                             Text("Products can be added manually. Additionally, produce can be added using the camera to quickly classify them, and products with barcodes can be scanned and have their information retrieved.")
@@ -67,8 +67,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("How can you help me use groceries?") {
                             Text("Head to the recipe section of the app, which can help come up with ideas for recipes, using the specific products available to you.")
                                 .padding()
@@ -79,8 +79,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("Do products have reminders?") {
                             Text("Yes! From the profile screen, you will be able to configure when you would like to be reminded of the product expiring.")
                                 .padding()
@@ -91,8 +91,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("How do I collaborate with others?") {
                             Text("Head to the Family section in the app, here you add invite other family members, and have products available for everyone, once you are within the same family!")
                                 .padding()
@@ -103,8 +103,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("What is Waste Score?") {
                             Text("A waste score is a calculated total, considering various factors around your consumption and waste, to provide an overall score of your waste")
                                 .padding()
@@ -115,8 +115,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("How can I change my details?") {
                             Text("Click the profile icon from the home screen, here you edit your name, email and dietary restrictions")
                                 .padding()
@@ -127,8 +127,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                         DisclosureGroup("Is there an overview of my waste?") {
                             Text("Yes, head to the analytics section, where we provide various stats over both usage and waste!")
                                 .padding()
@@ -139,8 +139,8 @@ struct FAQView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2)))
-                        .foregroundStyle(.white)
-                        
+                        .foregroundStyle(Color.baseText)
+
                     }
                     
                     

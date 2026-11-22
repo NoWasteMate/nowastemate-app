@@ -49,7 +49,7 @@ struct SignUpView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.userManagementBrown, .offWhite, .offWhite, .offWhite, .userManagementBrown]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
             
             VStack(alignment: .leading, spacing: 24) {
 
@@ -60,38 +60,38 @@ struct SignUpView: View {
                             .largeTitle
                             .weight(.medium)
                         )
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.baseText)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 8) {
                     
                     Text("First Name")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     TextField("", text: $firstName)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                     
                     Text("Last Name")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     TextField("", text: $lastName)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                     
                     Text("Dietary Restrictions?")
                     .font(.headline)
-                    .foregroundColor(Color.foreGroundBrown)
+                    .foregroundColor(Color.baseText)
 
                     NavigationLink {
                         
@@ -110,7 +110,7 @@ struct SignUpView: View {
                                 .scaledToFit()
                                 .frame(width: 20, height: 20)
                                 .symbolVariant(.circle)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(Color.baseText)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -118,14 +118,14 @@ struct SignUpView: View {
                     .padding(.horizontal, 5)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray, lineWidth: 1)
+                            .stroke(Color.baseText, lineWidth: 1)
                     )
-                    .tint(.black)
+                    .tint(Color.baseText)
 
                     
                     Text("Email")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
                         .bold()
 
                     TextField("", text: $email)
@@ -134,7 +134,7 @@ struct SignUpView: View {
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                     
                     if (!isEmailValid && !email.isEmpty){
@@ -145,20 +145,20 @@ struct SignUpView: View {
                     
                     Text("Password")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     SecureField("", text: $password)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
                         
 
                     Text("Repeat Password")
                         .font(.headline)
-                        .foregroundColor(Color.foreGroundBrown)
+                        .foregroundColor(Color.baseText)
 
                     //https://stackoverflow.com/questions/77755756/how-to-add-a-border-in-swiftui-with-clipshape
                     //adding the rounded border
@@ -167,7 +167,7 @@ struct SignUpView: View {
                         .padding(.horizontal, 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.baseText, lineWidth: 1)
                         )
 
 
@@ -222,10 +222,10 @@ struct SignUpView: View {
                         )
 
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.inverseBaseText)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 24)
-                    .background(!isFormValid ? .gray : isFormValid ? .black : .gray)
+                    .background(!isFormValid ? .gray : isFormValid ? Color.baseText : .gray)
                     .cornerRadius(30)
                     .padding(.top)
                 }

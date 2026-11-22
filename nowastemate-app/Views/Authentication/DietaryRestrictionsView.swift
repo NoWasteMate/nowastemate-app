@@ -26,11 +26,10 @@ struct DietaryRestrictionsView: View {
             
             //https://medium.com/push-2-prod/gradients-in-swiftui-e3481685cb9d
             //making it span entire screen
-            LinearGradient(gradient: Gradient(colors: [.editUserDarkGradient, .editUserLightGradient]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [.familyViewLightGradient, .familyViewDarkGradient]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 24) {
-                    
                     
                     Spacer()
                     
@@ -40,7 +39,7 @@ struct DietaryRestrictionsView: View {
                         .font(
                             .title.weight(.medium)
                         )
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top)
                     
@@ -50,14 +49,14 @@ struct DietaryRestrictionsView: View {
                         .frame(width: 100, height: 100)
                         .frame(maxWidth: .infinity)
                         .symbolVariant(.circle)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.baseText)
                     
                     Text("Select any that apply below")
                     //https://sarunw.com/posts/swiftui-text-font/
                         .font(
                             .subheadline.bold()
                         )
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.baseText)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top)
                     
@@ -87,16 +86,16 @@ struct DietaryRestrictionsView: View {
                                     Spacer()
                                     
                                     Image(systemName: restrictions.contains(choice) ? "checkmark.circle" : "circle")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Color.baseText)
                                         .imageScale(.small)
                                 }
-                            }.foregroundStyle(.white)
+                            }.foregroundStyle(Color.baseText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 6)
                                 .padding(.horizontal, 10)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.white, lineWidth: 1)
+                                        .stroke(Color.baseText, lineWidth: 1)
                                 )
                         }
                         
@@ -116,11 +115,11 @@ struct DietaryRestrictionsView: View {
                     print(authVM.newDietaryRestrictions)
                     
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.inverseBaseText)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 24)
-                    .background(.white)
+                    .background(Color.baseText)
                     .cornerRadius(30)
                     .padding()
             }

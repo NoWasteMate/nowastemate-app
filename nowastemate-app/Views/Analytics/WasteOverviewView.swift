@@ -128,6 +128,12 @@ struct WasteOverviewView: View {
             .safeAreaBar(edge: .top) { tabPicker }
             .safeAreaInset(edge: .bottom) {
                 if analyticsVM.wasteScore?.family != nil {
+                    
+                    familyLeaderboardButton
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                    
                     familyToggleButton
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .padding(.horizontal)
@@ -167,30 +173,6 @@ struct WasteOverviewView: View {
                 Top3CategoryWaste(isShowingFamily: false)
             }
             
-            HStack {
-                NavigationLink {
-                    LeaderboardView()
-                }
-                label: {
-                    
-                    Text("Check Out The Family Leaderboard").foregroundStyle(.white)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "arrow.right")
-                        .foregroundColor(.white)
-                        .imageScale(.small)
-                }
-            }
-            .foregroundColor(.black)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(.white, lineWidth: 1)
-            )
-            .padding(.horizontal, 12)
-            
         }
     }
 
@@ -200,6 +182,21 @@ struct WasteOverviewView: View {
             showsFamily.toggle()
         } label: {
             Image(systemName: isShowingFamily ? "person.2" : "person")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .frame(width: 28, height: 28)
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+    }
+    
+    private var familyLeaderboardButton: some View {
+        NavigationLink {
+            LeaderboardView()
+        }
+        label: {
+            Image(systemName: "trophy")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .frame(width: 28, height: 28)
@@ -331,7 +328,7 @@ private struct Top3CategoryWaste: View {
                     
                     VStack {
                         
-                        Text("Top 3 Wasted Categories")
+                        Text("Category Waste Overview")
                         //https://sarunw.com/posts/swiftui-text-font/
                             .font(.title)
                             .foregroundColor(.white)
@@ -350,7 +347,7 @@ private struct Top3CategoryWaste: View {
                                     Spacer()
                                     //https://www.reddit.com/r/SwiftUI/comments/wbl7vh/double_in_text_with_1_decimal/
                                     //https://www.swiftbysundell.com/articles/formatting-numbers-in-swift/
-                                    let str = String(format: "%.1f", value)
+                                    let str = String(format: "%.f", value)
                                     
                                     HStack {
                                         Text("\(str)%").foregroundStyle(Color.white)

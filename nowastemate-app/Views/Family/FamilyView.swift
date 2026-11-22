@@ -27,7 +27,10 @@ struct FamilyView: View {
                 
                 FamilyMemberView()
                 
-            }
+            } else if (familyVM.errorMessage != nil) {
+                    ProgressView()
+                }
+            
             else {
   
                 VStack(alignment: .leading, spacing: 24) {
@@ -71,7 +74,20 @@ struct FamilyView: View {
                 .padding(.horizontal, 30)
                 
             }
+            
+               
         }
+        .alert("An error has occurred", isPresented: $familyVM.displayError, actions: {
+            
+            Button("OK", role: .confirm) {
+                
+            }
+            
+            
+        }, message: {
+            Text("\(familyVM.errorMessage!). Please contact the NoWasteMate Support Team.")
+
+        })
     }
 }
 

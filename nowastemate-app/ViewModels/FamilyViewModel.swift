@@ -19,6 +19,8 @@ class FamilyViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     
+    @Published var displayError: Bool = false
+    
     var isOwner: Bool {
         family?.ownerId == currentUser?.uid && family?.ownerId != nil
     }
@@ -88,6 +90,7 @@ class FamilyViewModel: ObservableObject {
                         self.errorMessage = nil
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        print("getFamily failed:", error.localizedDescription)
                         self.familyId = nil
                     }
                 }
@@ -122,6 +125,7 @@ class FamilyViewModel: ObservableObject {
                         print(family)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        self.displayError = true
                         self.family = nil
                     }
                 }

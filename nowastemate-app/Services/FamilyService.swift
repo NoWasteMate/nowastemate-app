@@ -157,7 +157,7 @@ struct FamilyService: FamilyServiceProtocol {
             
         }
     }
-    
+    //ref https://stackoverflow.com/a/67951732
     func getFamily(user: User, completionHandler: @escaping (Result<Family, Error>) -> Void){
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
@@ -169,21 +169,46 @@ struct FamilyService: FamilyServiceProtocol {
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let family = try JSONDecoder().decode(Family.self, from: data)
-                    completionHandler(.success(family))
-                }
-                
-                catch {
-                    print(error)
-                    completionHandler(.failure(error))
-                }
-            }
-            task.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    let taskEntry = try JSONDecoder().decode(Family.self, from: data)
+                                    completionHandler(.success(taskEntry))
+                                } catch {
+                                    completionHandler(.failure(error))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
 
         }
         

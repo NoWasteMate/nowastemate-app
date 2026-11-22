@@ -58,31 +58,56 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    print(response)
-                }
-                
-                catch {
-                    print(error)
-                    
-                }
-                
-                completionHandler(.success(title))
-                
-            }
-            task.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(title))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     
     
     func joinFamily(user: User, code: String, completionHandler: @escaping (Result<String, Error>) -> Void){
         //retrieve familyid and logic for API call
-        print("service called")
         //logic for API call
         user.getIDTokenForcingRefresh(true) { idToken, error in
           if let error = error {
@@ -106,21 +131,51 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let response = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                    print(response)
-                }
-                
-                catch {
-                    print(error)
-                }
-                completionHandler(.success(code))
-            }
-            task.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(code))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
+           
         }
     }
     
@@ -138,22 +193,53 @@ struct FamilyService: FamilyServiceProtocol {
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    
-                    let code = try JSONDecoder().decode([String].self, from: data)
-                              completionHandler(.success(code))
-                }
-                
-                catch {
-                    print(error)
-                    
-                }
-            }
-            task.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    let family = try JSONDecoder().decode([String].self, from: data)
+                                    completionHandler(.success(family))
+                                } catch {
+                                    completionHandler(.failure(error))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
             
         }
     }
@@ -186,8 +272,8 @@ struct FamilyService: FamilyServiceProtocol {
                         case 200...299:
                             if let data = data {
                                 do {
-                                    let taskEntry = try JSONDecoder().decode(Family.self, from: data)
-                                    completionHandler(.success(taskEntry))
+                                    let family = try JSONDecoder().decode(Family.self, from: data)
+                                    completionHandler(.success(family))
                                 } catch {
                                     completionHandler(.failure(error))
                                 }
@@ -195,8 +281,15 @@ struct FamilyService: FamilyServiceProtocol {
                                 completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
                         case 404:
                             completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
 
                         default:
                             if let error = error {
@@ -272,25 +365,50 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                guard let data = data, error == nil else {
-                    completionHandler(.failure(error!))
-                    return
-                }
-                
-                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
-                guard let httpResponse = response as? HTTPURLResponse,
-                            (200...299).contains(httpResponse.statusCode) else {
-                        print("Error occured")
-                        return
-                }
-                //TODO: Network error handling and displaying to client
+            URLSession.shared.dataTask(with: request) { data, response, error in
 
-                completionHandler(.success(title))
-                
-                
-            }
-            task.resume()
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(title))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     
@@ -316,25 +434,50 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                guard let data = data, error == nil else {
-                    completionHandler(.failure(error!))
-                    return
-                }
-                
-                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
-                guard let httpResponse = response as? HTTPURLResponse,
-                            (200...299).contains(httpResponse.statusCode) else {
-                        print("Error occured")
-                        return
-                }
-                //TODO: Network error handling and displaying to client
+            URLSession.shared.dataTask(with: request) { data, response, error in
 
-                completionHandler(.success(member.member))
-                
-                
-            }
-            task.resume()
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(member.member))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     
@@ -360,25 +503,50 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                guard let data = data, error == nil else {
-                    completionHandler(.failure(error!))
-                    return
-                }
-                
-                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
-                guard let httpResponse = response as? HTTPURLResponse,
-                            (200...299).contains(httpResponse.statusCode) else {
-                        print("Error occured")
-                        return
-                }
-                //TODO: Network error handling and displaying to client
+            URLSession.shared.dataTask(with: request) { data, response, error in
 
-                completionHandler(.success(member.member))
-                
-                
-            }
-            task.resume()
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(member.member))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     
@@ -404,25 +572,50 @@ struct FamilyService: FamilyServiceProtocol {
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                guard let data = data, error == nil else {
-                    completionHandler(.failure(error!))
-                    return
-                }
-                
-                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
-                guard let httpResponse = response as? HTTPURLResponse,
-                            (200...299).contains(httpResponse.statusCode) else {
-                        print("Error occured")
-                        return
-                }
-                //TODO: Network error handling and displaying to client
+            URLSession.shared.dataTask(with: request) { data, response, error in
 
-                completionHandler(.success(member.member))
-                
-                
-            }
-            task.resume()
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(member.member))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     
@@ -438,27 +631,50 @@ struct FamilyService: FamilyServiceProtocol {
             request.httpMethod = "DELETE"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             //https://codesignal.com/learn/courses/basics-of-http-requests-with-swift/lessons/sending-data-with-post-requests-in-swift
-            
-            
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                guard let data = data, error == nil else {
-                    completionHandler(.failure(error!))
-                    return
-                }
-                
-                //github.com/alexpaul/UIKit/blob/main/URLSession-Cheatsheet.md
-                guard let httpResponse = response as? HTTPURLResponse,
-                            (200...299).contains(httpResponse.statusCode) else {
-                        print("Error occured")
-                        return
-                }
-                //TODO: Network error handling and displaying to client
+            URLSession.shared.dataTask(with: request) { data, response, error in
 
-                completionHandler(.success(()))
-                
-                
-            }
-            task.resume()
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    completionHandler(.success(()))
+                                }
+                            } else {
+                                completionHandler(.failure(NetworkErrors.noDataProvided))
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
         }
     }
     

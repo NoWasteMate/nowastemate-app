@@ -15,6 +15,8 @@ enum NetworkErrors: LocalizedError {
     case noDataProvided
     case internalError
     case notFound
+    case unauthorized
+    case forbidden
     case unknown
     
     
@@ -28,6 +30,10 @@ enum NetworkErrors: LocalizedError {
             return "An internal error occured"
         case .notFound:
             return "Object not found"
+        case .unauthorized:
+            return "Invalid Authentication"
+        case .forbidden:
+            return "This action is not allowed with your permissions"
         case .unknown:
             return "An unknown error has occured"
         }

@@ -19,6 +19,14 @@ class FamilyViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     
+    @Published var displayError: Bool = false
+    
+    @Published var errorJoinMessage: String?
+    
+    @Published var displayJoinError: Bool = false
+    
+    
+    
     var isOwner: Bool {
         family?.ownerId == currentUser?.uid && family?.ownerId != nil
     }
@@ -54,6 +62,7 @@ class FamilyViewModel: ObservableObject {
                     self.findFamilyId(for: user)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
+                    self.displayError = true
                 }
             }
         }
@@ -71,7 +80,15 @@ class FamilyViewModel: ObservableObject {
                     self.findExistingFamily(for: user)
                     self.findFamilyId(for: user)
                 case .failure(let error):
-                    self.errorMessage = error.localizedDescription
+                    
+                    if case NetworkErrors.notFound = error {
+                        self.errorJoinMessage = "Family not found, please try again!"
+                        self.displayJoinError = true
+                    } else {
+                        self.errorJoinMessage = error.localizedDescription
+                        self.displayJoinError = true
+
+                    }
                 }
             }
         }
@@ -87,7 +104,11 @@ class FamilyViewModel: ObservableObject {
                         self.familyId = familyId.first!
                         self.errorMessage = nil
                     case .failure(let error):
-                        self.errorMessage = error.localizedDescription
+                        if case NetworkErrors.notFound = error {
+                            self.errorMessage = nil
+                        } else {
+                            self.errorMessage = error.localizedDescription
+                        }
                         self.familyId = nil
                     }
                 }
@@ -119,10 +140,21 @@ class FamilyViewModel: ObservableObject {
                     case .success(let family):
                         self.family = family
                         self.errorMessage = nil
-                        print(family)
+                        self.findFamilyId(for: user)
+                        self.findFamilyMembers(for: user)
                     case .failure(let error):
-                        self.errorMessage = error.localizedDescription
+                        //not finding family members is valid if they are not in one, this guards the alert
+                        //https://sarunw.com/posts/swift-if-case/
+                        
+                        if case NetworkErrors.notFound = error {
+                            self.errorMessage = nil
+                        } else {
+                            self.errorMessage = error.localizedDescription
+                        }
+                        
                         self.family = nil
+                        self.familyMembers = nil
+                        self.familyId = nil
                     }
                 }
             }
@@ -138,6 +170,7 @@ class FamilyViewModel: ObservableObject {
                         self.findExistingFamily(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        self.displayError = true
                     }
                 }
             }
@@ -154,6 +187,7 @@ class FamilyViewModel: ObservableObject {
                         self.findExistingFamily(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        self.displayError = true
                     }
                 }
             }
@@ -169,6 +203,7 @@ class FamilyViewModel: ObservableObject {
                         self.findFamilyMembers(for: user)
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        self.displayError = true
                     }
                 }
             }
@@ -186,6 +221,7 @@ class FamilyViewModel: ObservableObject {
                             self.familyId = nil
                         case .failure(let error):
                             self.errorMessage = error.localizedDescription
+                            self.displayError = true
                         }
                     }
                 }
@@ -203,6 +239,7 @@ class FamilyViewModel: ObservableObject {
                             self.familyId = nil
                         case .failure(let error):
                             self.errorMessage = error.localizedDescription
+                            self.displayError = true
                         }
                     }
                 }

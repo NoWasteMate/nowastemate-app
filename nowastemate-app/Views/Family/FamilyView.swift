@@ -10,6 +10,7 @@ import SwiftUI
 struct FamilyView: View {
     
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     
     @State private var isClicked: Bool = false
     
@@ -27,7 +28,10 @@ struct FamilyView: View {
                 
                 FamilyMemberView()
                 
-            }
+            } else if (familyVM.errorMessage != nil) {
+                    ProgressView()
+                }
+            
             else {
   
                 VStack(alignment: .leading, spacing: 24) {
@@ -71,6 +75,8 @@ struct FamilyView: View {
                 .padding(.horizontal, 30)
                 
             }
+            
+               
         }
     }
 }

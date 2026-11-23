@@ -98,6 +98,20 @@ final class RecipeViewModel: ObservableObject {
         }
     }
 
+    func addRecipeFeedback(for user: User, recipe: Recipe, request: AddRecipeFeedbackRequest, onSuccess: (() -> Void)? = nil) {
+        service.addRecipeFeedback(user: user, recipeId: recipe.id, request: request) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.errorMessage = nil
+                    onSuccess?()
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
     func resetRecipes() {
         recipes = []
         suggestedRecipes = []

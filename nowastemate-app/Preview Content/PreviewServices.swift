@@ -31,6 +31,10 @@ struct PreviewRecipeService: RecipeServiceProtocol {
     func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         completionHandler(.success(()))
     }
+
+    func addRecipeFeedback(user: User, recipeId: String, request: AddRecipeFeedbackRequest, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+        completionHandler(.success(()))
+    }
 }
 
 struct PreviewFamilyService: FamilyServiceProtocol {

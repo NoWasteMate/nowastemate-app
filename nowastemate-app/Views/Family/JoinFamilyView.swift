@@ -61,14 +61,17 @@ struct JoinFamilyView: View {
                                 if let user = authVM.user {
                                     familyVM.findNewFamily(for: user, code: code)
                                 }
-                                
-                                dismiss()
-                                
+                                                                
                             } else {
                                 showAlert = true
                             }
                         }
                         .disabled(!isFormValid)
+                        //https://nilcoalescing.com/blog/OverviewOfonChangeInSwiftUI/
+                        //https://www.hackingwithswift.com/forums/swiftui/onchange-for-segmented-control/12729
+                        .onChange(of: familyVM.family != nil){
+                            dismiss()
+                        }
                         
                         //https://developer.apple.com/documentation/swiftui/alert
                         .alert(isPresented: $showAlert) {
@@ -101,6 +104,21 @@ struct JoinFamilyView: View {
                 }
                 .padding(.horizontal, 30)
             }
+            .alert("An error has occurred", isPresented: $familyVM.displayJoinError, actions: {
+                
+                Button("OK", role: .confirm) {
+                    
+                }
+                
+                
+            }, message: {
+                if (familyVM.errorJoinMessage != "Family not found, please try again!"){
+                    Text("\(familyVM.errorJoinMessage ?? "Error"). Please contact the NoWasteMate Support Team.")
+                } else {
+                    Text(familyVM.errorJoinMessage ?? "Error")
+                }
+
+            })
             .edgesIgnoringSafeArea(.all)
             
         }

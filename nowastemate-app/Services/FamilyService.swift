@@ -77,8 +77,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(title))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -150,8 +148,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(code))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -215,8 +211,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 } catch {
                                     completionHandler(.failure(error))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -277,8 +271,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 } catch {
                                     completionHandler(.failure(error))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -321,21 +313,52 @@ struct FamilyService: FamilyServiceProtocol {
             request.httpMethod = "GET"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
             
-            let task = URLSession.shared.dataTask(with: request) {data, _, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                do {
-                    let members = try JSONDecoder().decode([FamilyMember].self, from: data)
-                              completionHandler(.success(members))
-                }
-                
-                catch {
-                    print(error)
-                    completionHandler(.failure(error))
-                }
-            }
-            task.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+
+                guard let response = response as? HTTPURLResponse else {
+                        if let error = error {
+                            print(error.localizedDescription)
+                            completionHandler(.failure(error))
+
+                        }  else {
+                            completionHandler(.failure(NetworkErrors.responseIsNotHTTP))
+                        }
+                        return
+                    }
+
+                    switch response.statusCode {
+                        case 200...299:
+                            if let data = data {
+                                do {
+                                    let members = try JSONDecoder().decode([FamilyMember].self, from: data)
+                                    completionHandler(.success(members))
+                                } catch {
+                                    completionHandler(.failure(error))
+                                }
+                            }
+                        
+                        case 401:
+                            completionHandler(.failure(NetworkErrors.unauthorized))
+                        case 403:
+                            completionHandler(.failure(NetworkErrors.forbidden))
+                        case 404:
+                            completionHandler(.failure(NetworkErrors.notFound))
+                        case 500:
+                            completionHandler(.failure(NetworkErrors.internalError))
+
+
+                        default:
+                            if let error = error {
+                                print(error.localizedDescription)
+                                completionHandler(.failure(NetworkErrors.unknown))
+
+                            }  else {
+                                completionHandler(.failure(NetworkErrors.unknown))
+                            }
+
+                    }
+                }.resume()
+
 
         }
         
@@ -384,8 +407,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(title))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -453,8 +474,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(member.member))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -522,8 +541,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(member.member))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -591,8 +608,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(member.member))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:
@@ -650,8 +665,6 @@ struct FamilyService: FamilyServiceProtocol {
                                 do {
                                     completionHandler(.success(()))
                                 }
-                            } else {
-                                completionHandler(.failure(NetworkErrors.noDataProvided))
                             }
                         
                         case 401:

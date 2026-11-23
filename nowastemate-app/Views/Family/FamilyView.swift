@@ -10,6 +10,7 @@ import SwiftUI
 struct FamilyView: View {
     
     @EnvironmentObject var familyVM: FamilyViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     
     @State private var isClicked: Bool = false
     
@@ -77,17 +78,6 @@ struct FamilyView: View {
             
                
         }
-        .alert("An error has occurred", isPresented: $familyVM.displayError, actions: {
-            
-            Button("OK", role: .confirm) {
-                
-            }
-            
-            
-        }, message: {
-            Text("\(familyVM.errorMessage!). Please contact the NoWasteMate Support Team.")
-
-        })
     }
 }
 

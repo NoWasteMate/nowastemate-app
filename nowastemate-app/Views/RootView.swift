@@ -53,6 +53,19 @@ struct RootView: View {
                         
                     }
                 }
+                //alert for families at a root level, this way it can fire in any view below where it would apply
+                //https://stackoverflow.com/questions/79039714/swiftui-alert-cant-be-triggered-from-subview
+                .alert("An error has occurred", isPresented: $familyVM.displayError, actions: {
+                    
+                    Button("OK", role: .confirm) {
+                        
+                    }
+                    
+                    
+                }, message: {
+                    Text("\(familyVM.errorMessage ?? "Error"). Please contact the NoWasteMate Support Team.")
+
+                })
                 .environmentObject(authVM)
                 .environmentObject(familyVM)
                 .environmentObject(recipeVM)
@@ -64,8 +77,6 @@ struct RootView: View {
                 if let user = authVM.user {
                     recipeVM.loadRecipes(for: user)
                     familyVM.findExistingFamily(for: user)
-                    familyVM.findFamilyMembers(for: user)
-                    familyVM.findFamilyId(for: user)
                     productVM.loadProductTypes(for: user)
                     productVM.authVM = authVM
                     authVM.productVM = productVM

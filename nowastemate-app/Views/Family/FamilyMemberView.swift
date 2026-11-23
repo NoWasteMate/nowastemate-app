@@ -117,7 +117,7 @@ struct FamilyMemberView: View {
                                         //https://www.hackingwithswift.com/books/ios-swiftui/why-does-self-work-for-foreach
                                         ForEach(familyVM.familyMembers!, id: \.self) { item in
                                             HStack {
-                                                Button("\(item.firstName!) \(item.lastName!)"){
+                                                Button("\(item.firstName ?? "") \(item.lastName ?? "")"){
                                                     clickedMember = item
                                                     manageFamilyAlert = true
                                                 }

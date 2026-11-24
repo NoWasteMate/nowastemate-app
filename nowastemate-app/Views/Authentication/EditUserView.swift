@@ -247,7 +247,7 @@ struct EditUserView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 24)
-                        .background(!isFormValid || notNewInput ? .gray : isFormValid ? .black : .gray)
+                        .background(!isFormValid || notNewInput ? .gray : isFormValid ? .baseText : .gray)
                         .cornerRadius(30)
                         .padding(.top)
                         

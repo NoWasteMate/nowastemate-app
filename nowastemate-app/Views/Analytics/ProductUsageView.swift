@@ -61,7 +61,7 @@ struct ProductUsageView: View {
         } else if let usage = analyticsVM.productUsage, usage.hasData {
             Text(showsFamily ? "Your family" : "You")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.baseText)
             
             chart(for: usage)
         } else if analyticsVM.productUsage != nil {
@@ -98,13 +98,13 @@ struct ProductUsageView: View {
                     Spacer()
                     Text("\(slice.count)  ·  \(percent(slice.count, of: usage.total))")
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.baseText)
             }
             
             if usage.wastedCount > 0 {
                 Text("Why it was wasted")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.baseText)
                     .padding(.top, 8)
                 ForEach(usage.wasteSegments, id: \.label) { segment in
                     HStack {
@@ -112,7 +112,7 @@ struct ProductUsageView: View {
                         Spacer()
                         Text("\(segment.count)")
                     }
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(Color.baseText)
                 }
             }
         }

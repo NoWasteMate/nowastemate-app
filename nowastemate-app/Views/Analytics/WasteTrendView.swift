@@ -74,7 +74,7 @@ struct WasteTrendView: View {
         return VStack(alignment: .leading, spacing: 8) {
             Text(showsFamily ? "Your family wasted \(trend.totalWasted) items in the last \(analyticsVM.periods) \(unit)" : "\(trend.totalWasted) items wasted in the last \(analyticsVM.periods) \(unit)")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.baseText)
 
             Chart {
                 ForEach(trend.buckets) { bucket in
@@ -88,9 +88,26 @@ struct WasteTrendView: View {
                 }
             }
             // Fixed domain so empty weeks/months still get a slot on the axis (no gaps)
+            // https://developer.apple.com/documentation/swiftui/lazyvgrid
+            // lazy v grid is used because to display items vertically with 2 fixed columns so it never gets clipped off the edge
+            // built-in legend picks its own column count
             .chartXScale(domain: trend.buckets.map { label(for: $0, period: trend.period) })
-            .chartLegend(position: .bottom)
-            .frame(height: 260)
+            .chartLegend(position: .bottom, alignment: .leading, spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading),
+                                    GridItem(.flexible(), alignment: .leading)],
+                          alignment: .leading, spacing: 6) {
+                    ForEach(legendLabels(for: trend), id: \.self) { label in
+                        HStack(spacing: 6) {
+                            Circle().fill(color(for: label)).frame(width: 8, height: 8)
+                            Text(label)
+                                .font(.caption)
+                                .foregroundStyle(Color.baseText)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                    }
+                }
+            }
         }
         .padding()
         .glassEffect(.clear, in: .rect(cornerRadius: 6))
@@ -101,6 +118,22 @@ struct WasteTrendView: View {
         period == .week
             ? bucket.periodStart.formatted(.dateTime.month(.abbreviated).day())
             : bucket.periodStart.formatted(.dateTime.month(.abbreviated))
+    }
+    
+    // Unique reasons that appear in this trend, sorted A–Z so the legend order is the same
+    // every time instead of depending on which week/month listed the reason first.
+    private func legendLabels(for trend: WasteTrend) -> [String] {
+        Array(Set(trend.buckets.flatMap { $0.segments.map(\.label) })).sorted()
+    }
+    
+    // same reason = same colour on week/month/family
+    // Fixed colour per waste reason (based on its position)
+    // colours won't change so they all match when navigating
+    // https://developer.apple.com/documentation/swiftui/view/chartforegroundstylescale(mapping:)
+    private func color(for label: String) -> Color {
+        let palette: [Color] = [.blue, .orange, .green, .purple, .red, .teal, .yellow, .pink]
+        guard let i = WasteReason.allCases.firstIndex(where: { $0.displayName == label }) else { return .gray } // "No reason given"
+        return palette[i]
     }
 
     private func load() {

@@ -17,6 +17,7 @@ protocol RecipeServiceProtocol {
     func deleteRecipe(user: User, recipeId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getSuggestedRecipes(user: User, completionHandler: @escaping (Result<[Recipe], Error>) -> Void)
     func saveSuggestedRecipe(user: User, poolId: String, completionHandler: @escaping (Result<Void, Error>) -> Void)
+    func addRecipeFeedback(user: User, recipeId: String, request: AddRecipeFeedbackRequest, completionHandler: @escaping (Result<Void, Error>) -> Void)
 }
 
 struct RecipeService: RecipeServiceProtocol {
@@ -180,6 +181,44 @@ struct RecipeService: RecipeServiceProtocol {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+
+            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+                if let error = error {
+                    completionHandler(.failure(error))
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    completionHandler(.failure(URLError(.badServerResponse)))
+                    return
+                }
+
+                completionHandler(.success(()))
+            }
+            task.resume()
+        }
+    }
+
+    func addRecipeFeedback(user: User, recipeId: String, request body: AddRecipeFeedbackRequest, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+
+        user.getIDTokenForcingRefresh(true) { idToken, error in
+            if let error = error {
+                completionHandler(.failure(error))
+                return
+            }
+            
+            let url = URL(string: "\(AppConfig.baseUrl)/addRecipeFeedback/\(recipeId)")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.addValue("Bearer \(idToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            do {
+                request.httpBody = try JSONEncoder().encode(body)
+            } catch {
+                completionHandler(.failure(error))
+                return
+            }
 
             let task = URLSession.shared.dataTask(with: request) { _, response, error in
                 if let error = error {

@@ -457,6 +457,26 @@ class ProductViewModel: ObservableObject {
         
     }
     
+    // Like availability(for:) but checks one product against the ingredients, used to pre-tick products for recipe feedback
+    func isUsed(_ product: Product, in ingredients: [Ingredient]) -> Bool {
+        var productTypes: Set<String> = []
+        var toVisit = [product.productType].compactMap { $0 }
+
+        while !toVisit.isEmpty {
+            let key = toVisit.removeLast()
+            if productTypes.contains(key) { continue }
+            productTypes.insert(key)
+            toVisit.append(contentsOf: productTypeParents[key] ?? [])
+        }
+
+        return ingredients.contains { ingredient in
+            let hasMatchingType = ingredient.productType.map { productTypes.contains($0) } ?? false
+            let hasMatchingId = product.id != nil && ingredient.productId == product.id
+            let hasMatchingName = normalizedName(ingredient.name) == normalizedName(product.name)
+            return hasMatchingType || hasMatchingId || hasMatchingName
+        }
+    }
+
     // Normalize names so matching ignores capitalization, accents, and extra spaces provided by user.
     // https://stackoverflow.com/questions/25525171/uitextview-highlight-all-matches-using-swift
     private func normalizedName(_ name: String) -> String {

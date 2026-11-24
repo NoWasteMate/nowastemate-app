@@ -21,6 +21,7 @@ final class RecipeViewModel: ObservableObject {
     var hasLoadedRecipes = false
     // Spins just the Generate button
     var isGenerating = false
+    var isSavingFeedback = false
     var errorMessage: String?
     //Lets previews (& future unit tests) pass a mock service with sample data + defaults to the .shared version for the app
     // https://www.swiftbysundell.com/articles/mocking-in-swift/
@@ -99,8 +100,11 @@ final class RecipeViewModel: ObservableObject {
     }
 
     func addRecipeFeedback(for user: User, recipe: Recipe, request: AddRecipeFeedbackRequest, onSuccess: (() -> Void)? = nil) {
+        self.isSavingFeedback = true
+
         service.addRecipeFeedback(user: user, recipeId: recipe.id, request: request) { result in
             DispatchQueue.main.async {
+                self.isSavingFeedback = false
                 switch result {
                 case .success:
                     self.errorMessage = nil
@@ -117,6 +121,7 @@ final class RecipeViewModel: ObservableObject {
         suggestedRecipes = []
         hasLoadedRecipes = false
         isGenerating = false
+        isSavingFeedback = false
         errorMessage = nil
     }
 }

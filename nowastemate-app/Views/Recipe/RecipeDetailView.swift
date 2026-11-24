@@ -16,6 +16,7 @@ struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showDeleteConfirm = false
+    @State private var showFeedbackSheet = false
 
     // photo moves at 80% of the scroll speed
     private let imageParallaxAmount: CGFloat = 0.2
@@ -128,7 +129,21 @@ struct RecipeDetailView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
         }
+        .sheet(isPresented: $showFeedbackSheet) {
+            RecipeFeedbackSheet(recipe: recipe)
+        }
         .toolbar {
+            // Suggested recipes only have a pool id, the backend can't find them to record feedback
+            if !isSuggested {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("I Made This", systemImage: "fork.knife") {
+                        showFeedbackSheet = true
+                    }
+                }
+                // Splits it into its own glass pill so it doesn't share one with Delete
+                // https://developer.apple.com/videos/play/wwdc2025/323/
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 if isSuggested {
                     Button("Save Recipe", systemImage: "bookmark") {

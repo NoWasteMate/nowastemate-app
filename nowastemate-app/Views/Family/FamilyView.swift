@@ -77,6 +77,10 @@ struct FamilyView: View {
             }
             
                
+        }.onAppear {
+            if let user = authVM.user {
+                familyVM.findExistingFamily(for: user)
+            }
         }
     }
 }

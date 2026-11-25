@@ -337,11 +337,18 @@ private struct FeedbackProductRow: View {
     var onTap: () -> Void
 
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var familyVM: FamilyViewModel
 
     // Same labels as ProductRowView in the family list
     private var ownerLabel: String? {
         guard showsOwner, let ownerId = product.ownerId else { return nil }
         return ownerId == authVM.user?.uid ? "You" : (product.ownerName ?? "Member")
+    }
+    
+    // position of the owner in the family list -> palette colour
+    private var ownerColor: Color {
+        let index = familyVM.familyMembers?.firstIndex { $0.member == product.ownerId } ?? 0
+        return OwnerBadge.palette[index % OwnerBadge.palette.count]
     }
 
     var body: some View {
@@ -356,7 +363,7 @@ private struct FeedbackProductRow: View {
                     Text(product.name)
                         .foregroundStyle(.primary)
                     if let ownerLabel {
-                        OwnerBadge(name: ownerLabel)
+                        OwnerBadge(name: ownerLabel, color: ownerColor)
                     }
                 }
                 Spacer()

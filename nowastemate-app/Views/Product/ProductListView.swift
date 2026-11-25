@@ -608,6 +608,7 @@ struct ProductRowView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var productVM: ProductViewModel
     @EnvironmentObject var analyticsVM: AnalyticsViewModel
+    @EnvironmentObject var familyVM: FamilyViewModel
     
     @State private var showWasteReasons = false
     @State private var triggerDiagnosticWaste = false
@@ -631,6 +632,12 @@ struct ProductRowView: View {
         return ownerId == authVM.user?.uid ? "You" : (product.ownerName ?? "Member")
     }
     
+    // position of owner in family list -> palette colour
+    private var ownerColor: Color {
+        let index = familyVM.familyMembers?.firstIndex { $0.member == product.ownerId } ?? 0
+        return OwnerBadge.palette[index % OwnerBadge.palette.count]
+    }
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -652,7 +659,7 @@ struct ProductRowView: View {
                     }
                     
                     if let ownerLabel {
-                        OwnerBadge(name: ownerLabel)
+                        OwnerBadge(name: ownerLabel, color: ownerColor)
                     }
                 }
             }
@@ -783,14 +790,18 @@ struct ProductRowView: View {
 
 struct OwnerBadge: View {
     let name: String
-
+    var color: Color = Color("ProductListGradientPriamry")
+    
+    // one colour per family member, picked by their position in the family list
+    static let palette: [Color] = [.blue, .orange, .purple, .pink, .teal, .indigo, .red, .brown]
+    
     var body: some View {
         HStack(spacing: 4) {
             Text(String(name.prefix(1)).uppercased())
                 .font(.system(size: 8, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 14, height: 14)
-                .background(Color("ProductListGradientPrimary"), in: Circle())
+                .background(color, in: Circle())
             Text(name)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color("ProductRowSecondaryText"))

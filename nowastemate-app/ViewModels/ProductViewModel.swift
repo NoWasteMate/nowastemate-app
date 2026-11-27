@@ -251,6 +251,26 @@ class ProductViewModel: ObservableObject {
         productTypeMatcher.suggestions(for: text)
     }
 
+    func productTypeName(for key: String) -> String {
+        if let match = productTypes.first(where: { $0.key == key }) {
+            return match.name.capitalized
+        }
+        return key.capitalized
+    }
+
+    func resolveProductType(for user: User, name: String, tags: [String]? = nil, completion: @escaping (String?) -> Void) {
+        service.resolveProductType(user: user, name: name, tags: tags) { result in
+            switch result {
+            case .success(let resolved):
+                completion(resolved.productType)
+            case .failure(let error):
+                // Save still works without a match, so the error isn't shown
+                print(error)
+                completion(nil)
+            }
+        }
+    }
+
     // The view model is app-scoped instead of account levll, so it outlives sign out. Clear it to fix this carryover
     func resetProducts() {
         products = []

@@ -38,8 +38,19 @@ struct AddProductView: View {
     // Suggestions only show while typing and dissapear once they are picked
     // https://www.hackingwithswift.com/quick-start/swiftui/how-to-dismiss-the-keyboard-for-a-textfield
     @FocusState private var nameIsFocused: Bool
+
+    @State private var matchedTypeKey: String?
+    @State private var lastResolvedName = ""
     
     @Environment(\.dismiss) private var dismiss
+
+    private let resolveDelayMilliseconds = 500
+    // Single letters rarely match a real product type
+    private let minNameLengthForResolve = 2
+
+    private var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     var body: some View {
         ZStack {
@@ -66,9 +77,30 @@ struct AddProductView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         TextField("example: Apples", text: $name)
                             .focused($nameIsFocused)
+                            .onChange(of: name) { _, _ in
+                                if trimmedName != lastResolvedName {
+                                    matchedTypeKey = nil
+                                    lastResolvedName = ""
+                                }
+                            }
+                            .onSubmit {
+                                resolveProductType()
+                            }
+                            .onChange(of: nameIsFocused) { _, isFocused in
+                                if !isFocused {
+                                    resolveProductType()
+                                }
+                            }
                             .padding()
                             .background(Color.white.opacity(0.2))
                             .cornerRadius(12)
+
+                        if let key = matchedTypeKey {
+                            Text("Counts as: \(productVM.productTypeName(for: key))")
+                                .font(.footnote)
+                                .foregroundStyle(.white.opacity(0.8))
+                                .padding(.horizontal, 4)
+                        }
 
                         ZStack {
                             // Invisible pill that keeps one row of space, so the fields below don't jump
@@ -215,7 +247,7 @@ struct AddProductView: View {
                         }
 
                         let userInputtedProduct = Product(
-                            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                            name: trimmedName,
                             quantity: quantity,
                             createdAt: "",
                             dateExpiration: ISO8601DateFormatter().string(from: expiryDate),
@@ -247,6 +279,20 @@ struct AddProductView: View {
             quantity = max(prefill.quantity, 1)
             category = prefill.category ?? .other
             expiryDate = prefill.expiryDate ?? Calendar.current.date(byAdding: .day, value: 7, to:Date()) ?? Date()
+            if let prefillType = prefill.productType, !prefillType.isEmpty {
+                matchedTypeKey = prefillType
+                lastResolvedName = trimmedName
+            }
+        }
+        // Cancels the previous wait whenever name changes, so only a pause in typing triggers a lookup
+        // https://tanaschita.com/swiftui-responsive-race-free-debounce-search/
+        .task(id: name) {
+            do {
+                try await Task.sleep(for: .milliseconds(resolveDelayMilliseconds))
+            } catch {
+                return
+            }
+            resolveProductType()
         }
     }
 
@@ -263,8 +309,34 @@ struct AddProductView: View {
     }
 
     private func pick(_ type: ProductType) {
-        name = type.name.capitalized
+        let pickedName = type.name.capitalized
+        name = pickedName
+        matchedTypeKey = type.key
+        lastResolvedName = pickedName
         nameIsFocused = false
+    }
+
+    private func resolveProductType() {
+        guard let user = authVM.user else { return }
+
+        let lookupName = trimmedName
+        guard lookupName.count >= minNameLengthForResolve else { return }
+        guard lookupName != lastResolvedName else { return }
+
+        var categoryTags: [String]? = nil
+        if name == prefill?.name {
+            categoryTags = prefill?.categoryTags
+        }
+
+        productVM.resolveProductType(for: user, name: lookupName, tags: categoryTags) { resolvedKey in
+            guard trimmedName == lookupName else { return }
+            lastResolvedName = lookupName
+            if let key = resolvedKey, !key.isEmpty {
+                matchedTypeKey = key
+            } else {
+                matchedTypeKey = nil
+            }
+        }
     }
     
     private func applyScannedDate(_ date: Date) {

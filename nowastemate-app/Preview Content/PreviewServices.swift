@@ -100,6 +100,10 @@ struct PreviewProductService: ProductServiceProtocol {
     }
     func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void) {}
 
+    func resolveProductType(user: User, name: String, tags: [String]?, completionHandler: @escaping (Result<ResolvedProductType, Error>) -> Void) {
+        completionHandler(.success(ResolvedProductType(productType: "tomato", productTypeSource: "alias")))
+    }
+
 }
 
 struct PreviewAnalyticsService: AnalyticsServiceProtocol {

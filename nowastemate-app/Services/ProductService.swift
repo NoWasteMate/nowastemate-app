@@ -39,6 +39,11 @@ private nonisolated struct BackendErrorDetail: Decodable {
     let detail: String
 }
 
+struct ResolvedProductType: Decodable {
+    let productType: String?
+    let productTypeSource: String?
+}
+
 enum ProductOutcomeError: LocalizedError {
     case notFound
     case alreadyMarked
@@ -107,13 +112,15 @@ extension ProductService {
     // when user gets token, it gets the request and status check then decode
     // https://developer.apple.com/documentation/dispatch/dispatchqueue/main
     // https://developer.apple.com/documentation/swift/result
-    func send<T>(user: User, makeRequest: @escaping (_ token: String) throws -> URLRequest, decode: @escaping (Data) throws -> T, completion: @escaping (Result<T, Error>) -> Void) {
+    func send<T>(user: User, forceRefresh: Bool = true, makeRequest: @escaping (_ token: String) throws -> URLRequest, decode: @escaping (Data) throws -> T, completion: @escaping (Result<T, Error>) -> Void) {
         
         func finish(_ result: Result<T, Error>) {
             DispatchQueue.main.async { completion(result) }
         }
         
-        user.getIDTokenForcingRefresh(true) {
+        // When forceRefresh is false, Firebase reuses the cached token and refreshes it near expiry
+        // https://firebase.google.com/docs/auth/admin/verify-id-tokens#retrieve_id_tokens_on_clients
+        user.getIDTokenForcingRefresh(forceRefresh) {
             idToken, error in
             if let error { finish(.failure(error)); return }
             guard let idToken else {
@@ -163,6 +170,7 @@ protocol ProductServiceProtocol {
     func markProductOutcome(user: User, product: Product, outcome: ProductOutcome, wasteReason: WasteReason?, completionHandler: @escaping (Result<Void, Error>) -> Void)
     func getWasteDiagnostic(user: User, product: Product, completionHandler: @escaping (Result<WasteReason, Error>) -> Void)
     func getFamilyProducts(user: User, completionHandler: @escaping (Result<[Product], Error>) -> Void)
+    func resolveProductType(user: User, name: String, tags: [String]?, completionHandler: @escaping (Result<ResolvedProductType, Error>) -> Void)
 }
 
 struct ProductService: ProductServiceProtocol {
@@ -563,6 +571,27 @@ struct ProductService: ProductServiceProtocol {
 //            task.resume()
 //            
 //        }
+    }
+
+    func resolveProductType(user: User, name: String, tags: [String]?, completionHandler: @escaping (Result<ResolvedProductType, Error>) -> Void) {
+        // URLComponents encodes the name and repeats tags= once per tag
+        // https://www.swiftbysundell.com/articles/constructing-urls-in-swift/
+        var components = URLComponents()
+        var items = [URLQueryItem(name: "name", value: name)]
+        for tag in tags ?? [] {
+            items.append(URLQueryItem(name: "tags", value: tag))
+        }
+        components.queryItems = items
+        let path = "/resolveProductType?\(components.percentEncodedQuery ?? "")"
+
+        // forceRefresh is false because this runs on every pause in typing
+        send(
+            user: user,
+            forceRefresh: false,
+            makeRequest: { token in try Self.request(path, method: "GET", token: token) },
+            decode: { data in try JSONDecoder().decode(ResolvedProductType.self, from: data) },
+            completion: completionHandler
+        )
     }
 
 }
